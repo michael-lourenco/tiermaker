@@ -57,9 +57,12 @@ AWS_S3_BUCKET_URL=https://your_bucket.s3.amazonaws.com
 
 4. Configure o Supabase:
    - Crie um novo projeto no Supabase
-   - Execute as migrations em `supabase/migrations/`:
+   - No dashboard, vá para **SQL Editor**
+   - Execute o script completo `supabase/setup_complete.sql` (recomendado)
+   - OU execute as migrations separadamente em `supabase/migrations/`:
      - `001_initial_schema.sql` - Cria todas as tabelas
      - `002_rls_policies.sql` - Configura Row Level Security
+   - Veja `supabase/SETUP.md` para instruções detalhadas
 
 5. Configure o AWS S3:
    - Crie um bucket S3

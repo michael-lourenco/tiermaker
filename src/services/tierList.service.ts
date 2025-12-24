@@ -1,0 +1,279 @@
+import { createClient } from '@/lib/supabase/client'
+import type {
+  TierList,
+  TierListWithData,
+  CreateTierListInput,
+} from '@/types/tierList.types'
+import { v4 as uuidv4 } from 'uuid'
+
+export class TierListService {
+  private supabase = createClient()
+
+  /**
+   * Get tier list by ID with all data
+   */
+  async getTierListById(id: string): Promise<TierListWithData | null> {
+    const { data: tierList, error: tierListError } = await this.supabase
+      .from('tier_lists')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (tierListError) throw tierListError
+    if (!tierList) return null
+
+    // Get tiers
+    const { data: tiers, error: tiersError } = await this.supabase
+      .from('tier_list_tiers')
+      .select('*')
+      .eq('tier_list_id', id)
+      .order('tier_order', { ascending: true })
+
+    if (tiersError) throw tiersError
+
+    // Get items with template items
+    const { data: items, error: itemsError } = await this.supabase
+      .from('tier_list_items')
+      .select(`
+        *,
+        template_item:template_items(*)
+      `)
+      .eq('tier_list_id', id)
+      .order('order', { ascending: true })
+
+    if (itemsError) throw itemsError
+
+    return {
+      ...tierList,
+      tiers: tiers || [],
+      items: (items || []).map((item: any) => ({
+        ...item,
+        template_item: item.template_item,
+      })),
+    }
+  }
+
+  /**
+   * Get tier list by share token
+   */
+  async getTierListByShareToken(token: string): Promise<TierListWithData | null> {
+    const { data: tierList, error: tierListError } = await this.supabase
+      .from('tier_lists')
+      .select('*')
+      .eq('share_token', token)
+      .single()
+
+    if (tierListError) throw tierListError
+    if (!tierList) return null
+
+    return this.getTierListById(tierList.id)
+  }
+
+  /**
+   * Get user's tier lists
+   */
+  async getUserTierLists(userId: string): Promise<TierList[]> {
+    const { data, error } = await this.supabase
+      .from('tier_lists')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  }
+
+  /**
+   * Get public tier lists
+   */
+  async getPublicTierLists(limit?: number): Promise<TierList[]> {
+    let query = this.supabase
+      .from('tier_lists')
+      .select('*')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+
+    if (limit) {
+      query = query.limit(limit)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+    return data || []
+  }
+
+  /**
+   * Create a new tier list
+   */
+  async createTierList(
+    input: CreateTierListInput,
+    userId?: string
+  ): Promise<TierListWithData> {
+    const shareToken = uuidv4()
+
+    // Create tier list
+    const { data: tierList, error: tierListError } = await this.supabase
+      .from('tier_lists')
+      .insert({
+        user_id: userId || null,
+        template_id: input.template_id,
+        title: input.title,
+        is_public: input.is_public ?? false,
+        share_token: shareToken,
+      })
+      .select()
+      .single()
+
+    if (tierListError) throw tierListError
+    if (!tierList) throw new Error('Failed to create tier list')
+
+    // Create tiers
+    const tiersToInsert = input.tiers.map((tier) => ({
+      tier_list_id: tierList.id,
+      tier_name: tier.tier_name,
+      tier_order: tier.tier_order,
+      color: tier.color,
+    }))
+
+    const { error: tiersError } = await this.supabase
+      .from('tier_list_tiers')
+      .insert(tiersToInsert)
+
+    if (tiersError) throw tiersError
+
+    // Create items
+    const itemsToInsert = input.items.map((item) => ({
+      tier_list_id: tierList.id,
+      template_item_id: item.template_item_id,
+      tier_name: item.tier_name,
+      order: item.order,
+    }))
+
+    const { error: itemsError } = await this.supabase
+      .from('tier_list_items')
+      .insert(itemsToInsert)
+
+    if (itemsError) throw itemsError
+
+    return this.getTierListById(tierList.id) as Promise<TierListWithData>
+  }
+
+  /**
+   * Update tier list
+   */
+  async updateTierList(
+    tierListId: string,
+    updates: {
+      title?: string
+      is_public?: boolean
+      tiers?: Array<{
+        id?: string
+        tier_name: string
+        tier_order: number
+        color?: string | null
+      }>
+      items?: Array<{
+        id?: string
+        template_item_id: string
+        tier_name: string
+        order: number
+      }>
+    },
+    userId?: string
+  ): Promise<TierListWithData> {
+    // Update tier list metadata
+    if (updates.title !== undefined || updates.is_public !== undefined) {
+      const { error } = await this.supabase
+        .from('tier_lists')
+        .update({
+          title: updates.title,
+          is_public: updates.is_public,
+        })
+        .eq('id', tierListId)
+        .eq('user_id', userId || null)
+
+      if (error) throw error
+    }
+
+    // Update tiers if provided
+    if (updates.tiers) {
+      // Delete existing tiers
+      await this.supabase
+        .from('tier_list_tiers')
+        .delete()
+        .eq('tier_list_id', tierListId)
+
+      // Insert new tiers
+      const tiersToInsert = updates.tiers.map((tier) => ({
+        tier_list_id: tierListId,
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
+
+      const { error } = await this.supabase
+        .from('tier_list_tiers')
+        .insert(tiersToInsert)
+
+      if (error) throw error
+    }
+
+    // Update items if provided
+    if (updates.items) {
+      // Delete existing items
+      await this.supabase
+        .from('tier_list_items')
+        .delete()
+        .eq('tier_list_id', tierListId)
+
+      // Insert new items
+      const itemsToInsert = updates.items.map((item) => ({
+        tier_list_id: tierListId,
+        template_item_id: item.template_item_id,
+        tier_name: item.tier_name,
+        order: item.order,
+      }))
+
+      const { error } = await this.supabase
+        .from('tier_list_items')
+        .insert(itemsToInsert)
+
+      if (error) throw error
+    }
+
+    return this.getTierListById(tierListId) as Promise<TierListWithData>
+  }
+
+  /**
+   * Delete tier list
+   */
+  async deleteTierList(tierListId: string, userId?: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('tier_lists')
+      .delete()
+      .eq('id', tierListId)
+      .eq('user_id', userId || null)
+
+    if (error) throw error
+  }
+
+  /**
+   * Increment views count
+   */
+  async incrementViews(tierListId: string): Promise<void> {
+    const { data } = await this.supabase
+      .from('tier_lists')
+      .select('views_count')
+      .eq('id', tierListId)
+      .single()
+
+    if (data) {
+      await this.supabase
+        .from('tier_lists')
+        .update({ views_count: data.views_count + 1 })
+        .eq('id', tierListId)
+    }
+  }
+}
+

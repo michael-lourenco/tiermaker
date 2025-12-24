@@ -1,0 +1,71 @@
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { TemplateService } from '@/services/template.service'
+
+export default async function HomePage() {
+  const templateService = new TemplateService()
+  const popularTemplates = await templateService.getPublicTemplates({ limit: 6 })
+
+  return (
+    <main className="min-h-screen">
+      {/* Hero Section */}
+      <section className="py-20 px-8 bg-gradient-to-b from-background to-muted">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-6xl font-bold mb-4">TierMaker</h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Create, rank, and share tier lists for any topic. Organize your favorites
+            and discover what others think.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Link href="/templates">
+              <Button size="lg">Browse Templates</Button>
+            </Link>
+            <Link href="/templates">
+              <Button size="lg" variant="outline">
+                Create Your Own
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Popular Templates */}
+      <section className="py-16 px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8">Popular Templates</h2>
+          {popularTemplates.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {popularTemplates.map((template) => (
+                <Card key={template.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle>{template.name}</CardTitle>
+                    <CardDescription>{template.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>{template.category}</span>
+                      <span>•</span>
+                      <span>{template.views_count} views</span>
+                    </div>
+                  </CardContent>
+                  <div className="p-6 pt-0">
+                    <Link href={`/templates/${template.id}`}>
+                      <Button variant="outline" className="w-full">
+                        View Template
+                      </Button>
+                    </Link>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-center py-12">
+              No templates available yet. Be the first to create one!
+            </p>
+          )}
+        </div>
+      </section>
+    </main>
+  )
+}

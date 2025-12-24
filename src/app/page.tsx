@@ -5,7 +5,14 @@ import { TemplateService } from '@/services/template.service'
 
 export default async function HomePage() {
   const templateService = new TemplateService()
-  const popularTemplates = await templateService.getPublicTemplates({ limit: 6 })
+  let popularTemplates = []
+  
+  try {
+    popularTemplates = await templateService.getPublicTemplates({ limit: 6 })
+  } catch (error) {
+    // If templates table doesn't exist or there's an error, show empty state
+    console.error('Error loading templates:', error)
+  }
 
   return (
     <main className="min-h-screen">
@@ -21,7 +28,7 @@ export default async function HomePage() {
             <Link href="/templates">
               <Button size="lg">Browse Templates</Button>
             </Link>
-            <Link href="/templates">
+            <Link href="/create-template">
               <Button size="lg" variant="outline">
                 Create Your Own
               </Button>
@@ -60,9 +67,14 @@ export default async function HomePage() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-center py-12">
-              No templates available yet. Be the first to create one!
-            </p>
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">
+                No templates available yet. Be the first to create one!
+              </p>
+              <Link href="/create-template">
+                <Button>Create Your First Template</Button>
+              </Link>
+            </div>
           )}
         </div>
       </section>

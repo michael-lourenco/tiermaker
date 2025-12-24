@@ -34,8 +34,20 @@ export async function POST(request: NextRequest) {
     const key = `uploads/${user.id}/${uuidv4()}.${fileExtension}`
 
     const presignedUrl = await getPresignedUploadUrl(key, contentType, 3600)
+    
+    // Construct the full URL that will be accessible after upload
+    const bucketName = process.env.AWS_S3_BUCKET_NAME!
+    const region = process.env.AWS_REGION || 'us-east-1'
+    
+    // Build S3 URL: https://{bucket}.s3.{region}.amazonaws.com/{key}
+    // For us-east-1: https://{bucket}.s3.amazonaws.com/{key}
+    const bucketUrl = region === 'us-east-1'
+      ? `https://${bucketName}.s3.amazonaws.com`
+      : `https://${bucketName}.s3.${region}.amazonaws.com`
+    
+    const fullUrl = `${bucketUrl}/${key}`
 
-    return NextResponse.json({ presignedUrl, key })
+    return NextResponse.json({ presignedUrl, key, url: fullUrl })
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(

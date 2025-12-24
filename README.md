@@ -2,6 +2,19 @@
 
 Uma plataforma web completa para criar, classificar e compartilhar tier lists, similar ao TierMaker.com.
 
+## ⚠️ Configuração Inicial Obrigatória
+
+**ANTES de executar o projeto**, você DEVE configurar:
+
+1. ✅ **Variáveis de ambiente** (`.env.local`)
+2. ✅ **Supabase**: Executar migrations do banco de dados
+3. ✅ **AWS S3 CORS**: Configuração OBRIGATÓRIA - sem isso, uploads NÃO funcionarão
+4. ✅ **AWS S3 Bucket Policy**: Recomendado para permissões adequadas
+
+📚 **📖 Veja [SETUP_INICIAL.md](./SETUP_INICIAL.md) para o guia completo passo a passo com todas as configurações detalhadas.**
+
+---
+
 ## 🚀 Stack Tecnológica
 
 - **Next.js 14+** (App Router) - Framework React
@@ -22,59 +35,48 @@ Uma plataforma web completa para criar, classificar e compartilhar tier lists, s
 
 ## 🛠 Instalação
 
-1. Clone o repositório:
+⚠️ **IMPORTANTE**: Siga TODOS os passos abaixo. Sem as configurações de CORS e Bucket Policy, os uploads NÃO funcionarão!
+
+### Setup Rápido
+
+Para um guia passo a passo completo, veja **[SETUP_INICIAL.md](./SETUP_INICIAL.md)**.
+
+### Resumo dos Passos
+
+1. **Clone e instale dependências**:
 ```bash
 git clone <repository-url>
 cd tiermaker
-```
-
-2. Instale as dependências:
-```bash
 npm install
 ```
 
-3. Configure as variáveis de ambiente:
-```bash
-cp .env.example .env.local
-```
+2. **Configure variáveis de ambiente**:
+   - Crie `.env.local` (veja `.env.example` como referência)
+   - Configure Supabase e AWS S3
 
-Edite `.env.local` com suas credenciais:
-```env
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+3. **Configure Supabase** (OBRIGATÓRIO):
+   - Execute `supabase/setup_complete.sql` no SQL Editor
+   - Veja `supabase/SETUP.md` para detalhes
 
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+4. **Configure AWS S3 CORS** (OBRIGATÓRIO para uploads):
+   - Acesse bucket → Permissions → CORS
+   - Cole configuração de `supabase/CORS_CONFIG_ONELINE.txt`
+   - **NÃO inclua OPTIONS** na lista de métodos
+   - Veja `supabase/AWS_S3_CORS_SETUP.md` para detalhes
 
-# AWS S3
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_REGION=us-east-1
-AWS_S3_BUCKET_NAME=your_bucket_name
-AWS_S3_BUCKET_URL=https://your_bucket.s3.amazonaws.com
-```
+5. **Configure AWS S3 Bucket Policy** (Recomendado):
+   - Acesse bucket → Permissions → Bucket policy
+   - Configure permissões de leitura/escrita
+   - Veja `supabase/AWS_S3_BUCKET_POLICY.md` para exemplos
 
-4. Configure o Supabase:
-   - Crie um novo projeto no Supabase
-   - No dashboard, vá para **SQL Editor**
-   - Execute o script completo `supabase/setup_complete.sql` (recomendado)
-   - OU execute as migrations separadamente em `supabase/migrations/`:
-     - `001_initial_schema.sql` - Cria todas as tabelas
-     - `002_rls_policies.sql` - Configura Row Level Security
-   - Veja `supabase/SETUP.md` para instruções detalhadas
-
-5. Configure o AWS S3:
-   - Crie um bucket S3
-   - Configure CORS para permitir uploads do seu domínio
-   - Configure políticas de acesso
-
-6. Execute o projeto:
+6. **Execute o projeto**:
 ```bash
 npm run dev
 ```
 
 Acesse `http://localhost:3000`
+
+📚 **Para instruções detalhadas, veja [SETUP_INICIAL.md](./SETUP_INICIAL.md)**
 
 ## 📁 Estrutura do Projeto
 

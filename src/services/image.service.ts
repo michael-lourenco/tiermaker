@@ -23,7 +23,7 @@ export class ImageService {
       throw new Error(error.error || 'Failed to get upload URL')
     }
 
-    const { presignedUrl, key } = await response.json()
+    const { presignedUrl, key, url } = await response.json()
 
     // Upload file to S3
     const uploadResponse = await fetch(presignedUrl, {
@@ -38,8 +38,13 @@ export class ImageService {
       throw new Error('Failed to upload image')
     }
 
-    // Return the public URL
-    return `${process.env.NEXT_PUBLIC_AWS_S3_BUCKET_URL || ''}/${key}`
+    // Return the public URL from the API response
+    // The API constructs the URL automatically from bucket name and region
+    if (!url) {
+      throw new Error('Failed to get image URL from upload API')
+    }
+    
+    return url
   }
 
   /**

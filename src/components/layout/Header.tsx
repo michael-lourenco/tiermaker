@@ -32,6 +32,9 @@ export function Header() {
               <div className="w-20 h-8 bg-muted animate-pulse rounded" />
             ) : user ? (
               <>
+                <Link href="/create-template">
+                  <Button size="sm">Create Template</Button>
+                </Link>
                 <Link href="/my-tier-lists">
                   <Button variant="ghost" size="sm">
                     My Tier Lists

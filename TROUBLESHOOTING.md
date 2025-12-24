@@ -75,6 +75,16 @@ Você deve ver todas as 7 tabelas listadas acima.
   # Edite .env.local com suas credenciais do Supabase
   ```
 
+### Erro: CORS Policy - "Access-Control-Allow-Origin header is not present"
+- **Causa**: O bucket S3 não está configurado para aceitar requisições do seu domínio
+- **Solução**: 
+  1. Acesse o AWS Console → S3 → Seu bucket
+  2. Vá em **Permissions** → **Cross-origin resource sharing (CORS)**
+  3. Adicione a configuração CORS (veja `supabase/AWS_S3_CORS_SETUP.md` para detalhes)
+  4. Adicione `http://localhost:3000` aos AllowedOrigins para desenvolvimento
+  5. Salve e aguarde alguns segundos para propagar
+  6. Recarregue a página e tente novamente
+
 ## ✅ Checklist de Setup
 
 Antes de executar o projeto, verifique:

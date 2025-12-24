@@ -1,15 +1,35 @@
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
+const AWS_REGION = process.env.AWS_REGION || 'us-east-1'
+const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!
+
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: AWS_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
 })
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!
+/**
+ * Construct S3 bucket URL dynamically
+ * Format: https://{bucket-name}.s3.{region}.amazonaws.com
+ * For us-east-1: https://{bucket-name}.s3.amazonaws.com
+ */
+function getBucketUrl(): string {
+  // If explicitly provided, use it
+  if (process.env.AWS_S3_BUCKET_URL) {
+    return process.env.AWS_S3_BUCKET_URL
+  }
+
+  // Otherwise, construct from bucket name and region
+  if (AWS_REGION === 'us-east-1') {
+    return `https://${BUCKET_NAME}.s3.amazonaws.com`
+  }
+  
+  return `https://${BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com`
+}
 
 export interface UploadFileParams {
   key: string
@@ -30,7 +50,7 @@ export async function uploadFile({ key, body, contentType }: UploadFileParams): 
 
   await s3Client.send(command)
 
-  return `${process.env.AWS_S3_BUCKET_URL}/${key}`
+  return `${getBucketUrl()}/${key}`
 }
 
 /**

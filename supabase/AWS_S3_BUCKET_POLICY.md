@@ -134,3 +134,4 @@ Se você quer manter o bucket privado e permitir uploads apenas via presigned UR
 - Configure CORS mesmo se a Bucket Policy estiver correta
 - Veja `AWS_S3_CORS_SETUP.md` para configuração de CORS
 
+

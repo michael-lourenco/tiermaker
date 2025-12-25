@@ -71,3 +71,4 @@ supabase db push
 
 Se preferir, você pode usar o arquivo `setup_complete.sql` que contém todas as migrations em um único script.
 
+

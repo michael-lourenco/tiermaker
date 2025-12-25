@@ -265,3 +265,4 @@ AWS_S3_BUCKET_URL=
 
 **IMPORTANTE**: Ao implementar, sempre priorizar código limpo, testável e manutenível. Cada função/componente deve ter uma responsabilidade clara e ser fácil de entender e modificar.
 
+

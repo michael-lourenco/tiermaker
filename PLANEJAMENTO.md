@@ -477,3 +477,4 @@ AWS_S3_BUCKET_URL=https://your_bucket.s3.amazonaws.com
 
 **Nota**: Este planejamento é um guia inicial e pode ser ajustado conforme o desenvolvimento avança e novas necessidades são identificadas.
 
+

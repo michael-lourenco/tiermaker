@@ -1,0 +1,86 @@
+'use client'
+
+import { useSortable } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
+import { GripVertical } from 'lucide-react'
+import { TierColumn } from './TierColumn'
+import type { TemplateItem } from '@/types/template.types'
+import type { TierListTier } from '@/types/tierList.types'
+
+interface TierRowProps {
+  tier: TierListTier
+  items: TemplateItem[]
+  activeId: string | null
+  onTierNameChange: (tierId: string, newName: string) => void
+  onTierColorChange: (tierId: string, newColor: string) => void
+  onTierDelete: (tierId: string) => void
+}
+
+export function TierRow({
+  tier,
+  items,
+  activeId,
+  onTierNameChange,
+  onTierColorChange,
+  onTierDelete,
+}: TierRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setSortableRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: tier.id })
+
+  // Also make the row droppable for items (when not dragging the tier itself)
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+    id: tier.id, // Use tier.id as droppable ID so items can be dropped on the row
+  })
+
+  // Combine refs
+  const setNodeRef = (node: HTMLElement | null) => {
+    setSortableRef(node)
+    setDroppableRef(node)
+  }
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="relative group"
+    >
+      <div className="flex items-center gap-2">
+        {/* Drag Handle */}
+        <div
+          {...attributes}
+          {...listeners}
+          className="flex-shrink-0 w-6 h-full flex items-center justify-center cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100"
+          title="Arraste para reordenar"
+        >
+          <GripVertical className="h-5 w-5" />
+        </div>
+
+        {/* Tier Column */}
+        <div className="flex-1">
+          <TierColumn
+            tier={tier}
+            items={items}
+            activeId={activeId}
+            onTierNameChange={onTierNameChange}
+            onTierColorChange={onTierColorChange}
+            onTierDelete={onTierDelete}
+            isDragging={isDragging}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+

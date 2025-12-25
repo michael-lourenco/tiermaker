@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
+import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function Header() {
   const { user, loading, signOut } = useAuth()
@@ -30,6 +31,8 @@ export function Header() {
             <Link href="/templates" className="text-sm font-medium hover:text-primary">
               Templates
             </Link>
+
+            <ThemeToggle />
 
             {loading ? (
               <div className="w-20 h-8 bg-muted animate-pulse rounded" />

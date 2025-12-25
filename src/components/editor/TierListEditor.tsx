@@ -139,20 +139,89 @@ export function TierListEditor({
       return
     }
 
-    // If dragging over a tier (item drop)
-    // Check if overId is a tier ID or a droppable ID
+    // If dragging an item (not a tier)
     if (!activeTier) {
-      // First, check if overId is a tier row ID (for tier reordering)
+      const activeItem = items.get(activeId)
+      if (!activeItem) return
+
+      // Check if overId is another item (reordering within same tier or moving between tiers)
+      const overItem = items.get(overId)
+      if (overItem) {
+        // Both are items - handle reordering
+        const overItemTierName = overItem.tier_name
+        const activeItemTierName = activeItem.tier_name
+
+        // If moving within the same tier, reorder items
+        if (activeItemTierName === overItemTierName && activeItemTierName !== '') {
+          // Get all items in this tier, sorted by order
+          const tierItemsEntries = Array.from(items.entries())
+            .filter(([_, item]) => item.tier_name === activeItemTierName)
+            .sort(([_, a], [__, b]) => a.order - b.order)
+
+          const activeIndex = tierItemsEntries.findIndex(([id]) => id === activeId)
+          const overIndex = tierItemsEntries.findIndex(([id]) => id === overId)
+
+          if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
+            // Reorder using arrayMove
+            const reorderedEntries = arrayMove(tierItemsEntries, activeIndex, overIndex)
+            const newItems = new Map(items)
+            
+            // Update order for all items in this tier based on new positions
+            reorderedEntries.forEach(([itemId], newOrder) => {
+              const item = newItems.get(itemId)
+              if (item) {
+                newItems.set(itemId, {
+                  ...item,
+                  order: newOrder,
+                })
+              }
+            })
+            setItems(newItems)
+          }
+        } else if (activeItemTierName !== overItemTierName) {
+          // Moving to a different tier - update tier and insert at overItem's position
+          const newItems = new Map(items)
+          
+          // Get all items in the target tier, sorted by order
+          const targetTierItemsEntries = Array.from(items.entries())
+            .filter(([_, item]) => item.tier_name === overItemTierName)
+            .sort(([_, a], [__, b]) => a.order - b.order)
+          
+          // Find the position of the over item in its tier
+          const overItemIndex = targetTierItemsEntries.findIndex(([id]) => id === overId)
+          
+          // Update the active item to the new tier and position
+          newItems.set(activeId, {
+            ...activeItem,
+            tier_name: overItemTierName,
+            order: overItemIndex >= 0 ? overItemIndex : targetTierItemsEntries.length,
+          })
+          
+          // Shift orders of items after the insertion point in the target tier
+          targetTierItemsEntries.forEach(([itemId, item]) => {
+            if (itemId !== activeId && item.order >= overItemIndex) {
+              newItems.set(itemId, {
+                ...item,
+                order: item.order + 1,
+              })
+            }
+          })
+          
+          setItems(newItems)
+        }
+        return
+      }
+
+      // Check if overId is a tier row ID
       const overTier = tiers.find((t) => t.id === overId)
       if (overTier) {
         // It's a tier row, so we want to drop the item on that tier
         const tierName = overTier.tier_name
-        const item = items.get(activeId)
-        if (item && item.tier_name !== tierName) {
+        if (activeItem.tier_name !== tierName) {
           // Update item's tier preview (visual feedback only)
           const newItems = new Map(items)
           newItems.set(activeId, {
-            ...item,
+            ...activeItem,
             tier_name: tierName,
             order: getNextOrderForTier(tierName),
           })
@@ -162,17 +231,14 @@ export function TierListEditor({
       }
 
       // Check if overId is a droppable ID (tier.id)
-      // This is already handled above when checking for overTier, so this check is redundant
-      // But we keep it for backward compatibility with old droppable IDs
       const tierFromDroppable = tiers.find((t) => t.id === overId || `tier-${t.tier_name}` === overId)
       if (tierFromDroppable) {
         const tierName = tierFromDroppable.tier_name
-        const item = items.get(activeId)
-        if (item && item.tier_name !== tierName) {
+        if (activeItem.tier_name !== tierName) {
           // Update item's tier preview (visual feedback only)
           const newItems = new Map(items)
           newItems.set(activeId, {
-            ...item,
+            ...activeItem,
             tier_name: tierName,
             order: getNextOrderForTier(tierName),
           })
@@ -220,46 +286,52 @@ export function TierListEditor({
       return
     }
 
-    // If dropping on a tier (item drop)
+    // If dropping an item (not a tier)
     if (!activeTier) {
-      // First, check if overId is a tier row ID (for tier reordering)
+      const activeItem = items.get(activeId)
+      if (!activeItem) {
+        setActiveId(null)
+        setDraggingTierId(null)
+        return
+      }
+
+      // Check if overId is another item (reordering within same tier or moving between tiers)
+      const overItem = items.get(overId)
+      if (overItem) {
+        // Both are items - reordering is already handled in handleDragOver
+        setActiveId(null)
+        setDraggingTierId(null)
+        return
+      }
+
+      // Check if overId is a tier row ID
       const overTier = tiers.find((t) => t.id === overId)
       if (overTier) {
         // It's a tier row, so we want to drop the item on that tier
         const tierName = overTier.tier_name
-        const item = items.get(activeId)
-
-        if (item) {
-          const newItems = new Map(items)
-          newItems.set(activeId, {
-            ...item,
-            tier_name: tierName,
-            order: getNextOrderForTier(tierName),
-          })
-          setItems(newItems)
-        }
+        const newItems = new Map(items)
+        newItems.set(activeId, {
+          ...activeItem,
+          tier_name: tierName,
+          order: getNextOrderForTier(tierName),
+        })
+        setItems(newItems)
         setActiveId(null)
         setDraggingTierId(null)
         return
       }
 
       // Check if overId is a droppable ID (tier.id)
-      // This is already handled above when checking for overTier, so this check is redundant
-      // But we keep it for backward compatibility with old droppable IDs
       const tierFromDroppable = tiers.find((t) => t.id === overId || `tier-${t.tier_name}` === overId)
       if (tierFromDroppable) {
         const tierName = tierFromDroppable.tier_name
-        const item = items.get(activeId)
-
-        if (item) {
-          const newItems = new Map(items)
-          newItems.set(activeId, {
-            ...item,
-            tier_name: tierName,
-            order: getNextOrderForTier(tierName),
-          })
-          setItems(newItems)
-        }
+        const newItems = new Map(items)
+        newItems.set(activeId, {
+          ...activeItem,
+          tier_name: tierName,
+          order: getNextOrderForTier(tierName),
+        })
+        setItems(newItems)
         setActiveId(null)
         setDraggingTierId(null)
         return

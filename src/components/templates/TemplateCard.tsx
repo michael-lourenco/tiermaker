@@ -1,15 +1,20 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import type { Template, TemplateWithCategories } from '@/types/template.types'
 import { Eye, Heart } from 'lucide-react'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface TemplateCardProps {
   template: TemplateWithCategories
 }
 
 export function TemplateCard({ template }: TemplateCardProps) {
+  const { t } = useTranslation()
+
   return (
     <Card className="hover:shadow-lg transition-shadow overflow-hidden">
       {template.cover_image_url && (
@@ -55,12 +60,10 @@ export function TemplateCard({ template }: TemplateCardProps) {
       <CardFooter>
         <Link href={`/templates/${template.id}`} className="w-full">
           <Button variant="outline" className="w-full">
-            View Template
+            {t('templates.viewTemplate')}
           </Button>
         </Link>
       </CardFooter>
     </Card>
   )
 }
-
-

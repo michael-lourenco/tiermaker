@@ -1,0 +1,107 @@
+{
+  "common": {
+    "appName": "SuperTierMaker",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "close": "Fechar",
+    "view": "Ver"
+  },
+  "nav": {
+    "home": "Início",
+    "templates": "Templates",
+    "categories": "Categorias",
+    "createTemplate": "Criar Template",
+    "myTierLists": "Minhas Tier Lists",
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "signOut": "Sair"
+  },
+  "home": {
+    "title": "SuperTierMaker",
+    "subtitle": "Crie, classifique e compartilhe tier lists sobre qualquer tema. Organize seus favoritos e descubra o que outros pensam.",
+    "browseTemplates": "Explorar Templates",
+    "createYourOwn": "Criar o Seu",
+    "popularTemplates": "Templates Populares",
+    "noTemplates": "Nenhum template disponível ainda. Seja o primeiro a criar um!",
+    "createFirstTemplate": "Criar Seu Primeiro Template"
+  },
+  "templates": {
+    "title": "Templates",
+    "allTemplates": "Todos os Templates",
+    "browseDescription": "Explore e use templates criados pela comunidade",
+    "categoryFilter": "Templates em",
+    "clearFilter": "Limpar filtro",
+    "browseCategories": "Explorar Categorias",
+    "viewTemplate": "Ver Template",
+    "noTemplatesFound": "Nenhum template encontrado",
+    "views": "visualizações",
+    "likes": "curtidas"
+  },
+  "categories": {
+    "title": "Categorias",
+    "description": "Explore templates por categoria. Clique em uma categoria para ver todos os templates nessa categoria.",
+    "noCategories": "Nenhuma categoria disponível ainda.",
+    "template": "template",
+    "templates": "templates"
+  },
+  "template": {
+    "backToTemplates": "← Voltar para Templates",
+    "createTierList": "Criar Tier List com este Template",
+    "category": "Categoria"
+  },
+  "editor": {
+    "addTier": "Adicionar Tier",
+    "saveTierList": "Salvar Tier List",
+    "unassigned": "Não Atribuídos",
+    "unassignedDescription": "Arraste itens aqui para removê-los dos tiers",
+    "tier": "Tier",
+    "dragItemsHere": "Arraste itens aqui",
+    "removeTier": "Remover tier",
+    "changeTierColor": "Alterar cor do tier",
+    "confirmDelete": "Confirmar Remoção",
+    "confirmDeleteMessage": "Tem certeza que deseja remover o tier \"{tierName}\"?",
+    "itemsWillBeMoved": "Todos os {count} item(ns) deste tier serão movidos para a área de não atribuídos.",
+    "remove": "Remover"
+  },
+  "createTemplate": {
+    "title": "Informações do Template",
+    "subtitle": "Informações básicas sobre seu template",
+    "coverImage": "Imagem de Capa (Opcional)",
+    "coverImageDescription": "Clique para fazer upload da imagem de capa",
+    "templateName": "Nome do Template *",
+    "templateNamePlaceholder": "ex: Melhores Jogos 2024",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Descreva seu template",
+    "category": "Categoria *",
+    "selectCategory": "Selecione uma categoria",
+    "loadingCategories": "Carregando categorias...",
+    "noCategories": "Nenhuma categoria encontrada. Por favor, crie categorias no banco de dados primeiro.",
+    "createNewCategory": "Criar Nova Categoria",
+    "categoryName": "Nome da categoria",
+    "add": "Adicionar",
+    "isPublic": "Tornar este template público",
+    "templateItems": "Itens do Template",
+    "templateItemsDescription": "Faça upload de imagens para seu template. Cada imagem se tornará um item que pode ser classificado.",
+    "clickToUpload": "Clique para fazer upload",
+    "dragAndDrop": "ou arraste e solte",
+    "fileTypes": "PNG, JPG, GIF, WEBP até 5MB",
+    "creatingTemplate": "Criando Template...",
+    "createTemplate": "Criar Template"
+  },
+  "myTierLists": {
+    "title": "Minhas Tier Lists",
+    "noTierLists": "Você ainda não criou nenhuma tier list.",
+    "createFirst": "Crie sua primeira tier list selecionando um template."
+  }
+}
+

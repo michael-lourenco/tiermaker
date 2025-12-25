@@ -17,6 +17,7 @@ import {
 import { Trash2 } from 'lucide-react'
 import type { TemplateItem } from '@/types/template.types'
 import type { TierListTier } from '@/types/tierList.types'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface TierColumnProps {
   tier: TierListTier
@@ -37,6 +38,7 @@ export function TierColumn({
   onTierDelete,
   isDragging = false,
 }: TierColumnProps) {
+  const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({
     id: tier.id, // Use tier.id instead of tier_name to avoid issues when name changes
   })
@@ -151,7 +153,7 @@ export function TierColumn({
               ))
             ) : (
               <div className="col-span-full text-center text-muted-foreground py-2 flex items-center justify-center">
-                <span className="text-xs">Arraste itens aqui</span>
+                <span className="text-xs">{t('editor.dragItemsHere')}</span>
               </div>
             )}
           </div>
@@ -171,14 +173,14 @@ export function TierColumn({
           value={tierColor}
           onChange={handleColorChange}
           className="w-8 h-8 rounded border cursor-pointer"
-          title="Alterar cor do tier"
+          title={t('editor.changeTierColor')}
         />
         <Button
           variant="ghost"
           size="sm"
           onClick={handleDeleteClick}
           className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-          title="Remover tier"
+          title={t('editor.removeTier')}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -188,12 +190,12 @@ export function TierColumn({
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirmar Remoção</DialogTitle>
+            <DialogTitle>{t('editor.confirmDelete')}</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja remover o tier "{tier.tier_name}"? 
+              {t('editor.confirmDeleteMessage', { tierName: tier.tier_name })}
               {items.length > 0 && (
                 <span className="block mt-2 text-destructive">
-                  Todos os {items.length} item(ns) deste tier serão movidos para a área de não atribuídos.
+                  {t('editor.itemsWillBeMoved', { count: items.length })}
                 </span>
               )}
             </DialogDescription>
@@ -203,13 +205,13 @@ export function TierColumn({
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
             >
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmDelete}
             >
-              Remover
+              {t('editor.remove')}
             </Button>
           </DialogFooter>
         </DialogContent>

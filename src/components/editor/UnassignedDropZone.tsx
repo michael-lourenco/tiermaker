@@ -4,12 +4,14 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { ItemCard } from './ItemCard'
 import type { TemplateItem } from '@/types/template.types'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface UnassignedDropZoneProps {
   items: TemplateItem[]
 }
 
 export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
+  const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({
     id: 'unassigned',
   })

@@ -12,6 +12,7 @@ import { TemplateService } from '@/services/template.service'
 import { CategoryService, type Category } from '@/services/category.service'
 import { ImageService } from '@/services/image.service'
 import { useAuth } from '@/hooks/useAuth'
+import { useTranslation } from '@/hooks/useTranslation'
 import Image from 'next/image'
 import { X, Upload } from 'lucide-react'
 
@@ -40,6 +41,7 @@ export function CreateTemplateForm() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
   const { user } = useAuth()
+  const { t } = useTranslation()
   const router = useRouter()
   const imageService = new ImageService()
   const categoryService = new CategoryService()
@@ -198,14 +200,14 @@ export function CreateTemplateForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Template Information</CardTitle>
-          <CardDescription>Basic information about your template</CardDescription>
+          <CardTitle>{t('createTemplate.title')}</CardTitle>
+          <CardDescription>{t('createTemplate.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Cover Image */}
           <div className="space-y-2">
             <label className="text-sm font-medium">
-              Imagem de Capa (Opcional)
+              {t('createTemplate.coverImage')}
             </label>
             {coverImage ? (
               <div className="relative">
@@ -234,10 +236,10 @@ export function CreateTemplateForm() {
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                   <p className="mb-2 text-sm text-muted-foreground">
-                    <span className="font-semibold">Clique para fazer upload</span> da imagem de capa
+                    <span className="font-semibold">{t('createTemplate.clickToUpload')}</span> {t('createTemplate.coverImageDescription')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    PNG, JPG, GIF, WEBP up to 5MB
+                    {t('createTemplate.fileTypes')}
                   </p>
                 </div>
                 <input
@@ -253,12 +255,12 @@ export function CreateTemplateForm() {
 
           <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">
-              Template Name *
+              {t('createTemplate.templateName')}
             </label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="e.g., Best Video Games 2024"
+              placeholder={t('createTemplate.templateNamePlaceholder')}
             />
             {errors.name && (
               <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -267,21 +269,21 @@ export function CreateTemplateForm() {
 
           <div className="space-y-2">
             <label htmlFor="description" className="text-sm font-medium">
-              Description
+              {t('createTemplate.description')}
             </label>
             <Input
               id="description"
               {...register('description')}
-              placeholder="Describe your template"
+              placeholder={t('createTemplate.descriptionPlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
             <label htmlFor="category_id" className="text-sm font-medium">
-              Category *
+              {t('createTemplate.category')}
             </label>
             {loadingCategories ? (
-              <p className="text-sm text-muted-foreground">Loading categories...</p>
+              <p className="text-sm text-muted-foreground">{t('createTemplate.loadingCategories')}</p>
             ) : (
               <select
                 id="category_id"
@@ -289,7 +291,7 @@ export function CreateTemplateForm() {
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 disabled={categories.length === 0}
               >
-                <option value="">Select a category</option>
+                <option value="">{t('createTemplate.selectCategory')}</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
@@ -302,7 +304,7 @@ export function CreateTemplateForm() {
             )}
             {categories.length === 0 && !loadingCategories && (
               <p className="text-sm text-muted-foreground">
-                No categories found. Please create categories in the database first.
+                {t('createTemplate.noCategories')}
               </p>
             )}
           </div>
@@ -315,7 +317,7 @@ export function CreateTemplateForm() {
               className="h-4 w-4 rounded border-gray-300"
             />
             <label htmlFor="is_public" className="text-sm font-medium">
-              Make this template public
+              {t('createTemplate.isPublic')}
             </label>
           </div>
         </CardContent>
@@ -323,9 +325,9 @@ export function CreateTemplateForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Template Items</CardTitle>
+          <CardTitle>{t('createTemplate.templateItems')}</CardTitle>
           <CardDescription>
-            Upload images for your template. Each image will become an item that can be ranked.
+            {t('createTemplate.templateItemsDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -337,10 +339,10 @@ export function CreateTemplateForm() {
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                 <p className="mb-2 text-sm text-muted-foreground">
-                  <span className="font-semibold">Click to upload</span> or drag and drop
+                  <span className="font-semibold">{t('createTemplate.clickToUpload')}</span> {t('createTemplate.dragAndDrop')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  PNG, JPG, GIF, WEBP up to 5MB
+                  {t('createTemplate.fileTypes')}
                 </p>
               </div>
               <input
@@ -400,10 +402,10 @@ export function CreateTemplateForm() {
           onClick={() => router.back()}
           disabled={uploading}
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={uploading || items.length === 0}>
-          {uploading ? 'Creating Template...' : 'Create Template'}
+          {uploading ? t('createTemplate.creatingTemplate') : t('createTemplate.createTemplate')}
         </Button>
       </div>
     </form>

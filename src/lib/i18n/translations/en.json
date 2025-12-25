@@ -1,0 +1,107 @@
+{
+  "common": {
+    "appName": "SuperTierMaker",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "view": "View"
+  },
+  "nav": {
+    "home": "Home",
+    "templates": "Templates",
+    "categories": "Categories",
+    "createTemplate": "Create Template",
+    "myTierLists": "My Tier Lists",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out"
+  },
+  "home": {
+    "title": "SuperTierMaker",
+    "subtitle": "Create, rank, and share tier lists for any topic. Organize your favorites and discover what others think.",
+    "browseTemplates": "Browse Templates",
+    "createYourOwn": "Create Your Own",
+    "popularTemplates": "Popular Templates",
+    "noTemplates": "No templates available yet. Be the first to create one!",
+    "createFirstTemplate": "Create Your First Template"
+  },
+  "templates": {
+    "title": "Templates",
+    "allTemplates": "All Templates",
+    "browseDescription": "Browse and use templates created by the community",
+    "categoryFilter": "Templates in",
+    "clearFilter": "Clear filter",
+    "browseCategories": "Browse Categories",
+    "viewTemplate": "View Template",
+    "noTemplatesFound": "No templates found",
+    "views": "views",
+    "likes": "likes"
+  },
+  "categories": {
+    "title": "Categories",
+    "description": "Browse templates by category. Click on a category to see all templates in that category.",
+    "noCategories": "No categories available yet.",
+    "template": "template",
+    "templates": "templates"
+  },
+  "template": {
+    "backToTemplates": "← Back to Templates",
+    "createTierList": "Create Tier List with this Template",
+    "category": "Category"
+  },
+  "editor": {
+    "addTier": "Add Tier",
+    "saveTierList": "Save Tier List",
+    "unassigned": "Unassigned",
+    "unassignedDescription": "Drag items here to remove them from tiers",
+    "tier": "Tier",
+    "dragItemsHere": "Drag items here",
+    "removeTier": "Remove tier",
+    "changeTierColor": "Change tier color",
+    "confirmDelete": "Confirm Removal",
+    "confirmDeleteMessage": "Are you sure you want to remove the tier \"{tierName}\"?",
+    "itemsWillBeMoved": "All {count} item(s) in this tier will be moved to the unassigned area.",
+    "remove": "Remove"
+  },
+  "createTemplate": {
+    "title": "Template Information",
+    "subtitle": "Basic information about your template",
+    "coverImage": "Cover Image (Optional)",
+    "coverImageDescription": "Click to upload cover image",
+    "templateName": "Template Name *",
+    "templateNamePlaceholder": "e.g., Best Video Games 2024",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your template",
+    "category": "Category *",
+    "selectCategory": "Select a category",
+    "loadingCategories": "Loading categories...",
+    "noCategories": "No categories found. Please create categories in the database first.",
+    "createNewCategory": "Create New Category",
+    "categoryName": "Category name",
+    "add": "Add",
+    "isPublic": "Make this template public",
+    "templateItems": "Template Items",
+    "templateItemsDescription": "Upload images for your template. Each image will become an item that can be ranked.",
+    "clickToUpload": "Click to upload",
+    "dragAndDrop": "or drag and drop",
+    "fileTypes": "PNG, JPG, GIF, WEBP up to 5MB",
+    "creatingTemplate": "Creating Template...",
+    "createTemplate": "Create Template"
+  },
+  "myTierLists": {
+    "title": "My Tier Lists",
+    "noTierLists": "You haven't created any tier lists yet.",
+    "createFirst": "Create your first tier list by selecting a template."
+  }
+}
+

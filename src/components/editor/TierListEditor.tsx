@@ -26,6 +26,7 @@ import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
 import type { TemplateItem } from '@/types/template.types'
 import type { TierListTier, TierListItem } from '@/types/tierList.types'
 import { v4 as uuidv4 } from 'uuid'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface TierListEditorProps {
   templateItems: TemplateItem[]
@@ -43,6 +44,7 @@ export function TierListEditor({
   initialItems,
   onSave,
 }: TierListEditorProps) {
+  const { t } = useTranslation()
   const [tiers, setTiers] = useState<TierListTier[]>(
     initialTiers ||
       DEFAULT_TIERS.map((name, index) => ({
@@ -537,26 +539,26 @@ export function TierListEditor({
 
         {/* Add Tier Button */}
         <div className="flex justify-center">
-          <Button
-            onClick={handleAddTier}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Adicionar Tier
-          </Button>
+            <Button
+              onClick={handleAddTier}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              {t('editor.addTier')}
+            </Button>
         </div>
 
         {/* Unassigned items - always show, even when empty */}
         <UnassignedDropZone items={getUnassignedItems()} />
 
-        {onSave && (
-          <div className="flex justify-end">
-            <Button onClick={handleSave} className="px-6 py-2">
-              Salvar Tier List
-            </Button>
-          </div>
-        )}
+            {onSave && (
+              <div className="flex justify-end">
+                <Button onClick={handleSave} className="px-6 py-2">
+                  {t('editor.saveTierList')}
+                </Button>
+              </div>
+            )}
       </div>
     </DndContext>
   )

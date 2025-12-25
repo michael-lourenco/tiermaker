@@ -3,8 +3,6 @@ export interface Template {
   user_id: string | null
   name: string
   description: string | null
-  category: string
-  tags: string[] | null
   is_public: boolean
   views_count: number
   likes_count: number
@@ -25,11 +23,18 @@ export interface TemplateWithItems extends Template {
   items: TemplateItem[]
 }
 
+export interface TemplateWithCategories extends Template {
+  categories: Array<{ id: string; name: string; slug: string }>
+}
+
+export interface TemplateWithItemsAndCategories extends TemplateWithItems {
+  categories: Array<{ id: string; name: string; slug: string }>
+}
+
 export interface CreateTemplateInput {
   name: string
   description?: string
-  category: string
-  tags?: string[]
+  category_id: string
   is_public?: boolean
   items: Omit<TemplateItem, 'id' | 'template_id' | 'created_at'>[]
 }

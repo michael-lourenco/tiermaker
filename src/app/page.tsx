@@ -2,11 +2,11 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TemplateService } from '@/services/template.service'
-import type { Template } from '@/types/template.types'
+import type { Template, TemplateWithCategories } from '@/types/template.types'
 
 export default async function HomePage() {
   const templateService = new TemplateService()
-  let popularTemplates: Template[] = []
+  let popularTemplates: Array<TemplateWithCategories> = []
   
   try {
     popularTemplates = await templateService.getPublicTemplates({ limit: 6 })
@@ -51,10 +51,17 @@ export default async function HomePage() {
                     <CardDescription>{template.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{template.category}</span>
-                      <span>•</span>
-                      <span>{template.views_count} views</span>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                      {template.categories && template.categories.length > 0 && (
+                        <div className="flex gap-1 flex-wrap">
+                          {template.categories.map((cat) => (
+                            <span key={cat.id} className="px-2 py-1 bg-secondary text-secondary-foreground rounded text-xs">
+                              {cat.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <span className="ml-auto">{template.views_count} views</span>
                     </div>
                   </CardContent>
                   <div className="p-6 pt-0">

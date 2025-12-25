@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TemplateService } from '@/services/template.service'
+import { CategoryService, type Category } from '@/services/category.service'
 import { ImageService } from '@/services/image.service'
 import { useAuth } from '@/hooks/useAuth'
 import Image from 'next/image'
@@ -17,8 +18,7 @@ import { X, Upload } from 'lucide-react'
 const templateSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
   description: z.string().optional(),
-  category: z.string().min(1, 'Category is required'),
-  tags: z.string().optional(),
+  category_id: z.string().min(1, 'Category is required'),
   is_public: z.boolean().default(true),
 })
 
@@ -32,25 +32,34 @@ interface TemplateItem {
   imageUrl?: string
 }
 
-const CATEGORIES = [
-  'Games',
-  'Anime',
-  'Movies',
-  'TV Shows',
-  'Music',
-  'Sports',
-  'Food',
-  'Characters',
-  'Other',
-]
-
 export function CreateTemplateForm() {
   const [items, setItems] = useState<TemplateItem[]>([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(true)
   const { user } = useAuth()
   const router = useRouter()
   const imageService = new ImageService()
+  const categoryService = new CategoryService()
+
+  // Load categories from database
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const cats = await categoryService.getAllCategories()
+        setCategories(cats)
+      } catch (err) {
+        console.error('Error loading categories:', err)
+        setError('Failed to load categories. Using default list.')
+        // Fallback to default categories if table doesn't exist
+        setCategories([])
+      } finally {
+        setLoadingCategories(false)
+      }
+    }
+    loadCategories()
+  }, [])
 
   const {
     register,
@@ -128,18 +137,18 @@ export function CreateTemplateForm() {
         })
       )
 
-      // Parse tags
-      const tags = data.tags
-        ? data.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
-        : undefined
+      // Get selected category
+      const selectedCategory = categories.find((c) => c.id === data.category_id)
+      if (!selectedCategory) {
+        throw new Error('Selected category not found')
+      }
 
       // Create template
       const template = await templateService.createTemplate(
         {
           name: data.name,
           description: data.description,
-          category: data.category,
-          tags,
+          category_id: data.category_id,
           is_public: data.is_public,
           items: uploadedItems,
         },
@@ -188,35 +197,34 @@ export function CreateTemplateForm() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="category" className="text-sm font-medium">
+            <label htmlFor="category_id" className="text-sm font-medium">
               Category *
             </label>
-            <select
-              id="category"
-              {...register('category')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="">Select a category</option>
-              {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-            {errors.category && (
-              <p className="text-sm text-destructive">{errors.category.message}</p>
+            {loadingCategories ? (
+              <p className="text-sm text-muted-foreground">Loading categories...</p>
+            ) : (
+              <select
+                id="category_id"
+                {...register('category_id')}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                disabled={categories.length === 0}
+              >
+                <option value="">Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
             )}
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="tags" className="text-sm font-medium">
-              Tags (comma-separated)
-            </label>
-            <Input
-              id="tags"
-              {...register('tags')}
-              placeholder="e.g., action, adventure, rpg"
-            />
+            {errors.category_id && (
+              <p className="text-sm text-destructive">{errors.category_id.message}</p>
+            )}
+            {categories.length === 0 && !loadingCategories && (
+              <p className="text-sm text-muted-foreground">
+                No categories found. Please create categories in the database first.
+              </p>
+            )}
           </div>
 
           <div className="flex items-center space-x-2">

@@ -35,17 +35,14 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
             <p className="text-muted-foreground text-lg">{template.description}</p>
           )}
           <div className="flex items-center gap-4 mt-4">
-            <span className="text-sm text-muted-foreground">
-              Category: {template.category}
-            </span>
-            {template.tags && template.tags.length > 0 && (
-              <div className="flex gap-2">
-                {template.tags.map((tag) => (
+            {template.categories && template.categories.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {template.categories.map((cat) => (
                   <span
-                    key={tag}
+                    key={cat.id}
                     className="px-2 py-1 bg-secondary text-secondary-foreground rounded text-sm"
                   >
-                    {tag}
+                    {cat.name}
                   </span>
                 ))}
               </div>

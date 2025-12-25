@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { TierListService } from '@/services/tierList.service'
 import { TierListView } from '@/components/tier-lists/TierListView'
 import { Button } from '@/components/ui/button'
@@ -10,8 +11,16 @@ interface TierListPageProps {
 
 export default async function TierListPage({ params }: TierListPageProps) {
   const { id } = await params
-  const tierListService = new TierListService()
-  const tierList = await tierListService.getTierListById(id)
+  const supabase = await createClient()
+  const tierListService = new TierListService(supabase)
+  
+  let tierList: Awaited<ReturnType<typeof tierListService.getTierListById>>
+  try {
+    tierList = await tierListService.getTierListById(id)
+  } catch (error) {
+    console.error('Error loading tier list:', error)
+    notFound()
+  }
 
   if (!tierList) {
     notFound()

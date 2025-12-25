@@ -37,6 +37,7 @@ export function ItemCard({ item }: ItemCardProps) {
         src={item.image_url}
         alt={item.name}
         fill
+        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
         className="object-cover"
       />
       <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-xs text-center">

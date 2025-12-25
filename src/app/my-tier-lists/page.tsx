@@ -13,7 +13,7 @@ export default async function MyTierListsPage() {
     redirect('/login')
   }
 
-  const tierListService = new TierListService()
+  const tierListService = new TierListService(supabase)
   const tierLists = await tierListService.getUserTierLists(user.id)
 
   return (

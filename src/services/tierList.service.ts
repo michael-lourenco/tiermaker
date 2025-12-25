@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/lib/supabase/types'
 import type {
   TierList,
   TierListWithData,
@@ -7,20 +9,33 @@ import type {
 import { v4 as uuidv4 } from 'uuid'
 
 export class TierListService {
-  private supabase = createClient()
+  private supabase: any
+
+  constructor(supabaseClient?: any) {
+    this.supabase = supabaseClient || createClient()
+  }
 
   /**
    * Get tier list by ID with all data
    */
   async getTierListById(id: string): Promise<TierListWithData | null> {
-    const { data: tierList, error: tierListError } = await this.supabase
+    const result = await this.supabase
       .from('tier_lists')
       .select('*')
       .eq('id', id)
-      .single()
+      .single() as { data: TierList | null; error: any }
 
-    if (tierListError) throw tierListError
-    if (!tierList) return null
+    if (result.error) {
+      // If error is PGRST116 (no rows), return null
+      if (result.error.code === 'PGRST116') {
+        return null
+      }
+      throw result.error
+    }
+    
+    if (!result.data) return null
+
+    const tierList = result.data
 
     // Get tiers
     const { data: tiers, error: tiersError } = await this.supabase
@@ -44,7 +59,7 @@ export class TierListService {
     if (itemsError) throw itemsError
 
     return {
-      ...(tierList as TierList),
+      ...tierList,
       tiers: tiers || [],
       items: (items || []).map((item: any) => ({
         ...item,
@@ -130,19 +145,21 @@ export class TierListService {
     
     const tierList = result.data
 
-    // Create tiers
-    const tiersToInsert = input.tiers.map((tier) => ({
-      tier_list_id: tierList.id,
-      tier_name: tier.tier_name,
-      tier_order: tier.tier_order,
-      color: tier.color,
-    }))
+    // Create tiers (only if there are tiers to insert)
+    if (input.tiers && input.tiers.length > 0) {
+      const tiersToInsert = input.tiers.map((tier) => ({
+        tier_list_id: tierList.id,
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
 
-    const { error: tiersError } = await this.supabase
-      .from('tier_list_tiers')
-      .insert(tiersToInsert as any)
+      const { error: tiersError } = await this.supabase
+        .from('tier_list_tiers')
+        .insert(tiersToInsert as any)
 
-    if (tiersError) throw tiersError
+      if (tiersError) throw tiersError
+    }
 
     // Create items
     const itemsToInsert = input.items.map((item) => ({

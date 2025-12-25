@@ -22,23 +22,27 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const tierListService = new TierListService()
 
   const handleSave = async (data: {
-    tiers: TierListTier[]
+    tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
-  }) => {
+  }): Promise<void> => {
     setSaving(true)
 
     try {
+      // Debug: log what we're sending
+      console.log('Saving tier list with:', {
+        tiersCount: data.tiers.length,
+        itemsCount: data.items.length,
+        tiers: data.tiers,
+        items: data.items,
+      })
+
       const tierList = await tierListService.createTierList(
         {
           template_id: template.id,
           title,
           is_public: false,
-          tiers: data.tiers.map((tier, index) => ({
-            tier_name: tier.tier_name,
-            tier_order: tier.tier_order,
-            color: tier.color,
-          })),
-          items: data.items,
+          tiers: data.tiers || [],
+          items: data.items || [],
         },
         user?.id
       )
@@ -46,7 +50,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
       router.push(`/tier-lists/${tierList.id}`)
     } catch (error) {
       console.error('Failed to save tier list:', error)
-      alert('Failed to save tier list. Please try again.')
+      alert(`Failed to save tier list: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setSaving(false)
     }

@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/sortable'
 import { TierColumn } from './TierColumn'
 import { ItemCard } from './ItemCard'
+import { UnassignedDropZone } from './UnassignedDropZone'
 import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
 import type { TemplateItem } from '@/types/template.types'
 import type { TierListTier, TierListItem } from '@/types/tierList.types'
@@ -29,7 +30,7 @@ interface TierListEditorProps {
   initialTiers?: TierListTier[]
   initialItems?: (TierListItem & { template_item: TemplateItem })[]
   onSave?: (data: {
-    tiers: TierListTier[]
+    tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
   }) => void
 }
@@ -113,12 +114,25 @@ export function TierListEditor({
     if (overId.startsWith('tier-')) {
       const tierName = overId.replace('tier-', '')
       const item = items.get(activeId)
-      if (item) {
-        // Update item's tier
+      if (item && item.tier_name !== tierName) {
+        // Update item's tier preview (visual feedback only)
         const newItems = new Map(items)
         newItems.set(activeId, {
           ...item,
+          tier_name: tierName, // Update tier_name for preview
           order: getNextOrderForTier(tierName),
+        })
+        setItems(newItems)
+      }
+    } else if (overId === 'unassigned') {
+      const item = items.get(activeId)
+      if (item && item.tier_name !== '') {
+        // Preview moving back to unassigned
+        const newItems = new Map(items)
+        newItems.set(activeId, {
+          ...item,
+          tier_name: '', // Clear tier_name for preview
+          order: getUnassignedItems().length,
         })
         setItems(newItems)
       }
@@ -145,7 +159,20 @@ export function TierListEditor({
         const newItems = new Map(items)
         newItems.set(activeId, {
           ...item,
+          tier_name: tierName, // Update tier_name when dropping
           order: getNextOrderForTier(tierName),
+        })
+        setItems(newItems)
+      }
+    } else if (overId === 'unassigned') {
+      // If dropping back to unassigned
+      const item = items.get(activeId)
+      if (item) {
+        const newItems = new Map(items)
+        newItems.set(activeId, {
+          ...item,
+          tier_name: '', // Clear tier_name
+          order: getUnassignedItems().length,
         })
         setItems(newItems)
       }
@@ -177,13 +204,11 @@ export function TierListEditor({
 
   const handleSave = () => {
     if (onSave) {
+      // Only send the data needed to create tiers (no id, tier_list_id, created_at)
       const tierData = tiers.map((tier) => ({
-        id: tier.id,
-        tier_list_id: tier.tier_list_id,
         tier_name: tier.tier_name,
         tier_order: tier.tier_order,
-        color: tier.color,
-        created_at: tier.created_at,
+        color: tier.color || null,
       }))
 
       const itemData = Array.from(items.entries())
@@ -223,19 +248,7 @@ export function TierListEditor({
         })}
 
         {/* Unassigned items */}
-        <div className="border-2 border-dashed rounded-lg p-4 min-h-[200px]">
-          <h3 className="text-lg font-semibold mb-4">Unassigned</h3>
-          <SortableContext
-            items={getUnassignedItems().map((item) => item.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {getUnassignedItems().map((item) => (
-                <ItemCard key={item.id} item={item} />
-              ))}
-            </div>
-          </SortableContext>
-        </div>
+        <UnassignedDropZone items={getUnassignedItems()} />
 
         {onSave && (
           <div className="flex justify-end">

@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 import type { TierListWithData } from '@/types/tierList.types'
 import { TIER_COLORS } from '@/lib/constants/tiers'
@@ -11,6 +13,15 @@ export function TierListView({ tierList }: TierListViewProps) {
     return tierList.items
       .filter((item) => item.tier_name === tierName)
       .sort((a, b) => a.order - b.order)
+  }
+
+  // If no tiers, show a message
+  if (!tierList.tiers || tierList.tiers.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <p>This tier list doesn't have any tiers yet.</p>
+      </div>
+    )
   }
 
   return (
@@ -44,6 +55,7 @@ export function TierListView({ tierList }: TierListViewProps) {
                       src={item.template_item.image_url}
                       alt={item.template_item.name}
                       fill
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
                       className="object-cover"
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-xs text-center">

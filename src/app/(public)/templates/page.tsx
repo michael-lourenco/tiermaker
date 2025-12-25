@@ -1,9 +1,18 @@
 import { TemplateGrid } from '@/components/templates/TemplateGrid'
 import { TemplateService } from '@/services/template.service'
+import type { TemplateWithItems } from '@/types/template.types'
 
 export default async function TemplatesPage() {
   const templateService = new TemplateService()
-  const templates = await templateService.getPublicTemplates({ limit: 20 })
+  const templateList = await templateService.getPublicTemplates({ limit: 20 })
+  
+  // Fetch full template data with categories for each template
+  const templates: TemplateWithItems[] = await Promise.all(
+    templateList.map(async (t) => {
+      const fullTemplate = await templateService.getTemplateById(t.id)
+      return fullTemplate || { ...t, items: [], categories: [] }
+    })
+  )
 
   return (
     <main className="min-h-screen p-8">

@@ -1,8 +1,8 @@
 import { TemplateCard } from './TemplateCard'
-import type { Template } from '@/types/template.types'
+import type { TemplateWithItems } from '@/types/template.types'
 
 interface TemplateGridProps {
-  templates: Template[]
+  templates: TemplateWithItems[]
 }
 
 export function TemplateGrid({ templates }: TemplateGridProps) {

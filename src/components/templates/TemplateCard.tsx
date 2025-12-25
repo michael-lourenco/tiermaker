@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import type { Template } from '@/types/template.types'
+import type { TemplateWithItems } from '@/types/template.types'
 import { Eye, Heart } from 'lucide-react'
 
 interface TemplateCardProps {
-  template: Template
+  template: TemplateWithItems
 }
 
 export function TemplateCard({ template }: TemplateCardProps) {
@@ -29,7 +29,15 @@ export function TemplateCard({ template }: TemplateCardProps) {
             <Heart className="h-4 w-4" />
             <span>{template.likes_count}</span>
           </div>
-          <span className="ml-auto">{template.category}</span>
+          {template.categories && template.categories.length > 0 && (
+            <div className="ml-auto flex gap-1 flex-wrap justify-end">
+              {template.categories.map((cat) => (
+                <span key={cat.id} className="px-2 py-1 bg-secondary text-secondary-foreground rounded text-xs">
+                  {cat.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter>

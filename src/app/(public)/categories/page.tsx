@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { TemplateService } from '@/services/template.service'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FolderOpen, ArrowRight } from 'lucide-react'
 
 export default async function CategoriesPage() {
   const templateService = new TemplateService()
@@ -35,34 +34,18 @@ export default async function CategoriesPage() {
                 }
               >
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <FolderOpen className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <CardTitle className="text-xl">{category}</CardTitle>
-                        <CardDescription>
-                          {count} template{count !== 1 ? 's' : ''}
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        View all templates
-                      </span>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardContent>
+                  <div className="p-6 text-center">
+                    <h3 className="text-xl font-semibold mb-2">{category}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {count} template{count !== 1 ? 's' : ''}
+                    </p>
+                  </div>
                 </Card>
               </Link>
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
-            <FolderOpen className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <p className="text-muted-foreground mb-4">
               No categories available yet.
             </p>

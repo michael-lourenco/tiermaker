@@ -6,7 +6,7 @@ import { Header } from "@/components/layout/Header"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "TierMaker - Create and Share Tier Lists",
+  title: "SuperTierMaker - Create and Share Tier Lists",
   description: "Create, rank, and share tier lists for any topic",
 }
 

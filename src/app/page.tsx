@@ -21,7 +21,7 @@ export default async function HomePage() {
       {/* Hero Section */}
       <section className="py-20 px-8 bg-gradient-to-b from-background to-muted">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-6xl font-bold mb-4">TierMaker</h1>
+          <h1 className="text-6xl font-bold mb-4">SuperTierMaker</h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Create, rank, and share tier lists for any topic. Organize your favorites
             and discover what others think.

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -61,6 +61,7 @@ export function TierListEditor({
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [draggingTierId, setDraggingTierId] = useState<string | null>(null)
+  const lastDragOverRef = useRef<{ activeId: string; overId: string; tierName?: string; order?: number } | null>(null)
 
   // Initialize items from initialItems or templateItems
   useEffect(() => {
@@ -103,6 +104,7 @@ export function TierListEditor({
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
+    lastDragOverRef.current = null // Reset drag over tracking
     
     // Check if we're dragging a tier
     const tier = tiers.find((t) => t.id === event.active.id)
@@ -114,10 +116,18 @@ export function TierListEditor({
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event
 
-    if (!over) return
+    if (!over) {
+      lastDragOverRef.current = null
+      return
+    }
 
     const activeId = active.id as string
     const overId = over.id as string
+
+    // Check if this is the same drag operation to avoid unnecessary updates
+    if (lastDragOverRef.current?.activeId === activeId && lastDragOverRef.current?.overId === overId) {
+      return
+    }
 
     // If dragging a tier over another tier, handle reordering
     const activeTier = tiers.find((t) => t.id === activeId)
@@ -127,7 +137,7 @@ export function TierListEditor({
       const oldIndex = tiers.findIndex((t) => t.id === activeId)
       const newIndex = tiers.findIndex((t) => t.id === overId)
       
-      if (oldIndex !== -1 && newIndex !== -1) {
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
         const newTiers = arrayMove(tiers, oldIndex, newIndex)
         // Update tier_order for all tiers
         const updatedTiers = newTiers.map((tier, index) => ({
@@ -135,6 +145,7 @@ export function TierListEditor({
           tier_order: index,
         }))
         setTiers(updatedTiers)
+        lastDragOverRef.current = { activeId, overId }
       }
       return
     }
@@ -162,52 +173,61 @@ export function TierListEditor({
           const overIndex = tierItemsEntries.findIndex(([id]) => id === overId)
 
           if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
-            // Reorder using arrayMove
-            const reorderedEntries = arrayMove(tierItemsEntries, activeIndex, overIndex)
+            // Check if order would actually change
+            const currentItem = items.get(activeId)
+            const targetOrder = tierItemsEntries[overIndex]?.[1]?.order
+            if (currentItem && targetOrder !== undefined && currentItem.order !== targetOrder) {
+              // Reorder using arrayMove
+              const reorderedEntries = arrayMove(tierItemsEntries, activeIndex, overIndex)
+              const newItems = new Map(items)
+              
+              // Update order for all items in this tier based on new positions
+              reorderedEntries.forEach(([itemId], newOrder) => {
+                const item = newItems.get(itemId)
+                if (item && item.order !== newOrder) {
+                  newItems.set(itemId, {
+                    ...item,
+                    order: newOrder,
+                  })
+                }
+              })
+              setItems(newItems)
+              lastDragOverRef.current = { activeId, overId, order: targetOrder }
+            }
+          }
+        } else if (activeItemTierName !== overItemTierName) {
+          // Moving to a different tier - only update if tier actually changed
+          if (activeItem.tier_name !== overItemTierName) {
             const newItems = new Map(items)
             
-            // Update order for all items in this tier based on new positions
-            reorderedEntries.forEach(([itemId], newOrder) => {
-              const item = newItems.get(itemId)
-              if (item) {
+            // Get all items in the target tier, sorted by order
+            const targetTierItemsEntries = Array.from(items.entries())
+              .filter(([_, item]) => item.tier_name === overItemTierName)
+              .sort(([_, a], [__, b]) => a.order - b.order)
+            
+            // Find the position of the over item in its tier
+            const overItemIndex = targetTierItemsEntries.findIndex(([id]) => id === overId)
+            
+            // Update the active item to the new tier and position
+            newItems.set(activeId, {
+              ...activeItem,
+              tier_name: overItemTierName,
+              order: overItemIndex >= 0 ? overItemIndex : targetTierItemsEntries.length,
+            })
+            
+            // Shift orders of items after the insertion point in the target tier
+            targetTierItemsEntries.forEach(([itemId, item]) => {
+              if (itemId !== activeId && item.order >= overItemIndex) {
                 newItems.set(itemId, {
                   ...item,
-                  order: newOrder,
+                  order: item.order + 1,
                 })
               }
             })
+            
             setItems(newItems)
+            lastDragOverRef.current = { activeId, overId, tierName: overItemTierName }
           }
-        } else if (activeItemTierName !== overItemTierName) {
-          // Moving to a different tier - update tier and insert at overItem's position
-          const newItems = new Map(items)
-          
-          // Get all items in the target tier, sorted by order
-          const targetTierItemsEntries = Array.from(items.entries())
-            .filter(([_, item]) => item.tier_name === overItemTierName)
-            .sort(([_, a], [__, b]) => a.order - b.order)
-          
-          // Find the position of the over item in its tier
-          const overItemIndex = targetTierItemsEntries.findIndex(([id]) => id === overId)
-          
-          // Update the active item to the new tier and position
-          newItems.set(activeId, {
-            ...activeItem,
-            tier_name: overItemTierName,
-            order: overItemIndex >= 0 ? overItemIndex : targetTierItemsEntries.length,
-          })
-          
-          // Shift orders of items after the insertion point in the target tier
-          targetTierItemsEntries.forEach(([itemId, item]) => {
-            if (itemId !== activeId && item.order >= overItemIndex) {
-              newItems.set(itemId, {
-                ...item,
-                order: item.order + 1,
-              })
-            }
-          })
-          
-          setItems(newItems)
         }
         return
       }
@@ -218,7 +238,7 @@ export function TierListEditor({
         // It's a tier row, so we want to drop the item on that tier
         const tierName = overTier.tier_name
         if (activeItem.tier_name !== tierName) {
-          // Update item's tier preview (visual feedback only)
+          // Only update if tier actually changed
           const newItems = new Map(items)
           newItems.set(activeId, {
             ...activeItem,
@@ -226,6 +246,7 @@ export function TierListEditor({
             order: getNextOrderForTier(tierName),
           })
           setItems(newItems)
+          lastDragOverRef.current = { activeId, overId, tierName }
         }
         return
       }
@@ -235,7 +256,7 @@ export function TierListEditor({
       if (tierFromDroppable) {
         const tierName = tierFromDroppable.tier_name
         if (activeItem.tier_name !== tierName) {
-          // Update item's tier preview (visual feedback only)
+          // Only update if tier actually changed
           const newItems = new Map(items)
           newItems.set(activeId, {
             ...activeItem,
@@ -243,6 +264,7 @@ export function TierListEditor({
             order: getNextOrderForTier(tierName),
           })
           setItems(newItems)
+          lastDragOverRef.current = { activeId, overId, tierName }
         }
         return
       }
@@ -251,7 +273,7 @@ export function TierListEditor({
     if (overId === 'unassigned' && !activeTier) {
       const item = items.get(activeId)
       if (item && item.tier_name !== '') {
-        // Preview moving back to unassigned
+        // Only update if actually moving to unassigned
         const newItems = new Map(items)
         newItems.set(activeId, {
           ...item,
@@ -259,12 +281,15 @@ export function TierListEditor({
           order: getUnassignedItems().length,
         })
         setItems(newItems)
+        lastDragOverRef.current = { activeId, overId }
       }
     }
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
+
+    lastDragOverRef.current = null // Reset drag over tracking
 
     if (!over) {
       setActiveId(null)
@@ -522,10 +547,8 @@ export function TierListEditor({
           </Button>
         </div>
 
-        {/* Unassigned items - only show if there are items */}
-        {getUnassignedItems().length > 0 && (
-          <UnassignedDropZone items={getUnassignedItems()} />
-        )}
+        {/* Unassigned items - always show, even when empty */}
+        <UnassignedDropZone items={getUnassignedItems()} />
 
         {onSave && (
           <div className="flex justify-end">

@@ -2,20 +2,14 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TemplateService } from '@/services/template.service'
-import type { TemplateWithItems } from '@/types/template.types'
+import type { Template, TemplateWithCategories } from '@/types/template.types'
 
 export default async function HomePage() {
   const templateService = new TemplateService()
-  let popularTemplates: (TemplateWithItems | null)[] = []
+  let popularTemplates: Array<TemplateWithCategories> = []
   
   try {
-    const templates = await templateService.getPublicTemplates({ limit: 6 })
-    // Fetch full template data with categories for each template
-    popularTemplates = await Promise.all(
-      templates.map(async (t) => await templateService.getTemplateById(t.id))
-    )
-    // Filter out nulls
-    popularTemplates = popularTemplates.filter((t): t is TemplateWithItems => t !== null)
+    popularTemplates = await templateService.getPublicTemplates({ limit: 6 })
   } catch (error) {
     // If templates table doesn't exist or there's an error, show empty state
     console.error('Error loading templates:', error)
@@ -50,7 +44,7 @@ export default async function HomePage() {
           <h2 className="text-3xl font-bold mb-8">Popular Templates</h2>
           {popularTemplates.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {popularTemplates.filter((t) => t !== null).map((template) => (
+              {popularTemplates.map((template) => (
                 <Card key={template.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <CardTitle>{template.name}</CardTitle>
@@ -58,7 +52,7 @@ export default async function HomePage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                      {template.categories && template.categories.length > 0 ? (
+                      {template.categories && template.categories.length > 0 && (
                         <div className="flex gap-1 flex-wrap">
                           {template.categories.map((cat) => (
                             <span key={cat.id} className="px-2 py-1 bg-secondary text-secondary-foreground rounded text-xs">
@@ -66,9 +60,8 @@ export default async function HomePage() {
                             </span>
                           ))}
                         </div>
-                      ) : null}
-                      <span>•</span>
-                      <span>{template.views_count} views</span>
+                      )}
+                      <span className="ml-auto">{template.views_count} views</span>
                     </div>
                   </CardContent>
                   <div className="p-6 pt-0">

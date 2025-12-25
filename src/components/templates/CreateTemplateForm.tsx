@@ -9,17 +9,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TemplateService } from '@/services/template.service'
-import { CategoryService } from '@/services/category.service'
+import { CategoryService, type Category } from '@/services/category.service'
 import { ImageService } from '@/services/image.service'
 import { useAuth } from '@/hooks/useAuth'
 import Image from 'next/image'
-import { X, Upload, Plus } from 'lucide-react'
-import type { Category } from '@/types/category.types'
+import { X, Upload } from 'lucide-react'
 
 const templateSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
   description: z.string().optional(),
-  category_ids: z.array(z.string()).min(1, 'At least one category is required'),
+  category_id: z.string().min(1, 'Category is required'),
   is_public: z.boolean().default(true),
 })
 
@@ -39,30 +38,12 @@ export function CreateTemplateForm() {
   const [error, setError] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
-  const [newCategoryName, setNewCategoryName] = useState('')
-  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
   const { user } = useAuth()
   const router = useRouter()
   const imageService = new ImageService()
   const categoryService = new CategoryService()
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    setValue,
-  } = useForm<TemplateFormData>({
-    resolver: zodResolver(templateSchema),
-    defaultValues: {
-      is_public: true,
-      category_ids: [],
-    },
-  })
-
-  const selectedCategoryIds = watch('category_ids') || []
-
-  // Load categories on mount
+  // Load categories from database
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -70,13 +51,27 @@ export function CreateTemplateForm() {
         setCategories(cats)
       } catch (err) {
         console.error('Error loading categories:', err)
-        setError('Failed to load categories')
+        setError('Failed to load categories. Using default list.')
+        // Fallback to default categories if table doesn't exist
+        setCategories([])
       } finally {
         setLoadingCategories(false)
       }
     }
     loadCategories()
   }, [])
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<TemplateFormData>({
+    resolver: zodResolver(templateSchema),
+    defaultValues: {
+      is_public: true,
+    },
+  })
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -113,40 +108,6 @@ export function CreateTemplateForm() {
     )
   }
 
-  const toggleCategory = (categoryId: string) => {
-    const current = selectedCategoryIds
-    if (current.includes(categoryId)) {
-      setValue('category_ids', current.filter((id) => id !== categoryId))
-    } else {
-      setValue('category_ids', [...current, categoryId])
-    }
-  }
-
-  const handleCreateCategory = async () => {
-    if (!newCategoryName.trim()) {
-      setError('Category name is required')
-      return
-    }
-
-    try {
-      const category = await categoryService.getOrCreateCategory(newCategoryName.trim())
-      setCategories((prev) => {
-        // Add if not already in list
-        if (!prev.find((c) => c.id === category.id)) {
-          return [...prev, category].sort((a, b) => a.name.localeCompare(b.name))
-        }
-        return prev
-      })
-      // Select the newly created category
-      toggleCategory(category.id)
-      setNewCategoryName('')
-      setShowNewCategoryInput(false)
-      setError(null)
-    } catch (err: any) {
-      setError(err.message || 'Failed to create category')
-    }
-  }
-
   const onSubmit = async (data: TemplateFormData) => {
     if (!user) {
       setError('You must be logged in to create a template')
@@ -155,11 +116,6 @@ export function CreateTemplateForm() {
 
     if (items.length === 0) {
       setError('Please add at least one item to the template')
-      return
-    }
-
-    if (data.category_ids.length === 0) {
-      setError('Please select at least one category')
       return
     }
 
@@ -181,12 +137,18 @@ export function CreateTemplateForm() {
         })
       )
 
+      // Get selected category
+      const selectedCategory = categories.find((c) => c.id === data.category_id)
+      if (!selectedCategory) {
+        throw new Error('Selected category not found')
+      }
+
       // Create template
       const template = await templateService.createTemplate(
         {
           name: data.name,
           description: data.description,
-          category_ids: data.category_ids,
+          category_id: data.category_id,
           is_public: data.is_public,
           items: uploadedItems,
         },
@@ -235,87 +197,33 @@ export function CreateTemplateForm() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Categories * (Select at least one)
+            <label htmlFor="category_id" className="text-sm font-medium">
+              Category *
             </label>
             {loadingCategories ? (
               <p className="text-sm text-muted-foreground">Loading categories...</p>
             ) : (
-              <>
-                <div className="flex flex-wrap gap-2 min-h-[60px] p-3 border rounded-md">
-                  {categories.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No categories available</p>
-                  ) : (
-                    categories.map((category) => {
-                      const isSelected = selectedCategoryIds.includes(category.id)
-                      return (
-                        <button
-                          key={category.id}
-                          type="button"
-                          onClick={() => toggleCategory(category.id)}
-                          className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                            isSelected
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                          }`}
-                        >
-                          {category.name}
-                        </button>
-                      )
-                    })
-                  )}
-                </div>
-                {errors.category_ids && (
-                  <p className="text-sm text-destructive">
-                    {errors.category_ids.message}
-                  </p>
-                )}
-
-                {/* Create new category */}
-                {!showNewCategoryInput ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowNewCategoryInput(true)}
-                    className="mt-2"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create New Category
-                  </Button>
-                ) : (
-                  <div className="flex gap-2 mt-2">
-                    <Input
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      placeholder="Category name"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          handleCreateCategory()
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      onClick={handleCreateCategory}
-                      disabled={!newCategoryName.trim()}
-                    >
-                      Add
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setShowNewCategoryInput(false)
-                        setNewCategoryName('')
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                )}
-              </>
+              <select
+                id="category_id"
+                {...register('category_id')}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                disabled={categories.length === 0}
+              >
+                <option value="">Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {errors.category_id && (
+              <p className="text-sm text-destructive">{errors.category_id.message}</p>
+            )}
+            {categories.length === 0 && !loadingCategories && (
+              <p className="text-sm text-muted-foreground">
+                No categories found. Please create categories in the database first.
+              </p>
             )}
           </div>
 
@@ -421,3 +329,4 @@ export function CreateTemplateForm() {
     </form>
   )
 }
+

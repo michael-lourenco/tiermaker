@@ -1,5 +1,3 @@
-import type { Category } from './category.types'
-
 export interface Template {
   id: string
   user_id: string | null
@@ -23,13 +21,20 @@ export interface TemplateItem {
 
 export interface TemplateWithItems extends Template {
   items: TemplateItem[]
-  categories?: Category[]
+}
+
+export interface TemplateWithCategories extends Template {
+  categories: Array<{ id: string; name: string; slug: string }>
+}
+
+export interface TemplateWithItemsAndCategories extends TemplateWithItems {
+  categories: Array<{ id: string; name: string; slug: string }>
 }
 
 export interface CreateTemplateInput {
   name: string
   description?: string
-  category_ids: string[]
+  category_id: string
   is_public?: boolean
   items: Omit<TemplateItem, 'id' | 'template_id' | 'created_at'>[]
 }

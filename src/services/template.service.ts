@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
 import type { Template, TemplateItem, TemplateWithItems, CreateTemplateInput } from '@/types/template.types'
-import type { Category } from '@/types/category.types'
 
 export class TemplateService {
   private supabase = createClient()
@@ -9,32 +8,62 @@ export class TemplateService {
    * Get all public templates with optional filters
    */
   async getPublicTemplates(filters?: {
+    category?: string
     category_id?: string
-    category_slug?: string
     search?: string
     limit?: number
     offset?: number
-  }): Promise<Template[]> {
-    let query = this.supabase
-      .from('templates')
-      .select(`
-        *,
-        template_categories!inner(category_id, categories(*))
-      `)
-      .eq('is_public', true)
-      .order('created_at', { ascending: false })
-
-    // Filter by category
-    if (filters?.category_id) {
-      query = query.eq('template_categories.category_id', filters.category_id)
-    } else if (filters?.category_slug) {
-      query = query.eq('template_categories.categories.slug', filters.category_slug)
+  }): Promise<Array<Template & { categories: Array<{ id: string; name: string; slug: string }> }>> {
+    // If filtering by category name, we need to find the category_id first
+    let categoryId = filters?.category_id
+    if (filters?.category && !categoryId) {
+      // Try to find category by name
+      const { data: categoryData } = await this.supabase
+        .from('categories')
+        .select('id')
+        .ilike('name', filters.category)
+        .single() as { data: { id: string } | null; error: any }
+      
+      if (categoryData) {
+        categoryId = categoryData.id
+      }
     }
 
+    // Build query based on whether we're filtering by category
+    let query
+    if (categoryId) {
+      // When filtering by category, use inner join to only get templates with that category
+      query = this.supabase
+        .from('templates')
+        .select(`
+          *,
+          template_categories!inner(
+            category_id,
+            categories!inner(id, name, slug)
+          )
+        `)
+        .eq('is_public', true)
+        .eq('template_categories.category_id', categoryId)
+    } else {
+      // When not filtering, use regular join to get all templates with their categories
+      query = this.supabase
+        .from('templates')
+        .select(`
+          *,
+          template_categories(category_id, categories(id, name, slug))
+        `)
+        .eq('is_public', true)
+    }
+
+    // Apply search filter
     if (filters?.search) {
       query = query.ilike('name', `%${filters.search}%`)
     }
 
+    // Apply ordering
+    query = query.order('created_at', { ascending: false })
+
+    // Apply pagination
     if (filters?.limit) {
       query = query.limit(filters.limit)
     }
@@ -47,27 +76,32 @@ export class TemplateService {
 
     if (error) throw error
     
-    // Flatten the response to remove nested structure
+    // Flatten response and extract categories
     return (data || []).map((item: any) => {
       const { template_categories, ...template } = item
-      return template as Template
+      const categories = (template_categories || [])
+        .map((tc: any) => tc.categories)
+        .filter(Boolean) as Array<{ id: string; name: string; slug: string }>
+      return { ...template, categories } as Template & { categories: Array<{ id: string; name: string; slug: string }> }
     })
   }
 
   /**
    * Get template by ID with items and categories
    */
-  async getTemplateById(id: string): Promise<TemplateWithItems | null> {
+  async getTemplateById(id: string): Promise<(TemplateWithItems & { categories: Array<{ id: string; name: string; slug: string }> }) | null> {
     const { data: template, error: templateError } = await this.supabase
       .from('templates')
-      .select('*')
+      .select(`
+        *,
+        template_categories(category_id, categories(id, name, slug))
+      `)
       .eq('id', id)
       .single()
 
     if (templateError) throw templateError
     if (!template) return null
 
-    // Get items
     const { data: items, error: itemsError } = await this.supabase
       .from('template_items')
       .select('*')
@@ -76,21 +110,13 @@ export class TemplateService {
 
     if (itemsError) throw itemsError
 
-    // Get categories
-    const { data: templateCategories, error: categoriesError } = await this.supabase
-      .from('template_categories')
-      .select(`
-        category_id,
-        categories(*)
-      `)
-      .eq('template_id', id)
-
-    if (categoriesError) throw categoriesError
-
-    const categories = (templateCategories || []).map((tc: any) => tc.categories).filter(Boolean) as Category[]
+    const { template_categories, ...templateData } = template as any
+    const categories = (template_categories || [])
+      .map((tc: any) => tc.categories)
+      .filter(Boolean) as Array<{ id: string; name: string; slug: string }>
 
     return {
-      ...(template as Template),
+      ...(templateData as Template),
       items: items || [],
       categories,
     }
@@ -111,10 +137,10 @@ export class TemplateService {
   }
 
   /**
-   * Create a new template with categories
+   * Create a new template
    */
   async createTemplate(input: CreateTemplateInput, userId: string): Promise<TemplateWithItems> {
-    // Create template
+    // Create template (without category and tags columns)
     const result = (await this.supabase
       .from('templates')
       .insert({
@@ -131,6 +157,27 @@ export class TemplateService {
     
     const template = result.data
 
+    // Create template-category relationship (required)
+    if (input.category_id) {
+      const { error: categoryError } = await this.supabase
+        .from('template_categories')
+        .insert({
+          template_id: template.id,
+          category_id: input.category_id,
+        } as any)
+
+      if (categoryError) {
+        // If relationship fails, delete the template to maintain consistency
+        await this.supabase
+          .from('templates')
+          .delete()
+          .eq('id', template.id)
+        throw new Error(`Failed to create template-category relationship: ${categoryError.message}`)
+      }
+    } else {
+      throw new Error('Category ID is required')
+    }
+
     // Create template items
     const itemsToInsert = input.items.map((item, index) => ({
       template_id: template.id,
@@ -146,35 +193,9 @@ export class TemplateService {
 
     if (itemsError) throw itemsError
 
-    // Create template-category associations
-    if (input.category_ids && input.category_ids.length > 0) {
-      const categoryAssociations = input.category_ids.map((categoryId) => ({
-        template_id: template.id,
-        category_id: categoryId,
-      }))
-
-      const { error: categoriesError } = await this.supabase
-        .from('template_categories')
-        .insert(categoryAssociations as any)
-
-      if (categoriesError) throw categoriesError
-    }
-
-    // Get categories for return
-    const { data: templateCategories } = await this.supabase
-      .from('template_categories')
-      .select(`
-        category_id,
-        categories(*)
-      `)
-      .eq('template_id', template.id)
-
-    const categories = (templateCategories || []).map((tc: any) => tc.categories).filter(Boolean) as Category[]
-
     return {
       ...template,
       items: items || [],
-      categories,
     }
   }
 
@@ -184,12 +205,9 @@ export class TemplateService {
   async updateTemplate(
     templateId: string,
     updates: Partial<Omit<Template, 'id' | 'created_at' | 'user_id'>>,
-    userId: string,
-    categoryIds?: string[]
+    userId: string
   ): Promise<Template> {
     const supabase = this.supabase as any
-    
-    // Update template fields
     const result = await supabase
       .from('templates')
       .update(updates)
@@ -202,29 +220,6 @@ export class TemplateService {
 
     if (error) throw error
     if (!data) throw new Error('Template not found or unauthorized')
-
-    // Update categories if provided
-    if (categoryIds !== undefined) {
-      // Delete existing associations
-      await this.supabase
-        .from('template_categories')
-        .delete()
-        .eq('template_id', templateId)
-
-      // Create new associations
-      if (categoryIds.length > 0) {
-        const categoryAssociations = categoryIds.map((categoryId) => ({
-          template_id: templateId,
-          category_id: categoryId,
-        }))
-
-        const { error: categoriesError } = await this.supabase
-          .from('template_categories')
-          .insert(categoryAssociations as any)
-
-        if (categoriesError) throw categoriesError
-      }
-    }
 
     return data
   }
@@ -240,6 +235,42 @@ export class TemplateService {
       .eq('user_id', userId)
 
     if (error) throw error
+  }
+
+  /**
+   * Get all categories with template count
+   */
+  async getCategoriesWithCount(): Promise<Array<{ category: string; count: number; category_id?: string }>> {
+    // Get categories with template count using template_categories
+    const { data, error } = await this.supabase
+      .from('categories')
+      .select(`
+        id,
+        name,
+        slug,
+        template_categories(template_id)
+      `)
+      .order('name', { ascending: true })
+
+    if (error) {
+      // If categories table doesn't exist, return empty array
+      if (error.code === '42P01') {
+        return []
+      }
+      throw error
+    }
+
+    // Count templates per category
+    return (data || []).map((cat: any) => {
+      const templateCount = cat.template_categories?.length || 0
+      // Only return categories that have at least one public template
+      return {
+        category: cat.name,
+        category_id: cat.id,
+        count: templateCount,
+      }
+    }).filter((cat) => cat.count > 0)
+      .sort((a, b) => b.count - a.count)
   }
 
   /**
@@ -269,3 +300,4 @@ export class TemplateService {
     }
   }
 }
+

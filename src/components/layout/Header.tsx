@@ -24,6 +24,9 @@ export function Header() {
           </Link>
 
           <nav className="flex items-center gap-4">
+            <Link href="/categories" className="text-sm font-medium hover:text-primary">
+              Categories
+            </Link>
             <Link href="/templates" className="text-sm font-medium hover:text-primary">
               Templates
             </Link>

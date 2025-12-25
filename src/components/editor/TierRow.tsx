@@ -56,7 +56,7 @@ export function TierRow({
       style={style}
       className="relative group"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-0">
         {/* Drag Handle */}
         <div
           {...attributes}

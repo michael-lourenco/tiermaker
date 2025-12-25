@@ -419,7 +419,7 @@ export function TierListEditor({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-4">
+      <div className="space-y-0">
         {/* Tiers - Sortable */}
         <SortableContext items={tierIds} strategy={verticalListSortingStrategy}>
           {tiers.map((tier) => {

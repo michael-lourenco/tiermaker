@@ -522,8 +522,10 @@ export function TierListEditor({
           </Button>
         </div>
 
-        {/* Unassigned items */}
-        <UnassignedDropZone items={getUnassignedItems()} />
+        {/* Unassigned items - only show if there are items */}
+        {getUnassignedItems().length > 0 && (
+          <UnassignedDropZone items={getUnassignedItems()} />
+        )}
 
         {onSave && (
           <div className="flex justify-end">

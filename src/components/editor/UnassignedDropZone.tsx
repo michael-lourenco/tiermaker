@@ -21,7 +21,6 @@ export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
         isOver ? 'border-primary bg-primary/20 border-4' : 'border-border'
       }`}
     >
-      <h3 className="text-lg font-semibold mb-4">Unassigned</h3>
       <SortableContext
         items={items.map((item) => item.id)}
         strategy={verticalListSortingStrategy}

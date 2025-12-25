@@ -34,6 +34,7 @@ interface TemplateItem {
 
 export function CreateTemplateForm() {
   const [items, setItems] = useState<TemplateItem[]>([])
+  const [coverImage, setCoverImage] = useState<{ file: File; preview: string; imageUrl?: string } | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
@@ -72,6 +73,29 @@ export function CreateTemplateForm() {
       is_public: true,
     },
   })
+
+  const handleCoverImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const validation = imageService.validateImageFile(file)
+    if (!validation.valid) {
+      setError(validation.error || 'Invalid file')
+      return
+    }
+
+    try {
+      const preview = await imageService.createPreviewUrl(file)
+      setCoverImage({ file, preview })
+      setError(null)
+    } catch (err) {
+      setError('Failed to process cover image')
+    }
+  }
+
+  const removeCoverImage = () => {
+    setCoverImage(null)
+  }
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -125,6 +149,12 @@ export function CreateTemplateForm() {
     try {
       const templateService = new TemplateService()
 
+      // Upload cover image if provided
+      let coverImageUrl: string | undefined
+      if (coverImage) {
+        coverImageUrl = await imageService.uploadImage(coverImage.file)
+      }
+
       // Upload all images
       const uploadedItems = await Promise.all(
         items.map(async (item, index) => {
@@ -149,6 +179,7 @@ export function CreateTemplateForm() {
           name: data.name,
           description: data.description,
           category_id: data.category_id,
+          cover_image_url: coverImageUrl,
           is_public: data.is_public,
           items: uploadedItems,
         },
@@ -171,6 +202,55 @@ export function CreateTemplateForm() {
           <CardDescription>Basic information about your template</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Cover Image */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Imagem de Capa (Opcional)
+            </label>
+            {coverImage ? (
+              <div className="relative">
+                <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                  <Image
+                    src={coverImage.preview}
+                    alt="Cover preview"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeCoverImage}
+                    className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <label
+                htmlFor="cover-upload"
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent transition-colors"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                  <p className="mb-2 text-sm text-muted-foreground">
+                    <span className="font-semibold">Clique para fazer upload</span> da imagem de capa
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    PNG, JPG, GIF, WEBP up to 5MB
+                  </p>
+                </div>
+                <input
+                  id="cover-upload"
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleCoverImageSelect}
+                />
+              </label>
+            )}
+          </div>
+
           <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">
               Template Name *

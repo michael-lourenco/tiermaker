@@ -3,6 +3,7 @@ export interface Template {
   user_id: string | null
   name: string
   description: string | null
+  cover_image_url: string | null
   is_public: boolean
   views_count: number
   likes_count: number
@@ -35,6 +36,7 @@ export interface CreateTemplateInput {
   name: string
   description?: string
   category_id: string
+  cover_image_url?: string
   is_public?: boolean
   items: Omit<TemplateItem, 'id' | 'template_id' | 'created_at'>[]
 }

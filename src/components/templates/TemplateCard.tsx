@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import type { Template, TemplateWithCategories } from '@/types/template.types'
@@ -10,7 +11,18 @@ interface TemplateCardProps {
 
 export function TemplateCard({ template }: TemplateCardProps) {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-lg transition-shadow overflow-hidden">
+      {template.cover_image_url && (
+        <div className="relative w-full h-48">
+          <Image
+            src={template.cover_image_url}
+            alt={template.name}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover"
+          />
+        </div>
+      )}
       <CardHeader>
         <CardTitle className="line-clamp-2">{template.name}</CardTitle>
         {template.description && (

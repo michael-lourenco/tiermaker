@@ -147,6 +147,7 @@ export class TemplateService {
         user_id: userId,
         name: input.name,
         description: input.description ?? null,
+        cover_image_url: input.cover_image_url ?? null,
         is_public: input.is_public ?? true,
       } as any)
       .select()

@@ -29,6 +29,18 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
           </Link>
         </div>
 
+        {template.cover_image_url && (
+          <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden mb-8">
+            <Image
+              src={template.cover_image_url}
+              alt={template.name}
+              fill
+              sizes="(max-width: 768px) 100vw, 80vw"
+              className="object-cover"
+            />
+          </div>
+        )}
+
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">{template.name}</h1>
           {template.description && (

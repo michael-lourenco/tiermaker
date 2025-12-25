@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TemplateService } from '@/services/template.service'
@@ -45,7 +46,18 @@ export default async function HomePage() {
           {popularTemplates.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {popularTemplates.map((template) => (
-                <Card key={template.id} className="hover:shadow-lg transition-shadow">
+                <Card key={template.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                  {template.cover_image_url && (
+                    <div className="relative w-full h-48">
+                      <Image
+                        src={template.cover_image_url}
+                        alt={template.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <CardTitle>{template.name}</CardTitle>
                     <CardDescription>{template.description}</CardDescription>

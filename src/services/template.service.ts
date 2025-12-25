@@ -63,7 +63,7 @@ export class TemplateService {
     if (itemsError) throw itemsError
 
     return {
-      ...template,
+      ...(template as Template),
       items: items || [],
     }
   }
@@ -87,21 +87,23 @@ export class TemplateService {
    */
   async createTemplate(input: CreateTemplateInput, userId: string): Promise<TemplateWithItems> {
     // Create template
-    const { data: template, error: templateError } = await this.supabase
+    const result = (await this.supabase
       .from('templates')
       .insert({
         user_id: userId,
         name: input.name,
-        description: input.description,
+        description: input.description ?? null,
         category: input.category,
-        tags: input.tags,
+        tags: input.tags ?? null,
         is_public: input.is_public ?? true,
-      })
+      } as any)
       .select()
-      .single()
+      .single()) as { data: Template | null; error: any }
 
-    if (templateError) throw templateError
-    if (!template) throw new Error('Failed to create template')
+    if (result.error) throw result.error
+    if (!result.data) throw new Error('Failed to create template')
+    
+    const template = result.data
 
     // Create template items
     const itemsToInsert = input.items.map((item, index) => ({
@@ -113,7 +115,7 @@ export class TemplateService {
 
     const { data: items, error: itemsError } = await this.supabase
       .from('template_items')
-      .insert(itemsToInsert)
+      .insert(itemsToInsert as any)
       .select()
 
     if (itemsError) throw itemsError
@@ -132,13 +134,16 @@ export class TemplateService {
     updates: Partial<Omit<Template, 'id' | 'created_at' | 'user_id'>>,
     userId: string
   ): Promise<Template> {
-    const { data, error } = await this.supabase
+    const supabase = this.supabase as any
+    const result = await supabase
       .from('templates')
       .update(updates)
       .eq('id', templateId)
       .eq('user_id', userId)
       .select()
-      .single()
+      .single() as { data: Template | null; error: any }
+
+    const { data, error } = result
 
     if (error) throw error
     if (!data) throw new Error('Template not found or unauthorized')
@@ -163,20 +168,22 @@ export class TemplateService {
    * Increment views count
    */
   async incrementViews(templateId: string): Promise<void> {
-    const { error } = await this.supabase.rpc('increment_template_views', {
+    const supabase = this.supabase as any
+    const { error } = await supabase.rpc('increment_template_views', {
       template_id: templateId,
     })
 
     // If RPC doesn't exist, do it manually
     if (error) {
-      const { data } = await this.supabase
+      const supabase = this.supabase as any
+      const { data } = await supabase
         .from('templates')
         .select('views_count')
         .eq('id', templateId)
         .single()
 
       if (data) {
-        await this.supabase
+        await supabase
           .from('templates')
           .update({ views_count: data.views_count + 1 })
           .eq('id', templateId)

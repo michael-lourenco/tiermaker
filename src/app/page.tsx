@@ -2,10 +2,11 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TemplateService } from '@/services/template.service'
+import type { Template } from '@/types/template.types'
 
 export default async function HomePage() {
   const templateService = new TemplateService()
-  let popularTemplates = []
+  let popularTemplates: Template[] = []
   
   try {
     popularTemplates = await templateService.getPublicTemplates({ limit: 6 })

@@ -70,7 +70,7 @@ export function CreateTemplateForm() {
     for (const file of files) {
       const validation = imageService.validateImageFile(file)
       if (!validation.valid) {
-        setError(validation.error)
+        setError(validation.error || 'Invalid file')
         continue
       }
 

@@ -44,7 +44,7 @@ export class TierListService {
     if (itemsError) throw itemsError
 
     return {
-      ...tierList,
+      ...(tierList as TierList),
       tiers: tiers || [],
       items: (items || []).map((item: any) => ({
         ...item,
@@ -57,16 +57,16 @@ export class TierListService {
    * Get tier list by share token
    */
   async getTierListByShareToken(token: string): Promise<TierListWithData | null> {
-    const { data: tierList, error: tierListError } = await this.supabase
+    const result = await this.supabase
       .from('tier_lists')
       .select('*')
       .eq('share_token', token)
-      .single()
+      .single() as { data: TierList | null; error: any }
 
-    if (tierListError) throw tierListError
-    if (!tierList) return null
+    if (result.error) throw result.error
+    if (!result.data) return null
 
-    return this.getTierListById(tierList.id)
+    return this.getTierListById(result.data.id)
   }
 
   /**
@@ -113,7 +113,7 @@ export class TierListService {
     const shareToken = uuidv4()
 
     // Create tier list
-    const { data: tierList, error: tierListError } = await this.supabase
+    const result = (await this.supabase
       .from('tier_lists')
       .insert({
         user_id: userId || null,
@@ -121,12 +121,14 @@ export class TierListService {
         title: input.title,
         is_public: input.is_public ?? false,
         share_token: shareToken,
-      })
+      } as any)
       .select()
-      .single()
+      .single()) as { data: TierList | null; error: any }
 
-    if (tierListError) throw tierListError
-    if (!tierList) throw new Error('Failed to create tier list')
+    if (result.error) throw result.error
+    if (!result.data) throw new Error('Failed to create tier list')
+    
+    const tierList = result.data
 
     // Create tiers
     const tiersToInsert = input.tiers.map((tier) => ({
@@ -138,7 +140,7 @@ export class TierListService {
 
     const { error: tiersError } = await this.supabase
       .from('tier_list_tiers')
-      .insert(tiersToInsert)
+      .insert(tiersToInsert as any)
 
     if (tiersError) throw tiersError
 
@@ -152,7 +154,7 @@ export class TierListService {
 
     const { error: itemsError } = await this.supabase
       .from('tier_list_items')
-      .insert(itemsToInsert)
+      .insert(itemsToInsert as any)
 
     if (itemsError) throw itemsError
 
@@ -184,7 +186,8 @@ export class TierListService {
   ): Promise<TierListWithData> {
     // Update tier list metadata
     if (updates.title !== undefined || updates.is_public !== undefined) {
-      const { error } = await this.supabase
+      const supabase = this.supabase as any
+      const { error } = await supabase
         .from('tier_lists')
         .update({
           title: updates.title,
@@ -214,7 +217,7 @@ export class TierListService {
 
       const { error } = await this.supabase
         .from('tier_list_tiers')
-        .insert(tiersToInsert)
+        .insert(tiersToInsert as any)
 
       if (error) throw error
     }
@@ -237,7 +240,7 @@ export class TierListService {
 
       const { error } = await this.supabase
         .from('tier_list_items')
-        .insert(itemsToInsert)
+        .insert(itemsToInsert as any)
 
       if (error) throw error
     }
@@ -249,11 +252,19 @@ export class TierListService {
    * Delete tier list
    */
   async deleteTierList(tierListId: string, userId?: string): Promise<void> {
-    const { error } = await this.supabase
+    const supabase = this.supabase as any
+    let query = supabase
       .from('tier_lists')
       .delete()
       .eq('id', tierListId)
-      .eq('user_id', userId || null)
+    
+    if (userId !== undefined) {
+      query = query.eq('user_id', userId)
+    } else {
+      query = query.is('user_id', null)
+    }
+    
+    const { error } = await query
 
     if (error) throw error
   }
@@ -262,14 +273,15 @@ export class TierListService {
    * Increment views count
    */
   async incrementViews(tierListId: string): Promise<void> {
-    const { data } = await this.supabase
+    const supabase = this.supabase as any
+    const { data } = await supabase
       .from('tier_lists')
       .select('views_count')
       .eq('id', tierListId)
       .single()
 
     if (data) {
-      await this.supabase
+      await supabase
         .from('tier_lists')
         .update({ views_count: data.views_count + 1 })
         .eq('id', tierListId)

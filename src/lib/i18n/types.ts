@@ -142,5 +142,8 @@ export interface Translations {
     viewTooltip: string
     deleteTooltip: string
   }
+  tierList: {
+    created: string
+  }
 }
 

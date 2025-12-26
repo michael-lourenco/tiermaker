@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { TierListView } from './TierListView'
 import { useViewTracking } from '@/hooks/useViewTracking'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { TierListWithData } from '@/types/tierList.types'
 
 interface TierListPageClientProps {
@@ -11,6 +12,7 @@ interface TierListPageClientProps {
 }
 
 export function TierListPageClient({ tierList }: TierListPageClientProps) {
+  const { t } = useTranslation()
   // Track view with 30-minute minimum interval validation
   useViewTracking('tier_list', tierList.id)
 
@@ -19,14 +21,14 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 md:mb-8">
           <Link href="/templates">
-            <Button variant="ghost" size="sm">← Back</Button>
+            <Button variant="ghost" size="sm">← {t('common.back')}</Button>
           </Link>
         </div>
 
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{tierList.title}</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Created {new Date(tierList.created_at).toLocaleDateString()}
+            {t('tierList.created')} {new Date(tierList.created_at).toLocaleDateString()}
           </p>
         </div>
 

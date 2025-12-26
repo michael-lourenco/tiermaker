@@ -140,6 +140,9 @@
     "deleting": "Excluindo...",
     "viewTooltip": "Visualizar esta tier list",
     "deleteTooltip": "Excluir esta tier list"
+  },
+  "tierList": {
+    "created": "Criado em"
   }
 }
 

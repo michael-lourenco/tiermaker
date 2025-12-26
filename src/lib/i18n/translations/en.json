@@ -140,6 +140,9 @@
     "deleting": "Deleting...",
     "viewTooltip": "View this tier list",
     "deleteTooltip": "Delete this tier list"
+  },
+  "tierList": {
+    "created": "Created"
   }
 }
 

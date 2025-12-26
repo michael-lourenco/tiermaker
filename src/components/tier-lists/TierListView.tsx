@@ -1,8 +1,7 @@
 'use client'
 
-import Image from 'next/image'
 import type { TierListWithData } from '@/types/tierList.types'
-import { TIER_COLORS } from '@/lib/constants/tiers'
+import { TierListRowView } from './TierListRowView'
 
 interface TierListViewProps {
   tierList: TierListWithData
@@ -25,46 +24,17 @@ export function TierListView({ tierList }: TierListViewProps) {
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="space-y-0">
       {tierList.tiers
         .sort((a, b) => a.tier_order - b.tier_order)
         .map((tier) => {
           const items = getItemsForTier(tier.tier_name)
           return (
-            <div
+            <TierListRowView
               key={tier.id}
-              className="border-2 rounded-lg p-3 sm:p-4 min-h-[120px] sm:min-h-[150px]"
-              style={{
-                backgroundColor: tier.color ? `${tier.color}20` : undefined,
-                borderColor: tier.color || undefined,
-              }}
-            >
-              <h3
-                className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-center"
-                style={{ color: tier.color || undefined }}
-              >
-                {tier.tier_name}
-              </h3>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="relative aspect-square rounded-lg overflow-hidden border"
-                  >
-                    <Image
-                      src={item.template_item.image_url}
-                      alt={item.template_item.name}
-                      fill
-                      sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1200px) 16vw, 12vw"
-                      className="object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
-                      {item.template_item.name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+              tier={tier}
+              items={items}
+            />
           )
         })}
     </div>

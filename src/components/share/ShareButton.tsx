@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { ShareDialog } from './ShareDialog'
 import { getShareMetadata } from '@/lib/share/share.utils'
 import type { ShareContentType } from '@/lib/share/share.types'
 import { Share2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useTierListImage } from '@/hooks/useTierListImage'
 
 interface ShareButtonProps {
   type: ShareContentType
@@ -16,6 +17,7 @@ interface ShareButtonProps {
   className?: string
   showDownload?: boolean
   onDownload?: () => void
+  tierListElementRef?: React.RefObject<HTMLElement | null>
 }
 
 export function ShareButton({
@@ -26,9 +28,18 @@ export function ShareButton({
   className,
   showDownload = false,
   onDownload,
+  tierListElementRef,
 }: ShareButtonProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const { generateImage, isGenerating } = useTierListImage({
+    onSuccess: () => {
+      // Image downloaded successfully
+    },
+    onError: (error) => {
+      console.error('Error generating image:', error)
+    },
+  })
 
   const metadata = getShareMetadata(type, data)
   const shareData = {
@@ -40,6 +51,28 @@ export function ShareButton({
     url: metadata.url,
     metadata: data,
   }
+
+  const handleDownload = async () => {
+    if (onDownload) {
+      onDownload()
+      return
+    }
+
+    // For tier lists, generate image from element
+    if (type === 'tier_list' && tierListElementRef?.current) {
+      // Create a clean filename from the tier list title
+      const cleanTitle = (data.title || 'tier-list')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .substring(0, 50) // Limit length
+      const filename = `${cleanTitle || 'tier-list'}.png`
+      await generateImage(tierListElementRef.current, filename)
+    }
+  }
+
+  // Show download button for tier lists
+  const shouldShowDownload = showDownload || type === 'tier_list'
 
   return (
     <>
@@ -57,8 +90,9 @@ export function ShareButton({
         open={open}
         onOpenChange={setOpen}
         data={shareData}
-        showDownload={showDownload}
-        onDownload={onDownload}
+        showDownload={shouldShowDownload}
+        onDownload={handleDownload}
+        isGenerating={isGenerating}
       />
     </>
   )

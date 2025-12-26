@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ShareButton } from '@/components/share/ShareButton'
@@ -14,6 +15,8 @@ interface TierListPageClientProps {
 
 export function TierListPageClient({ tierList }: TierListPageClientProps) {
   const { t } = useTranslation()
+  const tierListRef = useRef<HTMLDivElement>(null)
+  
   // Track view with 30-minute minimum interval validation
   useViewTracking('tier_list', tierList.id)
 
@@ -25,7 +28,11 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
             <Link href="/templates">
               <Button variant="ghost" size="sm">← {t('common.back')}</Button>
             </Link>
-            <ShareButton type="tier_list" data={tierList} />
+            <ShareButton 
+              type="tier_list" 
+              data={tierList} 
+              tierListElementRef={tierListRef}
+            />
           </div>
         </div>
 
@@ -36,7 +43,9 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
           </p>
         </div>
 
-        <TierListView tierList={tierList} />
+        <div ref={tierListRef} className="w-full">
+          <TierListView tierList={tierList} />
+        </div>
       </div>
     </main>
   )

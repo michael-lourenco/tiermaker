@@ -23,9 +23,10 @@ interface ShareDialogProps {
   data: ShareData
   showDownload?: boolean
   onDownload?: () => void
+  isGenerating?: boolean
 }
 
-export function ShareDialog({ open, onOpenChange, data, showDownload = false, onDownload }: ShareDialogProps) {
+export function ShareDialog({ open, onOpenChange, data, showDownload = false, onDownload, isGenerating = false }: ShareDialogProps) {
   const { t } = useTranslation()
   const [linkCopied, setLinkCopied] = useState(false)
   const { shareToPlatform, canUseWebShare } = useShare(data, {
@@ -127,8 +128,16 @@ export function ShareDialog({ open, onOpenChange, data, showDownload = false, on
                 variant="outline"
                 className="w-full"
                 onClick={onDownload}
+                disabled={isGenerating}
               >
-                {t('share.downloadImage')}
+                {isGenerating ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    {t('share.generatingImage')}
+                  </>
+                ) : (
+                  t('share.downloadImage')
+                )}
               </Button>
             </div>
           )}

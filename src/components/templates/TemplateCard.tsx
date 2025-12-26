@@ -2,68 +2,59 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import type { Template, TemplateWithCategories } from '@/types/template.types'
-import { Eye, Heart } from 'lucide-react'
-import { useTranslation } from '@/hooks/useTranslation'
+import { Card } from '@/components/ui/card'
+import type { TemplateWithCategories } from '@/types/template.types'
+import { Eye } from 'lucide-react'
 
 interface TemplateCardProps {
   template: TemplateWithCategories
 }
 
 export function TemplateCard({ template }: TemplateCardProps) {
-  const { t } = useTranslation()
-
   return (
-    <Card className="hover:shadow-lg transition-shadow overflow-hidden">
-      {template.cover_image_url && (
-        <div className="relative w-full h-48">
-          <Image
-            src={template.cover_image_url}
-            alt={template.name}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
-          />
-        </div>
-      )}
-      <CardHeader>
-        <CardTitle className="line-clamp-2">{template.name}</CardTitle>
-        {template.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {template.description}
-          </p>
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Eye className="h-4 w-4" />
-            <span>{template.views_count}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Heart className="h-4 w-4" />
-            <span>{template.likes_count}</span>
-          </div>
-          {template.categories && template.categories.length > 0 && (
-            <div className="ml-auto flex gap-1 flex-wrap">
-              {template.categories.map((cat) => (
-                <span key={cat.id} className="px-2 py-1 bg-secondary text-secondary-foreground rounded text-xs">
-                  {cat.name}
-                </span>
-              ))}
+    <Link href={`/templates/${template.id}`}>
+      <Card className="group relative overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 hover:border-primary">
+        <div className="relative w-full aspect-video">
+          {template.cover_image_url ? (
+            <Image
+              src={template.cover_image_url}
+              alt={template.name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <span className="text-muted-foreground text-sm">No image</span>
             </div>
           )}
+          
+          {/* Overlay gradient for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          {/* Category - Top Left */}
+          {template.categories && template.categories.length > 0 && (
+            <div className="absolute top-2 left-2 z-10">
+              <span className="px-2 py-1 bg-primary/90 text-primary-foreground rounded text-xs font-medium backdrop-blur-sm">
+                {template.categories[0].name}
+              </span>
+            </div>
+          )}
+          
+          {/* Views - Top Right */}
+          <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 bg-black/60 text-white rounded text-xs font-medium backdrop-blur-sm">
+            <Eye className="h-3 w-3" />
+            <span>{template.views_count}</span>
+          </div>
+          
+          {/* Title - Bottom */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 p-3">
+            <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
+              {template.name}
+            </h3>
+          </div>
         </div>
-      </CardContent>
-      <CardFooter>
-        <Link href={`/templates/${template.id}`} className="w-full">
-          <Button variant="outline" className="w-full">
-            {t('templates.viewTemplate')}
-          </Button>
-        </Link>
-      </CardFooter>
-    </Card>
+      </Card>
+    </Link>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
@@ -23,8 +24,15 @@ export function Header() {
     <header className="border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="text-2xl font-bold">
-            {t('common.appName')}
+          <Link href="/" className="flex items-center gap-3 text-2xl font-bold">
+            <Image
+              src="/logo.png"
+              alt="SuperTierMaker Logo"
+              width={32}
+              height={32}
+              className="object-contain"
+            />
+            <span>{t('common.appName')}</span>
           </Link>
 
           <nav className="flex items-center gap-4">

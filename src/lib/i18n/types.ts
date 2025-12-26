@@ -58,8 +58,11 @@ export interface Translations {
     confirmDelete: string
     confirmDeleteTitle: string
     confirmDeleteMessage: string
+    deleteWarning: string
     deleteError: string
     deleting: string
+    softDeleted: string
+    hardDeleted: string
     viewTemplateTooltip: string
     editTemplateTooltip: string
     deleteTemplateTooltip: string

@@ -5,7 +5,21 @@ export class TemplateService {
   private supabase = createClient()
 
   /**
+   * Count how many tier lists are using a specific template
+   */
+  async countTierListsUsingTemplate(templateId: string): Promise<number> {
+    const { count, error } = await this.supabase
+      .from('tier_lists')
+      .select('*', { count: 'exact', head: true })
+      .eq('template_id', templateId)
+
+    if (error) throw error
+    return count || 0
+  }
+
+  /**
    * Get all public templates with optional filters
+   * Filters out soft-deleted templates (deleted_at IS NULL)
    */
   async getPublicTemplates(filters?: {
     category?: string
@@ -44,6 +58,9 @@ export class TemplateService {
         `)
         .eq('is_public', true)
         .eq('template_categories.category_id', categoryId)
+    
+    // Filter out soft-deleted templates
+    query = (query as any).is('deleted_at', null)
     } else {
       // When not filtering, use regular join to get all templates with their categories
       query = this.supabase
@@ -53,6 +70,9 @@ export class TemplateService {
           template_categories(category_id, categories(id, name, slug))
         `)
         .eq('is_public', true)
+    
+    // Filter out soft-deleted templates
+    query = (query as any).is('deleted_at', null)
     }
 
     // Apply search filter
@@ -88,16 +108,23 @@ export class TemplateService {
 
   /**
    * Get template by ID with items and categories
+   * Returns template even if soft-deleted (for internal operations)
    */
-  async getTemplateById(id: string): Promise<(TemplateWithItems & { categories: Array<{ id: string; name: string; slug: string }> }) | null> {
-    const { data: template, error: templateError } = await this.supabase
+  async getTemplateById(id: string, includeDeleted: boolean = false): Promise<(TemplateWithItems & { categories: Array<{ id: string; name: string; slug: string }> }) | null> {
+    let query = this.supabase
       .from('templates')
       .select(`
         *,
         template_categories(category_id, categories(id, name, slug))
       `)
       .eq('id', id)
-      .single()
+    
+    // Only filter out deleted templates if includeDeleted is false
+    if (!includeDeleted) {
+      query = query.is('deleted_at', null)
+    }
+    
+    const { data: template, error: templateError } = await query.single()
 
     if (templateError) throw templateError
     if (!template) return null
@@ -124,9 +151,10 @@ export class TemplateService {
 
   /**
    * Get user's templates
+   * Filters out soft-deleted templates (deleted_at IS NULL)
    */
   async getUserTemplates(userId: string): Promise<Array<Template & { categories: Array<{ id: string; name: string; slug: string }> }>> {
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .from('templates')
       .select(`
         *,
@@ -134,6 +162,10 @@ export class TemplateService {
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
+    
+    // Filter out soft-deleted templates
+    const finalQuery = (query as any).is('deleted_at', null)
+    const { data, error } = await finalQuery
 
     if (error) throw error
     
@@ -315,11 +347,21 @@ export class TemplateService {
   }
 
   /**
-   * Delete template and all associated images from S3
+   * Delete template using soft delete + reference counting strategy
+   * 
+   * Strategy:
+   * - If template has tier lists using it: Soft delete (mark as deleted, keep images)
+   * - If template has no tier lists: Hard delete (delete images and record)
+   * 
+   * This ensures tier lists continue working even if template is deleted.
    */
-  async deleteTemplate(templateId: string, userId: string): Promise<void> {
-    // First, fetch the template with its items to get all image URLs
-    const template = await this.getTemplateById(templateId)
+  async deleteTemplate(templateId: string, userId: string): Promise<{ 
+    deleted: boolean
+    softDeleted: boolean
+    tierListsCount: number
+  }> {
+    // First, fetch the template (including soft-deleted ones for validation)
+    const template = await this.getTemplateById(templateId, true)
     
     if (!template) {
       throw new Error('Template not found')
@@ -330,7 +372,34 @@ export class TemplateService {
       throw new Error('Unauthorized: You can only delete your own templates')
     }
 
-    // Collect all image URLs to delete
+    // Check if template is already soft-deleted
+    if ((template as any).deleted_at) {
+      throw new Error('Template is already deleted')
+    }
+
+    // Count how many tier lists are using this template (Solution B: Reference Counting)
+    const tierListsCount = await this.countTierListsUsingTemplate(templateId)
+
+    // Solution A: Soft Delete if template is being used
+    if (tierListsCount > 0) {
+      // Soft delete: Mark as deleted but keep images and allow tier lists to continue working
+      const supabase = this.supabase as any
+      const { error } = await supabase
+        .from('templates')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', templateId)
+        .eq('user_id', userId)
+
+      if (error) throw error
+
+      return {
+        deleted: true,
+        softDeleted: true,
+        tierListsCount,
+      }
+    }
+
+    // Hard delete: No tier lists using it, safe to delete images and record
     const imageUrls: string[] = []
 
     // Add cover image if exists
@@ -373,11 +442,10 @@ export class TemplateService {
       } catch (error) {
         console.error('Error calling delete-images API:', error)
         // Log but don't throw - we still want to delete the template from DB
-        // This ensures the database stays consistent even if S3 deletion fails
       }
     }
 
-    // Finally, delete the template from database (this will cascade delete items)
+    // Hard delete: Remove template from database (this will cascade delete items)
     const { error } = await this.supabase
       .from('templates')
       .delete()
@@ -385,6 +453,47 @@ export class TemplateService {
       .eq('user_id', userId)
 
     if (error) throw error
+
+    return {
+      deleted: true,
+      softDeleted: false,
+      tierListsCount: 0,
+    }
+  }
+
+  /**
+   * Restore a soft-deleted template
+   */
+  async restoreTemplate(templateId: string, userId: string): Promise<Template> {
+    // Verify ownership and that template is soft-deleted
+    const template = await this.getTemplateById(templateId, true)
+    
+    if (!template) {
+      throw new Error('Template not found')
+    }
+
+    if (template.user_id !== userId) {
+      throw new Error('Unauthorized: You can only restore your own templates')
+    }
+
+    if (!(template as any).deleted_at) {
+      throw new Error('Template is not deleted')
+    }
+
+    // Restore by setting deleted_at to NULL
+    const supabase = this.supabase as any
+    const { data, error } = await supabase
+      .from('templates')
+      .update({ deleted_at: null })
+      .eq('id', templateId)
+      .eq('user_id', userId)
+      .select()
+      .single() as { data: Template | null; error: any }
+
+    if (error) throw error
+    if (!data) throw new Error('Failed to restore template')
+
+    return data
   }
 
   /**

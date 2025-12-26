@@ -57,8 +57,11 @@
     "confirmDelete": "Are you sure you want to delete this template?",
     "confirmDeleteTitle": "Delete Template",
     "confirmDeleteMessage": "Are you sure you want to delete \"{templateName}\"? This action cannot be undone.",
+    "deleteWarning": "Note: If this template is being used by other users, it will be hidden but their tier lists will continue working.",
     "deleteError": "Error deleting template. Please try again.",
     "deleting": "Deleting...",
+    "softDeleted": "Template has been hidden (soft deleted) because it is being used by {count} tier list(s).",
+    "hardDeleted": "Template and all associated images have been permanently deleted.",
     "viewTemplateTooltip": "View this template",
     "editTemplateTooltip": "Edit this template",
     "deleteTemplateTooltip": "Delete this template"

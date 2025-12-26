@@ -54,14 +54,22 @@ export function MyTemplatesPageClient({ templates: initialTemplates }: MyTemplat
     
     try {
       const templateService = new TemplateService()
-      await templateService.deleteTemplate(templateToDelete.id, user.id)
-      setTemplates(templates.filter(t => t.id !== templateToDelete.id))
+      const result = await templateService.deleteTemplate(templateToDelete.id, user.id)
+      
+      // Remove from list if hard deleted, keep if soft deleted (will be filtered by query)
+      if (!result.softDeleted) {
+        setTemplates(templates.filter(t => t.id !== templateToDelete.id))
+      } else {
+        // Soft deleted - remove from UI but show success message
+        setTemplates(templates.filter(t => t.id !== templateToDelete.id))
+      }
+      
       setDeleteDialogOpen(false)
       setTemplateToDelete(null)
       router.refresh()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting template:', error)
-      setDeleteError(t('templates.deleteError') || 'Error deleting template. Please try again.')
+      setDeleteError(error.message || t('templates.deleteError') || 'Error deleting template. Please try again.')
     } finally {
       setDeleting(null)
     }

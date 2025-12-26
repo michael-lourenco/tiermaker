@@ -57,8 +57,11 @@
     "confirmDelete": "Tem certeza que deseja excluir este template?",
     "confirmDeleteTitle": "Excluir Template",
     "confirmDeleteMessage": "Tem certeza que deseja excluir \"{templateName}\"? Esta ação não pode ser desfeita.",
+    "deleteWarning": "Nota: Se este template estiver sendo usado por outros usuários, ele será ocultado, mas as tier lists deles continuarão funcionando.",
     "deleteError": "Erro ao excluir template. Por favor, tente novamente.",
     "deleting": "Excluindo...",
+    "softDeleted": "Template foi ocultado (exclusão suave) porque está sendo usado por {count} tier list(s).",
+    "hardDeleted": "Template e todas as imagens associadas foram permanentemente excluídas.",
     "viewTemplateTooltip": "Visualizar este template",
     "editTemplateTooltip": "Editar este template",
     "deleteTemplateTooltip": "Excluir este template"

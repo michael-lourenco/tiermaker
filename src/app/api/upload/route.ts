@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPresignedUploadUrl } from '@/lib/aws/s3'
+import { uploadFile } from '@/lib/aws/s3'
 import { createClient } from '@/lib/supabase/server'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -12,46 +12,54 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { filename, contentType } = await request.json()
+    // Get the file from FormData
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
 
-    if (!filename || !contentType) {
+    if (!file) {
       return NextResponse.json(
-        { error: 'Filename and content type are required' },
+        { error: 'File is required' },
         { status: 400 }
       )
     }
 
     // Validate content type
-    if (!contentType.startsWith('image/')) {
+    if (!file.type.startsWith('image/')) {
       return NextResponse.json(
         { error: 'Only image files are allowed' },
         { status: 400 }
       )
     }
 
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: 'File size exceeds 5MB limit' },
+        { status: 400 }
+      )
+    }
+
     // Generate unique key for S3
-    const fileExtension = filename.split('.').pop()
+    const fileExtension = file.name.split('.').pop()
     const key = `uploads/${user.id}/${uuidv4()}.${fileExtension}`
 
-    const presignedUrl = await getPresignedUploadUrl(key, contentType, 3600)
-    
-    // Construct the full URL that will be accessible after upload
-    const bucketName = process.env.AWS_S3_BUCKET_NAME!
-    const region = process.env.AWS_REGION || 'us-east-1'
-    
-    // Build S3 URL: https://{bucket}.s3.{region}.amazonaws.com/{key}
-    // For us-east-1: https://{bucket}.s3.amazonaws.com/{key}
-    const bucketUrl = region === 'us-east-1'
-      ? `https://${bucketName}.s3.amazonaws.com`
-      : `https://${bucketName}.s3.${region}.amazonaws.com`
-    
-    const fullUrl = `${bucketUrl}/${key}`
+    // Convert File to Buffer for upload
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
 
-    return NextResponse.json({ presignedUrl, key, url: fullUrl })
+    // Upload file to S3 via server
+    const url = await uploadFile({
+      key,
+      body: buffer,
+      contentType: file.type,
+    })
+
+    return NextResponse.json({ key, url })
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate upload URL' },
+      { error: 'Failed to upload image' },
       { status: 500 }
     )
   }

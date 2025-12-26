@@ -4,42 +4,25 @@
  */
 export class ImageService {
   /**
-   * Upload image to S3 via presigned URL
+   * Upload image to S3 via server-side API
    */
   async uploadImage(file: File): Promise<string> {
+    // Create FormData to send file
+    const formData = new FormData()
+    formData.append('file', file)
+
     const response = await fetch('/api/upload', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        filename: file.name,
-        contentType: file.type,
-      }),
+      body: formData,
     })
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.error || 'Failed to get upload URL')
+      throw new Error(error.error || 'Failed to upload image')
     }
 
-    const { presignedUrl, key, url } = await response.json()
+    const { url } = await response.json()
 
-    // Upload file to S3
-    const uploadResponse = await fetch(presignedUrl, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type,
-      },
-    })
-
-    if (!uploadResponse.ok) {
-      throw new Error('Failed to upload image')
-    }
-
-    // Return the public URL from the API response
-    // The API constructs the URL automatically from bucket name and region
     if (!url) {
       throw new Error('Failed to get image URL from upload API')
     }

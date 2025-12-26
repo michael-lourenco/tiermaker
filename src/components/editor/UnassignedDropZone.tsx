@@ -74,7 +74,7 @@ export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
           </SortableContext>
         ) : (
           <div className="flex items-center justify-center min-h-[140px] sm:min-h-[180px] text-muted-foreground px-4">
-            <p className="text-xs sm:text-sm text-center">Arraste itens aqui para removê-los dos tiers</p>
+            <p className="text-xs sm:text-sm text-center">{t('editor.dragItemsHere')}</p>
           </div>
         )}
     </div>

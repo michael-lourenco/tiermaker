@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 const AWS_REGION = process.env.AWS_REGION || 'us-east-1'
@@ -83,5 +83,72 @@ export async function getPresignedDownloadUrl(
   })
 
   return await getSignedUrl(s3Client, command, { expiresIn })
+}
+
+/**
+ * Extract S3 key from a full S3 URL
+ * Example: https://bucket.s3.region.amazonaws.com/path/to/file.jpg -> path/to/file.jpg
+ */
+export function extractS3KeyFromUrl(url: string): string | null {
+  if (!url) return null
+  
+  try {
+    const bucketUrl = getBucketUrl()
+    // Remove the bucket URL prefix to get the key
+    if (url.startsWith(bucketUrl)) {
+      return url.replace(bucketUrl + '/', '')
+    }
+    
+    // Also handle cases where URL might have different format
+    // Try to extract key from common S3 URL patterns
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname
+    // Remove leading slash
+    return pathname.startsWith('/') ? pathname.substring(1) : pathname
+  } catch (error) {
+    console.error('Error extracting S3 key from URL:', error)
+    return null
+  }
+}
+
+/**
+ * Delete an object from S3
+ */
+export async function deleteS3Object(key: string): Promise<void> {
+  const command = new DeleteObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  })
+
+  await s3Client.send(command)
+}
+
+/**
+ * Delete multiple objects from S3
+ * Returns array of successfully deleted keys and array of failed keys with errors
+ */
+export async function deleteS3Objects(keys: string[]): Promise<{
+  deleted: string[]
+  failed: Array<{ key: string; error: string }>
+}> {
+  const deleted: string[] = []
+  const failed: Array<{ key: string; error: string }> = []
+
+  // Delete objects in parallel, but track failures
+  await Promise.allSettled(
+    keys.map(async (key) => {
+      try {
+        await deleteS3Object(key)
+        deleted.push(key)
+      } catch (error: any) {
+        failed.push({
+          key,
+          error: error.message || 'Unknown error',
+        })
+      }
+    })
+  )
+
+  return { deleted, failed }
 }
 

@@ -315,9 +315,69 @@ export class TemplateService {
   }
 
   /**
-   * Delete template
+   * Delete template and all associated images from S3
    */
   async deleteTemplate(templateId: string, userId: string): Promise<void> {
+    // First, fetch the template with its items to get all image URLs
+    const template = await this.getTemplateById(templateId)
+    
+    if (!template) {
+      throw new Error('Template not found')
+    }
+
+    // Verify ownership
+    if (template.user_id !== userId) {
+      throw new Error('Unauthorized: You can only delete your own templates')
+    }
+
+    // Collect all image URLs to delete
+    const imageUrls: string[] = []
+
+    // Add cover image if exists
+    if (template.cover_image_url) {
+      imageUrls.push(template.cover_image_url)
+    }
+
+    // Add all item images
+    if (template.items && template.items.length > 0) {
+      template.items.forEach((item) => {
+        if (item.image_url) {
+          imageUrls.push(item.image_url)
+        }
+      })
+    }
+
+    // Delete images from S3 via API route (server-side)
+    if (imageUrls.length > 0) {
+      try {
+        const response = await fetch('/api/delete-images', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageUrls }),
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          if (result.failed && result.failed.length > 0) {
+            console.warn('Some S3 objects failed to delete:', result.failed)
+            // Log but don't throw - we still want to delete the template from DB
+          }
+          console.log(`Deleted ${result.deleted?.length || 0} image(s) from S3`)
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+          console.error('Error deleting images from S3:', errorData.error)
+          // Log but don't throw - we still want to delete the template from DB
+        }
+      } catch (error) {
+        console.error('Error calling delete-images API:', error)
+        // Log but don't throw - we still want to delete the template from DB
+        // This ensures the database stays consistent even if S3 deletion fails
+      }
+    }
+
+    // Finally, delete the template from database (this will cascade delete items)
     const { error } = await this.supabase
       .from('templates')
       .delete()

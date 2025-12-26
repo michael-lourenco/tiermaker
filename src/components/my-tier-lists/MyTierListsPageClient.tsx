@@ -76,24 +76,24 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
 
   return (
     <TooltipProvider>
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen p-4 sm:p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">{t('myTierLists.title')}</h1>
-            <p className="text-muted-foreground">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{t('myTierLists.title')}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               {t('myTierLists.manageDescription') || t('myTierLists.createFirst')}
             </p>
           </div>
 
           {tierLists.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-8 md:py-12 px-4">
               <p className="text-muted-foreground mb-4">{t('myTierLists.noTierLists')}</p>
               <Link href="/templates">
                 <Button>{t('home.browseTemplates')}</Button>
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {tierLists.map((tierList) => {
                 const hasFullData = 'tiers' in tierList && 'items' in tierList
                 
@@ -129,11 +129,11 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
                     </div>
 
                     {/* Action Buttons */}
-                    <CardFooter className="p-4 bg-background flex gap-2">
+                    <CardFooter className="p-3 sm:p-4 bg-background flex gap-2">
                       <Link href={`/tier-lists/${tierList.id}`} className="flex-1">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="outline" className="w-full">
+                            <Button variant="outline" className="w-full text-sm sm:text-base touch-manipulation">
                               {t('common.view') || 'View'}
                             </Button>
                           </TooltipTrigger>
@@ -150,6 +150,7 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
                             size="sm"
                             onClick={() => handleDeleteClick(tierList.id, tierList.title)}
                             disabled={deleting === tierList.id}
+                            className="touch-manipulation"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

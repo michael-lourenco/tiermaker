@@ -30,17 +30,17 @@ export default async function TierListPage({ params }: TierListPageProps) {
   tierListService.incrementViews(id).catch(console.error)
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Link href="/templates">
-            <Button variant="ghost">← Back</Button>
+            <Button variant="ghost" size="sm">← Back</Button>
           </Link>
         </div>
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">{tierList.title}</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{tierList.title}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Created {new Date(tierList.created_at).toLocaleDateString()}
           </p>
         </div>

@@ -538,11 +538,11 @@ export function TierListEditor({
         </SortableContext>
 
         {/* Add Tier Button */}
-        <div className="flex justify-center">
+        <div className="flex justify-center px-4">
             <Button
               onClick={handleAddTier}
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full sm:w-auto touch-manipulation"
             >
               <Plus className="h-4 w-4" />
               {t('editor.addTier')}
@@ -553,8 +553,8 @@ export function TierListEditor({
         <UnassignedDropZone items={getUnassignedItems()} />
 
             {onSave && (
-              <div className="flex justify-end">
-                <Button onClick={handleSave} className="px-6 py-2">
+              <div className="flex justify-end px-4 pb-4">
+                <Button onClick={handleSave} className="px-6 py-2 w-full sm:w-auto touch-manipulation">
                   {t('editor.saveTierList')}
                 </Button>
               </div>

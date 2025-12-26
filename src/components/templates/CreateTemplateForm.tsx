@@ -197,11 +197,11 @@ export function CreateTemplateForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 px-4 sm:px-6 md:px-0">
       <Card>
         <CardHeader>
-          <CardTitle>{t('createTemplate.title')}</CardTitle>
-          <CardDescription>{t('createTemplate.subtitle')}</CardDescription>
+          <CardTitle className="text-xl sm:text-2xl">{t('createTemplate.title')}</CardTitle>
+          <CardDescription className="text-sm">{t('createTemplate.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Cover Image */}
@@ -211,7 +211,7 @@ export function CreateTemplateForm() {
             </label>
             {coverImage ? (
               <div className="relative">
-                <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                <div className="relative w-full h-40 sm:h-48 rounded-lg overflow-hidden border">
                   <Image
                     src={coverImage.preview}
                     alt="Cover preview"
@@ -222,7 +222,7 @@ export function CreateTemplateForm() {
                   <button
                     type="button"
                     onClick={removeCoverImage}
-                    className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                    className="absolute top-2 right-2 p-1.5 sm:p-1 bg-destructive text-destructive-foreground rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -231,14 +231,14 @@ export function CreateTemplateForm() {
             ) : (
               <label
                 htmlFor="cover-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent transition-colors"
+                className="flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed border-border rounded-lg cursor-pointer active:bg-accent transition-colors touch-manipulation"
               >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                  <p className="mb-2 text-sm text-muted-foreground">
+                <div className="flex flex-col items-center justify-center pt-4 sm:pt-5 pb-4 sm:pb-6 px-4">
+                  <Upload className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-muted-foreground" />
+                  <p className="mb-2 text-xs sm:text-sm text-muted-foreground text-center">
                     <span className="font-semibold">{t('createTemplate.clickToUpload')}</span> {t('createTemplate.coverImageDescription')}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground text-center">
                     {t('createTemplate.fileTypes')}
                   </p>
                 </div>
@@ -357,7 +357,7 @@ export function CreateTemplateForm() {
           </div>
 
           {items.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {items.map((item) => (
                 <div key={item.id} className="relative group">
                   <div className="relative aspect-square rounded-lg overflow-hidden border">
@@ -365,21 +365,21 @@ export function CreateTemplateForm() {
                       src={item.preview}
                       alt={item.name}
                       fill
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1200px) 33vw, 25vw"
                       className="object-cover"
                     />
                     <button
                       type="button"
                       onClick={() => removeItem(item.id)}
-                      className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 p-1.5 sm:p-1 bg-destructive text-destructive-foreground rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </button>
                   </div>
                   <Input
                     value={item.name}
                     onChange={(e) => updateItemName(item.id, e.target.value)}
-                    className="mt-2 text-sm"
+                    className="mt-2 text-xs sm:text-sm"
                     placeholder="Item name"
                   />
                 </div>
@@ -395,16 +395,17 @@ export function CreateTemplateForm() {
         </CardContent>
       </Card>
 
-      <div className="flex justify-end gap-4">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pb-4 sm:pb-0">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
           disabled={uploading}
+          className="w-full sm:w-auto"
         >
           {t('common.cancel')}
         </Button>
-        <Button type="submit" disabled={uploading || items.length === 0}>
+        <Button type="submit" disabled={uploading || items.length === 0} className="w-full sm:w-auto">
           {uploading ? t('createTemplate.creatingTemplate') : t('createTemplate.createTemplate')}
         </Button>
       </div>

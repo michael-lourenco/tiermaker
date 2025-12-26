@@ -120,17 +120,17 @@ export function MyTemplatesPageClient({ templates: initialTemplates }: MyTemplat
 
   return (
     <TooltipProvider>
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen p-4 sm:p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">{t('templates.myTemplates') || 'My Templates'}</h1>
-            <p className="text-muted-foreground">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{t('templates.myTemplates') || 'My Templates'}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               {t('templates.manageTemplates') || 'Manage your created templates'}
             </p>
           </div>
 
           {templates.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-8 md:py-12 px-4">
               <p className="text-muted-foreground mb-4">
                 {t('templates.noTemplatesCreated') || "You haven't created any templates yet."}
               </p>
@@ -142,9 +142,9 @@ export function MyTemplatesPageClient({ templates: initialTemplates }: MyTemplat
             <>
               {/* Active Templates */}
               {activeTemplates.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-4">{t('templates.activeTemplates') || 'Active Templates'}</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="mb-6 md:mb-8">
+                  <h2 className="text-xl sm:text-2xl font-semibold mb-4">{t('templates.activeTemplates') || 'Active Templates'}</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {activeTemplates.map((template) => (
                       <TemplateCard
                         key={template.id}
@@ -162,9 +162,9 @@ export function MyTemplatesPageClient({ templates: initialTemplates }: MyTemplat
 
               {/* Archived Templates */}
               {archivedTemplates.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-4">{t('templates.archivedTemplates') || 'Archived Templates'}</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="mb-6 md:mb-8">
+                  <h2 className="text-xl sm:text-2xl font-semibold mb-4">{t('templates.archivedTemplates') || 'Archived Templates'}</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {archivedTemplates.map((template) => (
                       <TemplateCard
                         key={template.id}

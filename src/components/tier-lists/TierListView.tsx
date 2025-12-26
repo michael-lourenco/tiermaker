@@ -25,7 +25,7 @@ export function TierListView({ tierList }: TierListViewProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {tierList.tiers
         .sort((a, b) => a.tier_order - b.tier_order)
         .map((tier) => {
@@ -33,19 +33,19 @@ export function TierListView({ tierList }: TierListViewProps) {
           return (
             <div
               key={tier.id}
-              className="border-2 rounded-lg p-4 min-h-[150px]"
+              className="border-2 rounded-lg p-3 sm:p-4 min-h-[120px] sm:min-h-[150px]"
               style={{
                 backgroundColor: tier.color ? `${tier.color}20` : undefined,
                 borderColor: tier.color || undefined,
               }}
             >
               <h3
-                className="text-xl font-bold mb-4 text-center"
+                className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-center"
                 style={{ color: tier.color || undefined }}
               >
                 {tier.tier_name}
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
                 {items.map((item) => (
                   <div
                     key={item.id}
@@ -55,10 +55,10 @@ export function TierListView({ tierList }: TierListViewProps) {
                       src={item.template_item.image_url}
                       alt={item.template_item.name}
                       fill
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
+                      sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1200px) 16vw, 12vw"
                       className="object-cover"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-xs text-center">
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
                       {item.template_item.name}
                     </div>
                   </div>

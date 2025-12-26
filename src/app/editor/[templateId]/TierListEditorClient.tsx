@@ -57,13 +57,13 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 md:px-8">
       <div className="flex items-center gap-4">
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Tier List Title"
-          className="max-w-md"
+          className="w-full sm:max-w-md text-sm sm:text-base"
         />
       </div>
       <TierListEditor
@@ -72,8 +72,8 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
       />
       {saving && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background p-6 rounded-lg">
-            <p>Saving tier list...</p>
+          <div className="bg-background p-4 sm:p-6 rounded-lg mx-4">
+            <p className="text-sm sm:text-base">Saving tier list...</p>
           </div>
         </div>
       )}

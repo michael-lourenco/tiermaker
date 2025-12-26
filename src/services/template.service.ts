@@ -493,17 +493,25 @@ export class TemplateService {
   }
 
   /**
-   * Get all categories with template count
+   * Get all categories with template count (only active templates, excluding soft-deleted)
    */
   async getCategoriesWithCount(): Promise<Array<{ category: string; count: number; category_id?: string }>> {
     // Get categories with template count using template_categories
+    // We need to join with templates to filter out soft-deleted ones
     const { data, error } = await this.supabase
       .from('categories')
       .select(`
         id,
         name,
         slug,
-        template_categories(template_id)
+        template_categories(
+          template_id,
+          templates(
+            id,
+            deleted_at,
+            is_public
+          )
+        )
       `)
       .order('name', { ascending: true })
 
@@ -515,10 +523,21 @@ export class TemplateService {
       throw error
     }
 
-    // Count templates per category
+    // Count only active (non-deleted) and public templates per category
     return (data || []).map((cat: any) => {
-      const templateCount = cat.template_categories?.length || 0
-      // Only return categories that have at least one public template
+      const templateCategories = cat.template_categories || []
+      
+      // Filter out soft-deleted templates and count only active public ones
+      const activeTemplates = templateCategories.filter((tc: any) => {
+        const template = tc.templates
+        // Template must exist, be public, and not be soft-deleted
+        return template && 
+               template.is_public === true && 
+               !template.deleted_at
+      })
+      
+      const templateCount = activeTemplates.length
+      
       return {
         category: cat.name,
         category_id: cat.id,

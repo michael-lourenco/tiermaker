@@ -25,7 +25,12 @@
     "myTierLists": "My Tier Lists",
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "openMenu": "Open menu",
+    "menuDescription": "Navigation menu",
+    "browse": "Browse",
+    "myAccount": "My Account",
+    "account": "Account"
   },
   "home": {
     "title": "SuperTierMaker",

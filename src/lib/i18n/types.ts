@@ -27,6 +27,11 @@ export interface Translations {
     signIn: string
     signUp: string
     signOut: string
+    openMenu: string
+    menuDescription: string
+    browse: string
+    myAccount: string
+    account: string
   }
   home: {
     title: string

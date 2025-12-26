@@ -102,7 +102,11 @@
     "confirmDelete": "Confirm Removal",
     "confirmDeleteMessage": "Are you sure you want to remove the tier \"{tierName}\"?",
     "itemsWillBeMoved": "All {count} item(s) in this tier will be moved to the unassigned area.",
-    "remove": "Remove"
+    "remove": "Remove",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "pinUnassigned": "Pin unassigned items block",
+    "unpinUnassigned": "Unpin unassigned items block"
   },
   "createTemplate": {
     "title": "Template Information",

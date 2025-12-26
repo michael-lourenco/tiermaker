@@ -104,6 +104,10 @@ export interface Translations {
     confirmDeleteMessage: string
     itemsWillBeMoved: string
     remove: string
+    pin: string
+    unpin: string
+    pinUnassigned: string
+    unpinUnassigned: string
   }
   createTemplate: {
     title: string

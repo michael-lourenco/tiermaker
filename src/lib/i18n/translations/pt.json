@@ -102,7 +102,11 @@
     "confirmDelete": "Confirmar Remoção",
     "confirmDeleteMessage": "Tem certeza que deseja remover o tier \"{tierName}\"?",
     "itemsWillBeMoved": "Todos os {count} item(ns) deste tier serão movidos para a área de não atribuídos.",
-    "remove": "Remover"
+    "remove": "Remover",
+    "pin": "Fixar",
+    "unpin": "Desafixar",
+    "pinUnassigned": "Fixar bloco de itens não atribuídos",
+    "unpinUnassigned": "Desafixar bloco de itens não atribuídos"
   },
   "createTemplate": {
     "title": "Informações do Template",

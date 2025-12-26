@@ -119,6 +119,13 @@ export interface Translations {
     title: string
     noTierLists: string
     createFirst: string
+    manageDescription: string
+    confirmDeleteTitle: string
+    confirmDeleteMessage: string
+    deleteError: string
+    deleting: string
+    viewTooltip: string
+    deleteTooltip: string
   }
 }
 

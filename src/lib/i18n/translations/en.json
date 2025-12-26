@@ -117,7 +117,14 @@
   "myTierLists": {
     "title": "My Tier Lists",
     "noTierLists": "You haven't created any tier lists yet.",
-    "createFirst": "Create your first tier list by selecting a template."
+    "createFirst": "Create your first tier list by selecting a template.",
+    "manageDescription": "Manage your created tier lists",
+    "confirmDeleteTitle": "Delete Tier List",
+    "confirmDeleteMessage": "Are you sure you want to delete \"{tierListTitle}\"? This action cannot be undone.",
+    "deleteError": "Error deleting tier list. Please try again.",
+    "deleting": "Deleting...",
+    "viewTooltip": "View this tier list",
+    "deleteTooltip": "Delete this tier list"
   }
 }
 

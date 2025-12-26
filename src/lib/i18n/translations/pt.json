@@ -117,7 +117,14 @@
   "myTierLists": {
     "title": "Minhas Tier Lists",
     "noTierLists": "Você ainda não criou nenhuma tier list.",
-    "createFirst": "Crie sua primeira tier list selecionando um template."
+    "createFirst": "Crie sua primeira tier list selecionando um template.",
+    "manageDescription": "Gerencie suas tier lists criadas",
+    "confirmDeleteTitle": "Excluir Tier List",
+    "confirmDeleteMessage": "Tem certeza que deseja excluir \"{tierListTitle}\"? Esta ação não pode ser desfeita.",
+    "deleteError": "Erro ao excluir tier list. Por favor, tente novamente.",
+    "deleting": "Excluindo...",
+    "viewTooltip": "Visualizar esta tier list",
+    "deleteTooltip": "Excluir esta tier list"
   }
 }
 

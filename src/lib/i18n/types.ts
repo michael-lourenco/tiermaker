@@ -56,6 +56,13 @@ export interface Translations {
     updateTemplate: string
     updatingTemplate: string
     confirmDelete: string
+    confirmDeleteTitle: string
+    confirmDeleteMessage: string
+    deleteError: string
+    deleting: string
+    viewTemplateTooltip: string
+    editTemplateTooltip: string
+    deleteTemplateTooltip: string
   }
   categories: {
     title: string

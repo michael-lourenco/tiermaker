@@ -54,7 +54,14 @@
     "editTemplateDescription": "Update your template information and items",
     "updateTemplate": "Update Template",
     "updatingTemplate": "Updating...",
-    "confirmDelete": "Are you sure you want to delete this template?"
+    "confirmDelete": "Are you sure you want to delete this template?",
+    "confirmDeleteTitle": "Delete Template",
+    "confirmDeleteMessage": "Are you sure you want to delete \"{templateName}\"? This action cannot be undone.",
+    "deleteError": "Error deleting template. Please try again.",
+    "deleting": "Deleting...",
+    "viewTemplateTooltip": "View this template",
+    "editTemplateTooltip": "Edit this template",
+    "deleteTemplateTooltip": "Delete this template"
   },
   "categories": {
     "title": "Categories",

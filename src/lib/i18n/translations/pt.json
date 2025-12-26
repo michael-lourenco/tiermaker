@@ -54,7 +54,14 @@
     "editTemplateDescription": "Atualize as informações e itens do seu template",
     "updateTemplate": "Atualizar Template",
     "updatingTemplate": "Atualizando...",
-    "confirmDelete": "Tem certeza que deseja excluir este template?"
+    "confirmDelete": "Tem certeza que deseja excluir este template?",
+    "confirmDeleteTitle": "Excluir Template",
+    "confirmDeleteMessage": "Tem certeza que deseja excluir \"{templateName}\"? Esta ação não pode ser desfeita.",
+    "deleteError": "Erro ao excluir template. Por favor, tente novamente.",
+    "deleting": "Excluindo...",
+    "viewTemplateTooltip": "Visualizar este template",
+    "editTemplateTooltip": "Editar este template",
+    "deleteTemplateTooltip": "Excluir este template"
   },
   "categories": {
     "title": "Categorias",

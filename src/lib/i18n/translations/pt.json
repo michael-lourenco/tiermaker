@@ -147,6 +147,37 @@
   },
   "tierList": {
     "created": "Criado em"
+  },
+  "share": {
+    "title": "Compartilhar",
+    "shareTo": "Compartilhar em",
+    "copyLink": "Copiar link",
+    "linkCopied": "Link copiado!",
+    "downloadImage": "Baixar imagem",
+    "shareOnTwitter": "Compartilhar no Twitter",
+    "shareOnFacebook": "Compartilhar no Facebook",
+    "shareOnWhatsApp": "Compartilhar no WhatsApp",
+    "shareOnLinkedIn": "Compartilhar no LinkedIn",
+    "shareOnReddit": "Compartilhar no Reddit",
+    "shareViaEmail": "Compartilhar por Email",
+    "webShare": "Compartilhar",
+    "generatingImage": "Gerando imagem...",
+    "template": {
+      "text": "Crie sua tier list com {name}!",
+      "description": "Crie sua tier list com {name}! {count} itens disponíveis."
+    },
+    "tierList": {
+      "text": "Confira minha tier list: {title}!",
+      "description": "Tier list criada em {date}"
+    },
+    "category": {
+      "text": "Explore {count} templates em {category}!",
+      "description": "{count} templates disponíveis em {category}"
+    },
+    "editor": {
+      "text": "Crie sua tier list agora!",
+      "description": "Comece a criar sua tier list agora mesmo!"
+    }
   }
 }
 

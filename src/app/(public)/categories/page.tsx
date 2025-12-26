@@ -1,5 +1,9 @@
 import { TemplateService } from '@/services/template.service'
 import { CategoriesPageClient } from '@/components/categories/CategoriesPageClient'
+import { generateShareMetadata } from '@/lib/share/meta-tags'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = generateShareMetadata('category', {})
 
 export default async function CategoriesPage() {
   const templateService = new TemplateService()

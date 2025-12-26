@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { ShareButton } from '@/components/share/ShareButton'
 import { TierListView } from './TierListView'
 import { useViewTracking } from '@/hooks/useViewTracking'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -20,9 +21,12 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 md:mb-8">
-          <Link href="/templates">
-            <Button variant="ghost" size="sm">← {t('common.back')}</Button>
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/templates">
+              <Button variant="ghost" size="sm">← {t('common.back')}</Button>
+            </Link>
+            <ShareButton type="tier_list" data={tierList} />
+          </div>
         </div>
 
         <div className="mb-6 md:mb-8">

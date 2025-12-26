@@ -149,5 +149,36 @@ export interface Translations {
   tierList: {
     created: string
   }
+  share: {
+    title: string
+    shareTo: string
+    copyLink: string
+    linkCopied: string
+    downloadImage: string
+    shareOnTwitter: string
+    shareOnFacebook: string
+    shareOnWhatsApp: string
+    shareOnLinkedIn: string
+    shareOnReddit: string
+    shareViaEmail: string
+    webShare: string
+    generatingImage: string
+    template: {
+      text: string
+      description: string
+    }
+    tierList: {
+      text: string
+      description: string
+    }
+    category: {
+      text: string
+      description: string
+    }
+    editor: {
+      text: string
+      description: string
+    }
+  }
 }
 

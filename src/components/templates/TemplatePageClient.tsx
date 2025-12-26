@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { ShareButton } from '@/components/share/ShareButton'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useViewTracking } from '@/hooks/useViewTracking'
 import type { TemplateWithItemsAndCategories } from '@/types/template.types'
@@ -21,9 +22,12 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 md:mb-8">
-          <Link href="/templates">
-            <Button variant="ghost" size="sm" className="mb-4">{t('template.backToTemplates')}</Button>
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/templates">
+              <Button variant="ghost" size="sm">{t('template.backToTemplates')}</Button>
+            </Link>
+            <ShareButton type="template" data={template} />
+          </div>
         </div>
 
         {template.cover_image_url && (

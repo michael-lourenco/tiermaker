@@ -15,8 +15,8 @@ export default async function TemplatePage({ params }: TemplatePageProps) {
     notFound()
   }
 
-  // Increment views (fire and forget)
-  templateService.incrementViews(id).catch(console.error)
+  // Views tracking is now handled by useViewTracking hook in TemplatePageClient
+  // This provides 30-minute interval validation and full audit trail
 
   return <TemplatePageClient template={template} />
 }

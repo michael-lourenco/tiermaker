@@ -288,6 +288,15 @@ export class TierListService {
 
   /**
    * Increment views count
+   * 
+   * @deprecated Use the new views tracking system via useViewTracking hook instead.
+   * This method is kept for backward compatibility but should not be used in new code.
+   * The new system provides:
+   * - 30-minute minimum interval between views
+   * - Full audit trail
+   * - Support for authenticated and anonymous users
+   * 
+   * New code should use: useViewTracking('tier_list', tierListId)
    */
   async incrementViews(tierListId: string): Promise<void> {
     const supabase = this.supabase as any

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useViewTracking } from '@/hooks/useViewTracking'
 import type { TemplateWithItemsAndCategories } from '@/types/template.types'
 
 interface TemplatePageClientProps {
@@ -12,6 +13,9 @@ interface TemplatePageClientProps {
 
 export function TemplatePageClient({ template }: TemplatePageClientProps) {
   const { t } = useTranslation()
+  
+  // Track view with 30-minute minimum interval validation
+  useViewTracking('template', template.id)
 
   return (
     <main className="min-h-screen p-4 sm:p-6 md:p-8">

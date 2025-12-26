@@ -120,3 +120,4 @@ SOFT DELETE  HARD DELETE
 - Imagens do S3 são **preservadas** em soft delete para manter tier lists funcionando
 - A constraint `ON DELETE CASCADE` em `tier_lists.template_id` **não é mais um problema** porque templates não são fisicamente deletados quando há tier lists
 
+

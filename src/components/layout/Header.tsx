@@ -53,6 +53,11 @@ export function Header() {
                 <Link href="/create-template">
                   <Button size="sm">{t('nav.createTemplate')}</Button>
                 </Link>
+                <Link href="/my-templates">
+                  <Button variant="ghost" size="sm">
+                    {t('nav.myTemplates') || 'My Templates'}
+                  </Button>
+                </Link>
                 <Link href="/my-tier-lists">
                   <Button variant="ghost" size="sm">
                     {t('nav.myTierLists')}

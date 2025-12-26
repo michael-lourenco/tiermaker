@@ -22,6 +22,7 @@ export interface Translations {
     templates: string
     categories: string
     createTemplate: string
+    myTemplates: string
     myTierLists: string
     signIn: string
     signUp: string
@@ -47,6 +48,14 @@ export interface Translations {
     noTemplatesFound: string
     views: string
     likes: string
+    myTemplates: string
+    manageTemplates: string
+    noTemplatesCreated: string
+    editTemplate: string
+    editTemplateDescription: string
+    updateTemplate: string
+    updatingTemplate: string
+    confirmDelete: string
   }
   categories: {
     title: string

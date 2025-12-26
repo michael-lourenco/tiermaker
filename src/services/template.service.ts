@@ -125,15 +125,26 @@ export class TemplateService {
   /**
    * Get user's templates
    */
-  async getUserTemplates(userId: string): Promise<Template[]> {
+  async getUserTemplates(userId: string): Promise<Array<Template & { categories: Array<{ id: string; name: string; slug: string }> }>> {
     const { data, error } = await this.supabase
       .from('templates')
-      .select('*')
+      .select(`
+        *,
+        template_categories(category_id, categories(id, name, slug))
+      `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return data || []
+    
+    // Flatten response and extract categories
+    return (data || []).map((item: any) => {
+      const { template_categories, ...template } = item
+      const categories = (template_categories || [])
+        .map((tc: any) => tc.categories)
+        .filter(Boolean) as Array<{ id: string; name: string; slug: string }>
+      return { ...template, categories } as Template & { categories: Array<{ id: string; name: string; slug: string }> }
+    })
   }
 
   /**
@@ -223,6 +234,84 @@ export class TemplateService {
     if (!data) throw new Error('Template not found or unauthorized')
 
     return data
+  }
+
+  /**
+   * Update template completely (including items and categories)
+   */
+  async updateTemplateComplete(
+    templateId: string,
+    input: {
+      name: string
+      description?: string
+      category_id: string
+      cover_image_url?: string
+      is_public?: boolean
+      items: Array<{
+        name: string
+        image_url: string
+        order: number
+        existingItemId?: string
+      }>
+    },
+    userId: string
+  ): Promise<TemplateWithItems> {
+    // Update template basic info
+    await this.updateTemplate(
+      templateId,
+      {
+        name: input.name,
+        description: input.description ?? null,
+        cover_image_url: input.cover_image_url ?? null,
+        is_public: input.is_public ?? true,
+      },
+      userId
+    )
+
+    // Update category relationship
+    // Delete existing category relationships
+    await this.supabase
+      .from('template_categories')
+      .delete()
+      .eq('template_id', templateId)
+
+    // Create new category relationship
+    if (input.category_id) {
+      const { error: categoryError } = await this.supabase
+        .from('template_categories')
+        .insert({
+          template_id: templateId,
+          category_id: input.category_id,
+        } as any)
+
+      if (categoryError) throw categoryError
+    }
+
+    // Update items - delete all and recreate
+    // First, delete all existing items
+    await this.supabase
+      .from('template_items')
+      .delete()
+      .eq('template_id', templateId)
+
+    // Then insert all items (both existing and new)
+    if (input.items.length > 0) {
+      const itemsToInsert = input.items.map((item) => ({
+        template_id: templateId,
+        name: item.name,
+        image_url: item.image_url,
+        order: item.order,
+      }))
+
+      const { error: itemsError } = await this.supabase
+        .from('template_items')
+        .insert(itemsToInsert as any)
+
+      if (itemsError) throw itemsError
+    }
+
+    // Return updated template with items
+    return await this.getTemplateById(templateId) as TemplateWithItems
   }
 
   /**

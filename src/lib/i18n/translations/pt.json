@@ -21,6 +21,7 @@
     "templates": "Templates",
     "categories": "Categorias",
     "createTemplate": "Criar Template",
+    "myTemplates": "Meus Templates",
     "myTierLists": "Minhas Tier Lists",
     "signIn": "Entrar",
     "signUp": "Cadastrar",
@@ -45,7 +46,15 @@
     "viewTemplate": "Ver Template",
     "noTemplatesFound": "Nenhum template encontrado",
     "views": "visualizações",
-    "likes": "curtidas"
+    "likes": "curtidas",
+    "myTemplates": "Meus Templates",
+    "manageTemplates": "Gerencie seus templates criados",
+    "noTemplatesCreated": "Você ainda não criou nenhum template.",
+    "editTemplate": "Editar Template",
+    "editTemplateDescription": "Atualize as informações e itens do seu template",
+    "updateTemplate": "Atualizar Template",
+    "updatingTemplate": "Atualizando...",
+    "confirmDelete": "Tem certeza que deseja excluir este template?"
   },
   "categories": {
     "title": "Categorias",

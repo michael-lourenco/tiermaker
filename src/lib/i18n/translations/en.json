@@ -21,6 +21,7 @@
     "templates": "Templates",
     "categories": "Categories",
     "createTemplate": "Create Template",
+    "myTemplates": "My Templates",
     "myTierLists": "My Tier Lists",
     "signIn": "Sign In",
     "signUp": "Sign Up",
@@ -45,7 +46,15 @@
     "viewTemplate": "View Template",
     "noTemplatesFound": "No templates found",
     "views": "views",
-    "likes": "likes"
+    "likes": "likes",
+    "myTemplates": "My Templates",
+    "manageTemplates": "Manage your created templates",
+    "noTemplatesCreated": "You haven't created any templates yet.",
+    "editTemplate": "Edit Template",
+    "editTemplateDescription": "Update your template information and items",
+    "updateTemplate": "Update Template",
+    "updatingTemplate": "Updating...",
+    "confirmDelete": "Are you sure you want to delete this template?"
   },
   "categories": {
     "title": "Categories",

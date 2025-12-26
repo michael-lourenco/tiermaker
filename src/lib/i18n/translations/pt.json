@@ -62,6 +62,13 @@
     "deleting": "Excluindo...",
     "softDeleted": "Template foi ocultado (exclusão suave) porque está sendo usado por {count} tier list(s).",
     "hardDeleted": "Template e todas as imagens associadas foram permanentemente excluídas.",
+    "activeTemplates": "Templates Ativos",
+    "archivedTemplates": "Templates Arquivados",
+    "archived": "Arquivado",
+    "restore": "Restaurar",
+    "restoring": "Restaurando...",
+    "restoreError": "Erro ao restaurar template. Por favor, tente novamente.",
+    "restoreTemplateTooltip": "Restaurar este template",
     "viewTemplateTooltip": "Visualizar este template",
     "editTemplateTooltip": "Editar este template",
     "deleteTemplateTooltip": "Excluir este template"

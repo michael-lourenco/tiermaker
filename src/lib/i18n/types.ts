@@ -63,6 +63,13 @@ export interface Translations {
     deleting: string
     softDeleted: string
     hardDeleted: string
+    activeTemplates: string
+    archivedTemplates: string
+    archived: string
+    restore: string
+    restoring: string
+    restoreError: string
+    restoreTemplateTooltip: string
     viewTemplateTooltip: string
     editTemplateTooltip: string
     deleteTemplateTooltip: string

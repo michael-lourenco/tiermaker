@@ -62,6 +62,13 @@
     "deleting": "Deleting...",
     "softDeleted": "Template has been hidden (soft deleted) because it is being used by {count} tier list(s).",
     "hardDeleted": "Template and all associated images have been permanently deleted.",
+    "activeTemplates": "Active Templates",
+    "archivedTemplates": "Archived Templates",
+    "archived": "Archived",
+    "restore": "Restore",
+    "restoring": "Restoring...",
+    "restoreError": "Error restoring template. Please try again.",
+    "restoreTemplateTooltip": "Restore this template",
     "viewTemplateTooltip": "View this template",
     "editTemplateTooltip": "Edit this template",
     "deleteTemplateTooltip": "Delete this template"

@@ -150,11 +150,11 @@ export class TemplateService {
   }
 
   /**
-   * Get user's templates
-   * Filters out soft-deleted templates (deleted_at IS NULL)
+   * Get user's templates (including archived ones)
+   * Returns both active and archived templates
    */
-  async getUserTemplates(userId: string): Promise<Array<Template & { categories: Array<{ id: string; name: string; slug: string }> }>> {
-    let query = this.supabase
+  async getUserTemplates(userId: string): Promise<Array<Template & { categories: Array<{ id: string; name: string; slug: string }>, deleted_at?: string | null }>> {
+    const { data, error } = await this.supabase
       .from('templates')
       .select(`
         *,
@@ -162,10 +162,6 @@ export class TemplateService {
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-    
-    // Filter out soft-deleted templates
-    const finalQuery = (query as any).is('deleted_at', null)
-    const { data, error } = await finalQuery
 
     if (error) throw error
     
@@ -175,7 +171,7 @@ export class TemplateService {
       const categories = (template_categories || [])
         .map((tc: any) => tc.categories)
         .filter(Boolean) as Array<{ id: string; name: string; slug: string }>
-      return { ...template, categories } as Template & { categories: Array<{ id: string; name: string; slug: string }> }
+      return { ...template, categories } as Template & { categories: Array<{ id: string; name: string; slug: string }>, deleted_at?: string | null }
     })
   }
 

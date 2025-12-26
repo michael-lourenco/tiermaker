@@ -1,7 +1,7 @@
 'use client'
 
 import { useDroppable } from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { ItemCard } from './ItemCard'
 import type { TemplateItem } from '@/types/template.types'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -30,7 +30,7 @@ export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
       {items.length > 0 ? (
         <SortableContext
           items={items.map((item) => item.id)}
-          strategy={verticalListSortingStrategy}
+          strategy={rectSortingStrategy}
         >
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 overflow-y-auto" style={{ maxHeight: 'calc(40vh - 2rem)' }}>
             {items.map((item) => (

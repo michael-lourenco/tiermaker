@@ -165,8 +165,9 @@ export function TierListEditor({
         const activeItemTierName = activeItem.tier_name
 
         // If moving within the same tier, reorder items
-        if (activeItemTierName === overItemTierName && activeItemTierName !== '') {
-          // Get all items in this tier, sorted by order
+        // This includes reordering within unassigned items (both tier_name === '')
+        if (activeItemTierName === overItemTierName) {
+          // Get all items in this tier/unassigned, sorted by order
           const tierItemsEntries = Array.from(items.entries())
             .filter(([_, item]) => item.tier_name === activeItemTierName)
             .sort(([_, a], [__, b]) => a.order - b.order)
@@ -183,7 +184,7 @@ export function TierListEditor({
               const reorderedEntries = arrayMove(tierItemsEntries, activeIndex, overIndex)
               const newItems = new Map(items)
               
-              // Update order for all items in this tier based on new positions
+              // Update order for all items in this tier/unassigned based on new positions
               reorderedEntries.forEach(([itemId], newOrder) => {
                 const item = newItems.get(itemId)
                 if (item && item.order !== newOrder) {

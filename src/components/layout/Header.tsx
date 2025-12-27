@@ -9,8 +9,9 @@ import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { LanguageSelector } from '@/components/language/language-selector'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useTheme } from 'next-themes'
 import { Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Sheet,
   SheetContent,
@@ -26,7 +27,14 @@ export function Header() {
   const router = useRouter()
   const pathname = usePathname()
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSignOut = async () => {
     await signOut()
@@ -84,7 +92,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 text-2xl font-bold hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <Image
               src="/logo.png"
               alt="SuperTierMaker Logo"
@@ -92,7 +100,19 @@ export function Header() {
               height={32}
               className="object-contain"
             />
-            <span className="hidden sm:inline">{t('common.appName')}</span>
+            {mounted && (
+              <Image
+                src={theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'}
+                alt="SuperTierMaker"
+                width={180}
+                height={32}
+                className="hidden sm:block object-contain h-8 w-auto"
+                priority
+              />
+            )}
+            {!mounted && (
+              <span className="hidden sm:inline text-2xl font-bold">{t('common.appName')}</span>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
@@ -153,7 +173,18 @@ export function Header() {
                       height={24}
                       className="object-contain"
                     />
-                    {t('common.appName')}
+                    {mounted ? (
+                      <Image
+                        src={theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'}
+                        alt="SuperTierMaker"
+                        width={150}
+                        height={24}
+                        className="object-contain h-6 w-auto"
+                        priority
+                      />
+                    ) : (
+                      <span>{t('common.appName')}</span>
+                    )}
                   </SheetTitle>
                   <SheetDescription>
                     {t('nav.menuDescription') || 'Navigation menu'}

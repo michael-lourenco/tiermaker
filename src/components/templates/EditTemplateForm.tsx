@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useTranslation } from '@/hooks/useTranslation'
 import Image from 'next/image'
 import { X, Upload } from 'lucide-react'
+import { EditableTemplateItemCard } from './EditableTemplateItemCard'
 import type { TemplateWithItemsAndCategories, TemplateItem as TemplateItemType } from '@/types/template.types'
 
 const templateSchema = z.object({
@@ -404,32 +405,14 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
           </div>
 
           {items.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="flex flex-wrap gap-4">
               {items.map((item) => (
-                <div key={item.id} className="relative group">
-                  <div className="relative aspect-square rounded-lg overflow-hidden border">
-                    <Image
-                      src={item.preview}
-                      alt={item.name}
-                      fill
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                      className="object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.id)}
-                      className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <Input
-                    value={item.name}
-                    onChange={(e) => updateItemName(item.id, e.target.value)}
-                    className="mt-2 text-sm"
-                    placeholder="Item name"
-                  />
-                </div>
+                <EditableTemplateItemCard
+                  key={item.id}
+                  item={item}
+                  onRemove={removeItem}
+                  onNameChange={updateItemName}
+                />
               ))}
             </div>
           )}

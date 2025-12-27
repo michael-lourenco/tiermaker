@@ -21,6 +21,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils/cn'
+import { isAdminEmail } from '@/lib/utils/admin'
 
 export function Header() {
   const { user, loading, signOut } = useAuth()
@@ -48,7 +49,7 @@ export function Header() {
       return pathname === '/'
     }
     // Exact match for specific routes
-    if (path === '/my-templates' || path === '/my-tier-lists') {
+    if (path === '/my-templates' || path === '/my-tier-lists' || path === '/admin/categories') {
       return pathname === path
     }
     // Starts with for general routes like /categories, /templates
@@ -60,11 +61,14 @@ export function Header() {
     { href: '/templates', label: t('nav.templates') },
   ]
 
+  const isAdmin = user && isAdminEmail(user.email || null)
+  
   const userLinks = user
     ? [
         { href: '/create-template', label: t('nav.createTemplate'), variant: 'default' as const },
         { href: '/my-templates', label: t('nav.myTemplates') || 'My Templates', variant: 'ghost' as const },
         { href: '/my-tier-lists', label: t('nav.myTierLists'), variant: 'ghost' as const },
+        ...(isAdmin ? [{ href: '/admin/categories', label: 'Admin', variant: 'ghost' as const }] : []),
       ]
     : [
         { href: '/login', label: t('nav.signIn'), variant: 'ghost' as const },

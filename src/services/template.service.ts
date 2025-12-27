@@ -495,7 +495,7 @@ export class TemplateService {
   /**
    * Get all categories with template count (only active templates, excluding soft-deleted)
    */
-  async getCategoriesWithCount(): Promise<Array<{ category: string; count: number; category_id?: string }>> {
+  async getCategoriesWithCount(): Promise<Array<{ category: string; count: number; category_id?: string; image_url?: string | null }>> {
     // Get categories with template count using template_categories
     // We need to join with templates to filter out soft-deleted ones
     const { data, error } = await this.supabase
@@ -504,6 +504,7 @@ export class TemplateService {
         id,
         name,
         slug,
+        image_url,
         template_categories(
           template_id,
           templates(
@@ -542,6 +543,7 @@ export class TemplateService {
         category: cat.name,
         category_id: cat.id,
         count: templateCount,
+        image_url: cat.image_url || null,
       }
     }).filter((cat) => cat.count > 0)
       .sort((a, b) => b.count - a.count)

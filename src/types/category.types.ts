@@ -4,6 +4,7 @@ export interface Category {
   slug: string
   description: string | null
   icon: string | null
+  image_url: string | null
   created_at: string
   updated_at: string
 }

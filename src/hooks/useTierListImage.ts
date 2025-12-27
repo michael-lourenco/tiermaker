@@ -14,6 +14,19 @@ interface UseTierListImageOptions {
 }
 
 /**
+ * Load an image from URL
+ */
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = src
+  })
+}
+
+/**
  * Get computed background color from CSS variable or body element
  */
 function getBackgroundColor(): string {
@@ -132,8 +145,53 @@ export function useTierListImage(options?: UseTierListImageOptions) {
           // These dimensions maintain the aspect ratio correctly
         })
 
-        // Convert canvas to blob
-        canvas.toBlob(
+        // Load logo images
+        const logoIcon = await loadImage('/logo.png')
+        const logoText = await loadImage(
+          theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'
+        )
+
+        // Calculate logo dimensions (scaled)
+        const logoIconHeight = 40 * 2 // 40px at scale 2
+        const logoIconWidth = (logoIcon.width / logoIcon.height) * logoIconHeight
+        const logoTextHeight = 32 * 2 // 32px at scale 2
+        const logoTextWidth = (logoText.width / logoText.height) * logoTextHeight
+
+        // Calculate padding for logo area
+        const padding = 20 * 2 // 20px padding at scale 2
+        const logoAreaHeight = padding + logoIconHeight + padding
+
+        // Create new canvas with space for logo
+        const finalCanvas = document.createElement('canvas')
+        finalCanvas.width = canvas.width
+        finalCanvas.height = canvas.height + logoAreaHeight
+        const ctx = finalCanvas.getContext('2d')
+
+        if (!ctx) {
+          options?.onError?.(new Error('Failed to get canvas context'))
+          setIsGenerating(false)
+          return
+        }
+
+        // Fill background
+        ctx.fillStyle = backgroundColor
+        ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height)
+
+        // Draw logo area (centered)
+        const logoX = (finalCanvas.width - (logoIconWidth + padding + logoTextWidth)) / 2
+        const logoY = padding
+
+        // Draw logo icon
+        ctx.drawImage(logoIcon, logoX, logoY, logoIconWidth, logoIconHeight)
+
+        // Draw logo text next to icon
+        ctx.drawImage(logoText, logoX + logoIconWidth + padding, logoY + (logoIconHeight - logoTextHeight) / 2, logoTextWidth, logoTextHeight)
+
+        // Draw the tier list canvas below the logo
+        ctx.drawImage(canvas, 0, logoAreaHeight)
+
+        // Convert final canvas to blob
+        finalCanvas.toBlob(
           (blob) => {
             if (!blob) {
               options?.onError?.(new Error('Failed to generate image blob'))

@@ -25,6 +25,13 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
   }): Promise<void> => {
+    // Validate user is authenticated
+    if (!user) {
+      alert('You must be logged in to save a tier list. Please log in and try again.')
+      router.push('/login')
+      return
+    }
+
     setSaving(true)
 
     try {
@@ -44,7 +51,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
           tiers: data.tiers || [],
           items: data.items || [],
         },
-        user?.id
+        user.id // Now guaranteed to exist
       )
 
       router.push(`/tier-lists/${tierList.id}`)

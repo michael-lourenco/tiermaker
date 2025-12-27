@@ -120,18 +120,24 @@ export class TierListService {
 
   /**
    * Create a new tier list
+   * Requires userId to be provided - tier lists must be associated with a user
    */
   async createTierList(
     input: CreateTierListInput,
-    userId?: string
+    userId: string
   ): Promise<TierListWithData> {
+    // Validate userId is provided
+    if (!userId) {
+      throw new Error('User ID is required to create a tier list')
+    }
+
     const shareToken = uuidv4()
 
     // Create tier list
     const result = (await this.supabase
       .from('tier_lists')
       .insert({
-        user_id: userId || null,
+        user_id: userId,
         template_id: input.template_id,
         title: input.title,
         is_public: input.is_public ?? false,

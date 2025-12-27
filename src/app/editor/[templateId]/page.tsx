@@ -1,4 +1,5 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { TemplateService } from '@/services/template.service'
 import { TierListEditorClient } from './TierListEditorClient'
 
@@ -8,6 +9,15 @@ interface EditorPageProps {
 
 export default async function EditorPage({ params }: EditorPageProps) {
   const { templateId } = await params
+  
+  // Verify user authentication
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
   const templateService = new TemplateService()
   const template = await templateService.getTemplateById(templateId)
 

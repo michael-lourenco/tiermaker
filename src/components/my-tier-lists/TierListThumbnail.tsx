@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { TierListThumbnailItemCard } from './TierListThumbnailItemCard'
 import type { TierListWithData } from '@/types/tierList.types'
 
 interface TierListThumbnailProps {
@@ -61,18 +61,7 @@ export function TierListThumbnail({ tierList, className = '' }: TierListThumbnai
               <div className="flex-1 flex gap-1 p-1 overflow-hidden">
                 {items.length > 0 ? (
                   items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden border"
-                    >
-                      <Image
-                        src={item.template_item.image_url}
-                        alt={item.template_item.name}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
+                    <TierListThumbnailItemCard key={item.id} item={item} />
                   ))
                 ) : (
                   <div className="flex-1 flex items-center justify-center">

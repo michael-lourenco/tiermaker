@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { TierListItemCard } from './TierListItemCard'
 import type { TierListTier } from '@/types/tierList.types'
 import type { TierListItem } from '@/types/tierList.types'
 import type { TemplateItem } from '@/types/template.types'
@@ -44,31 +44,17 @@ export function TierListRowView({ tier, items }: TierListRowViewProps) {
 
       {/* Items Section - Middle */}
       <div className="flex-1 p-1.5 sm:p-2 min-h-[88px]">
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-1.5 sm:gap-2 min-h-[84px]">
-          {items.length > 0 ? (
-            items.map((item) => (
-              <div
-                key={item.id}
-                className="relative aspect-square rounded-lg overflow-hidden border"
-              >
-                <Image
-                  src={item.template_item.image_url}
-                  alt={item.template_item.name}
-                  fill
-                  sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1200px) 16vw, 12vw"
-                  className="object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
-                  {item.template_item.name}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center text-muted-foreground py-2 flex items-center justify-center">
-              <span className="text-xs">Nenhum item neste tier</span>
-            </div>
-          )}
-        </div>
+        {items.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 min-h-[84px]">
+            {items.map((item) => (
+              <TierListItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        ) : (
+          <div className="w-full text-center text-muted-foreground py-2 flex items-center justify-center min-h-[84px]">
+            <span className="text-xs">Nenhum item neste tier</span>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -16,3 +16,4 @@ CREATE INDEX IF NOT EXISTS idx_tier_lists_template_id_count ON tier_lists(templa
 COMMENT ON COLUMN templates.deleted_at IS 'Timestamp when template was soft deleted. NULL means template is active. Soft deleted templates are hidden from public views but tier lists can still reference them.';
 
 
+

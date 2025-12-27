@@ -1,28 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import Image from 'next/image'
 import type { TemplateItem } from '@/types/template.types'
 
-interface ItemCardProps {
+interface TemplateItemCardProps {
   item: TemplateItem
 }
 
-const FIXED_HEIGHT = 100 // Altura fixa em pixels
+const FIXED_HEIGHT = 150 // Altura fixa em pixels (maior que no editor para melhor visualização)
 
-export function ItemCard({ item }: ItemCardProps) {
+export function TemplateItemCard({ item }: TemplateItemCardProps) {
   const [containerWidth, setContainerWidth] = useState<number>(FIXED_HEIGHT) // Default to square
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id })
 
   // Load image to get natural dimensions
   useEffect(() => {
@@ -44,21 +33,13 @@ export function ItemCard({ item }: ItemCardProps) {
     img.src = item.image_url
   }, [item.image_url])
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    width: `${containerWidth}px`,
-    height: `${FIXED_HEIGHT}px`,
-  }
-
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="relative flex-shrink-0 rounded-lg overflow-hidden border cursor-grab active:cursor-grabbing hover:shadow-lg transition-shadow touch-manipulation"
+      className="relative flex-shrink-0 rounded-lg overflow-hidden border"
+      style={{
+        width: `${containerWidth}px`,
+        height: `${FIXED_HEIGHT}px`,
+      }}
     >
       <Image
         src={item.image_url}
@@ -67,7 +48,7 @@ export function ItemCard({ item }: ItemCardProps) {
         height={FIXED_HEIGHT}
         className="object-contain w-full h-full"
       />
-      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
+      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1.5 sm:p-2 text-xs sm:text-sm text-center">
         {item.name}
       </div>
     </div>

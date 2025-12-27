@@ -66,7 +66,7 @@ export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
             items={items.map((item) => item.id)}
             strategy={rectSortingStrategy}
           >
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 overflow-y-auto" style={{ maxHeight: 'calc(40vh - 2rem)' }}>
+            <div className="flex flex-wrap gap-2 sm:gap-4 overflow-y-auto" style={{ maxHeight: 'calc(40vh - 2rem)' }}>
               {items.map((item) => (
                 <ItemCard key={item.id} item={item} />
               ))}

@@ -1,28 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import Image from 'next/image'
+import type { TierListItem } from '@/types/tierList.types'
 import type { TemplateItem } from '@/types/template.types'
 
-interface ItemCardProps {
-  item: TemplateItem
+interface TierListItemCardProps {
+  item: TierListItem & { template_item: TemplateItem }
 }
 
-const FIXED_HEIGHT = 100 // Altura fixa em pixels
+const FIXED_HEIGHT = 100 // Altura fixa em pixels (mesma do editor)
 
-export function ItemCard({ item }: ItemCardProps) {
+export function TierListItemCard({ item }: TierListItemCardProps) {
   const [containerWidth, setContainerWidth] = useState<number>(FIXED_HEIGHT) // Default to square
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id })
 
   // Load image to get natural dimensions
   useEffect(() => {
@@ -41,34 +31,26 @@ export function ItemCard({ item }: ItemCardProps) {
       // Fallback to square if image fails to load
       setContainerWidth(FIXED_HEIGHT)
     }
-    img.src = item.image_url
-  }, [item.image_url])
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    width: `${containerWidth}px`,
-    height: `${FIXED_HEIGHT}px`,
-  }
+    img.src = item.template_item.image_url
+  }, [item.template_item.image_url])
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="relative flex-shrink-0 rounded-lg overflow-hidden border cursor-grab active:cursor-grabbing hover:shadow-lg transition-shadow touch-manipulation"
+      className="relative flex-shrink-0 rounded-lg overflow-hidden border"
+      style={{
+        width: `${containerWidth}px`,
+        height: `${FIXED_HEIGHT}px`,
+      }}
     >
       <Image
-        src={item.image_url}
-        alt={item.name}
+        src={item.template_item.image_url}
+        alt={item.template_item.name}
         width={containerWidth}
         height={FIXED_HEIGHT}
         className="object-contain w-full h-full"
       />
       <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
-        {item.name}
+        {item.template_item.name}
       </div>
     </div>
   )

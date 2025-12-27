@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useDroppable } from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { ItemCard } from './ItemCard'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -144,19 +144,19 @@ export function TierColumn({
       <div className="flex-1 p-1.5 sm:p-2 min-h-[88px]">
         <SortableContext
           items={items.map((item) => item.id)}
-          strategy={verticalListSortingStrategy}
+          strategy={rectSortingStrategy}
         >
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-1.5 sm:gap-2 min-h-[84px]">
-            {items.length > 0 ? (
-              items.map((item) => (
+          {items.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 min-h-[84px]">
+              {items.map((item) => (
                 <ItemCard key={item.id} item={item} />
-              ))
-            ) : (
-              <div className="col-span-full text-center text-muted-foreground py-2 flex items-center justify-center">
-                <span className="text-xs">{t('editor.dragItemsHere')}</span>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="w-full text-center text-muted-foreground py-2 flex items-center justify-center min-h-[84px]">
+              <span className="text-xs">{t('editor.dragItemsHere')}</span>
+            </div>
+          )}
         </SortableContext>
       </div>
 

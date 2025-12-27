@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ShareButton } from '@/components/share/ShareButton'
+import { TemplateItemCard } from './TemplateItemCard'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useViewTracking } from '@/hooks/useViewTracking'
 import type { TemplateWithItemsAndCategories } from '@/types/template.types'
@@ -63,20 +64,9 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 md:mb-8">
+        <div className="flex flex-wrap gap-3 sm:gap-4 mb-6 md:mb-8">
           {template.items.map((item) => (
-            <div key={item.id} className="relative aspect-square rounded-lg overflow-hidden border">
-              <Image
-                src={item.image_url}
-                alt={item.name}
-                fill
-                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1200px) 25vw, 20vw"
-                className="object-cover"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1.5 sm:p-2 text-xs sm:text-sm text-center">
-                {item.name}
-              </div>
-            </div>
+            <TemplateItemCard key={item.id} item={item} />
           ))}
         </div>
 

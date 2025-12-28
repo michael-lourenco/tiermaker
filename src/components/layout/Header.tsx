@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { LanguageSelector } from '@/components/language/language-selector'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from 'next-themes'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ChevronDown } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import {
   Sheet,
@@ -20,6 +20,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils/cn'
 import { isAdminEmail } from '@/lib/utils/admin'
 
@@ -49,10 +59,10 @@ export function Header() {
       return pathname === '/'
     }
     // Exact match for specific routes
-    if (path === '/my-templates' || path === '/my-tier-lists' || path === '/admin/categories') {
+    if (path === '/my-templates' || path === '/my-tier-lists' || path === '/admin/categories' || path === '/admin/ads') {
       return pathname === path
     }
-    // Starts with for general routes like /categories, /templates
+    // Starts with for general routes like /categories, /templates, /admin
     return pathname.startsWith(path)
   }
 
@@ -62,21 +72,6 @@ export function Header() {
   ]
 
   const isAdmin = user && isAdminEmail(user.email || null)
-  
-  const userLinks = user
-    ? [
-        { href: '/create-template', label: t('nav.createTemplate'), variant: 'default' as const },
-        { href: '/my-templates', label: t('nav.myTemplates') || 'My Templates', variant: 'ghost' as const },
-        { href: '/my-tier-lists', label: t('nav.myTierLists'), variant: 'ghost' as const },
-        ...(isAdmin ? [
-          { href: '/admin/categories', label: 'Categorias', variant: 'ghost' as const },
-          { href: '/admin/ads', label: 'Publicidades', variant: 'ghost' as const },
-        ] : []),
-      ]
-    : [
-        { href: '/login', label: t('nav.signIn'), variant: 'ghost' as const },
-        { href: '/register', label: t('nav.signUp'), variant: 'default' as const },
-      ]
 
   const NavLink = ({ href, label, className }: { href: string; label: string; className?: string }) => (
     <Link
@@ -135,26 +130,115 @@ export function Header() {
 
             {loading ? (
               <div className="w-20 h-8 bg-muted animate-pulse rounded" />
-            ) : (
+            ) : user ? (
               <>
-                {userLinks.map((link) => (
-                  <Link key={link.href} href={link.href}>
+                {/* Criar Template Button */}
+                <Link href="/create-template">
+                  <Button variant="default" size="sm">
+                    {t('nav.createTemplate')}
+                  </Button>
+                </Link>
+
+                {/* Meus Conteúdos Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button 
-                      variant={isActive(link.href) ? 'secondary' : link.variant} 
+                      variant="ghost" 
                       size="sm"
                       className={cn(
-                        isActive(link.href) && 'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
+                        (isActive('/my-templates') || isActive('/my-tier-lists')) && 
+                        'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
                       )}
                     >
-                      {link.label}
+                      Meus Conteúdos
+                      <ChevronDown className="ml-1 h-4 w-4" />
                     </Button>
-                  </Link>
-                ))}
-                {user && (
-                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                    {t('nav.signOut')}
-                  </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        href="/my-templates"
+                        className={cn(
+                          'w-full cursor-pointer',
+                          isActive('/my-templates') && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                      >
+                        {t('nav.myTemplates') || 'Meus Templates'}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        href="/my-tier-lists"
+                        className={cn(
+                          'w-full cursor-pointer',
+                          isActive('/my-tier-lists') && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                      >
+                        {t('nav.myTierLists')}
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Admin Dropdown (only for admin) */}
+                {isAdmin && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className={cn(
+                          (isActive('/admin/categories') || isActive('/admin/ads')) && 
+                          'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
+                        )}
+                      >
+                        Admin
+                        <ChevronDown className="ml-1 h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link 
+                          href="/admin/categories"
+                          className={cn(
+                            'w-full cursor-pointer',
+                            isActive('/admin/categories') && 'bg-primary/10 text-primary font-semibold'
+                          )}
+                        >
+                          Categorias
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link 
+                          href="/admin/ads"
+                          className={cn(
+                            'w-full cursor-pointer',
+                            isActive('/admin/ads') && 'bg-primary/10 text-primary font-semibold'
+                          )}
+                        >
+                          Publicidades
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
+
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  {t('nav.signOut')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" size="sm">
+                    {t('nav.signIn')}
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button variant="default" size="sm">
+                    {t('nav.signUp')}
+                  </Button>
+                </Link>
               </>
             )}
           </nav>
@@ -228,23 +312,83 @@ export function Header() {
                       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         {t('nav.myAccount') || 'My Account'}
                       </h3>
-                      {userLinks.map((link) => (
+                      
+                      {/* Criar Template */}
+                      <Link
+                        href="/create-template"
+                        className={cn(
+                          'block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                          'bg-primary text-primary-foreground hover:bg-primary/90'
+                        )}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {t('nav.createTemplate')}
+                      </Link>
+
+                      {/* Meus Conteúdos */}
+                      <div className="space-y-1 pl-3 border-l-2 border-muted">
+                        <h4 className="text-xs font-medium text-muted-foreground px-2 py-1">
+                          Meus Conteúdos
+                        </h4>
                         <Link
-                          key={link.href}
-                          href={link.href}
+                          href="/my-templates"
                           className={cn(
                             'block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
-                            isActive(link.href)
+                            isActive('/my-templates')
                               ? 'bg-primary/10 text-primary font-semibold'
-                              : link.variant === 'default'
-                              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                               : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                           )}
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          {link.label}
+                          {t('nav.myTemplates') || 'Meus Templates'}
                         </Link>
-                      ))}
+                        <Link
+                          href="/my-tier-lists"
+                          className={cn(
+                            'block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                            isActive('/my-tier-lists')
+                              ? 'bg-primary/10 text-primary font-semibold'
+                              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                          )}
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {t('nav.myTierLists')}
+                        </Link>
+                      </div>
+
+                      {/* Admin (only for admin) */}
+                      {isAdmin && (
+                        <div className="space-y-1 pl-3 border-l-2 border-muted">
+                          <h4 className="text-xs font-medium text-muted-foreground px-2 py-1">
+                            Admin
+                          </h4>
+                          <Link
+                            href="/admin/categories"
+                            className={cn(
+                              'block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                              isActive('/admin/categories')
+                                ? 'bg-primary/10 text-primary font-semibold'
+                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                            )}
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            Categorias
+                          </Link>
+                          <Link
+                            href="/admin/ads"
+                            className={cn(
+                              'block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                              isActive('/admin/ads')
+                                ? 'bg-primary/10 text-primary font-semibold'
+                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                            )}
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            Publicidades
+                          </Link>
+                        </div>
+                      )}
+
                       <Button
                         variant="ghost"
                         className="w-full justify-start px-3 py-2 h-auto text-sm font-medium"
@@ -258,21 +402,20 @@ export function Header() {
                       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         {t('nav.account') || 'Account'}
                       </h3>
-                      {userLinks.map((link) => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          className={cn(
-                            'block px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                            link.variant === 'default'
-                              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                          )}
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
+                      <Link
+                        href="/login"
+                        className="block px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {t('nav.signIn')}
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="block px-3 py-2 rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {t('nav.signUp')}
+                      </Link>
                     </div>
                   )}
                 </nav>

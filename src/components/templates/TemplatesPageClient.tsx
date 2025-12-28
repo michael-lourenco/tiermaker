@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { TemplateGrid } from '@/components/templates/TemplateGrid'
 import { useTranslation } from '@/hooks/useTranslation'
 import type { TemplateWithCategories } from '@/types/template.types'
+import { AdSpace } from '@/components/ads/AdSpace'
 
 interface TemplatesPageClientProps {
   templates: TemplateWithCategories[]
@@ -47,6 +48,10 @@ export function TemplatesPageClient({ templates, categoryName }: TemplatesPageCl
             </div>
           )}
         </div>
+        
+        {/* Ad Space - Content Top */}
+        <AdSpace position="content-top" />
+        
         <TemplateGrid templates={templates} />
       </div>
     </main>

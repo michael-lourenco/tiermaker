@@ -8,6 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { TemplateCard } from '@/components/templates/TemplateCard'
 import type { TemplateWithCategories } from '@/types/template.types'
 import type { Category } from '@/services/category.service'
+import { AdSpace } from '@/components/ads/AdSpace'
 
 interface HomePageClientProps {
   templates: TemplateWithCategories[]
@@ -38,6 +39,9 @@ export function HomePageClient({ templates, categories }: HomePageClientProps) {
           </div>
         </div>
       </section>
+
+      {/* Ad Space - Header Top */}
+      <AdSpace position="header-top" />
 
       {/* Categories with Tier Lists */}
       {categories.length > 0 && (
@@ -83,6 +87,9 @@ export function HomePageClient({ templates, categories }: HomePageClientProps) {
           </div>
         </section>
       )}
+
+      {/* Ad Space - Content Middle */}
+      <AdSpace position="content-middle" />
 
       {/* Popular Templates */}
       <section className="py-8 px-4 md:py-16 md:px-8">

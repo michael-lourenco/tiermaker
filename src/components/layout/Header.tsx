@@ -68,7 +68,10 @@ export function Header() {
         { href: '/create-template', label: t('nav.createTemplate'), variant: 'default' as const },
         { href: '/my-templates', label: t('nav.myTemplates') || 'My Templates', variant: 'ghost' as const },
         { href: '/my-tier-lists', label: t('nav.myTierLists'), variant: 'ghost' as const },
-        ...(isAdmin ? [{ href: '/admin/categories', label: 'Admin', variant: 'ghost' as const }] : []),
+        ...(isAdmin ? [
+          { href: '/admin/categories', label: 'Categorias', variant: 'ghost' as const },
+          { href: '/admin/ads', label: 'Publicidades', variant: 'ghost' as const },
+        ] : []),
       ]
     : [
         { href: '/login', label: t('nav.signIn'), variant: 'ghost' as const },

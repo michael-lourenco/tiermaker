@@ -26,6 +26,7 @@ import { TierListService } from '@/services/tierList.service'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { AdSpace } from '@/components/ads/AdSpace'
+import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
 import type { TierList, TierListWithData } from '@/types/tierList.types'
 
 interface MyTierListsPageClientProps {
@@ -78,7 +79,7 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
   return (
     <TooltipProvider>
       <main className="min-h-screen p-4 sm:p-6 md:p-8">
-        <div className="max-w-7xl mx-auto">
+        <PageWithSidebar showRightSidebar={true}>
           <div className="mb-6 md:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{t('myTierLists.title')}</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
@@ -169,7 +170,7 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
               })}
             </div>
           )}
-        </div>
+        </PageWithSidebar>
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

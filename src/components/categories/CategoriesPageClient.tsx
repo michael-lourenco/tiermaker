@@ -20,7 +20,7 @@ export function CategoriesPageClient({ categories }: CategoriesPageClientProps) 
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
       <PageWithSidebar showLeftSidebar={true}>
         <div className="mb-6 md:mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{t('categories.title')}</h1>
               <p className="text-sm sm:text-base text-muted-foreground">
@@ -32,7 +32,7 @@ export function CategoriesPageClient({ categories }: CategoriesPageClientProps) 
         </div>
 
         {categories.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {categories.map(({ category, count, category_id, image_url }) => (
               <Link 
                 key={category_id || category} 
@@ -41,23 +41,31 @@ export function CategoriesPageClient({ categories }: CategoriesPageClientProps) 
                   : `/templates?category=${encodeURIComponent(category)}`
                 }
               >
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full active:scale-95 transition-transform overflow-hidden">
-                  {image_url && (
-                    <div className="relative w-full h-32 sm:h-40 overflow-hidden">
+                <Card className="group relative overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 hover:border-primary">
+                  <div className="relative w-full aspect-video">
+                    {image_url ? (
                       <Image
                         src={image_url}
                         alt={category}
                         fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1200px) 25vw, 20vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
                       />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <span className="text-muted-foreground text-sm">No image</span>
+                      </div>
+                    )}
+                    
+                    {/* Overlay gradient for better text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Title - Bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 z-10 p-3">
+                      <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
+                        {category}
+                      </h3>
                     </div>
-                  )}
-                  <div className="p-4 sm:p-5 md:p-6 text-center">
-                    <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 md:mb-2 line-clamp-2">{category}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {count} {count !== 1 ? t('categories.templates') : t('categories.template')}
-                    </p>
                   </div>
                 </Card>
               </Link>

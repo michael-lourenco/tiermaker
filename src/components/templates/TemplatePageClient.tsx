@@ -78,14 +78,14 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
           ))}
         </div>
 
-        {/* Ad Space - Content Bottom */}
-        <AdSpace position="content-bottom" />
-
-        <div className="flex justify-center px-4">
+        <div className="flex justify-center px-4 mb-6 md:mb-8">
           <Link href={`/editor/${template.id}`} className="w-full sm:w-auto">
             <Button size="lg" className="w-full sm:w-auto">{t('template.createTierList')}</Button>
           </Link>
         </div>
+
+        {/* Ad Space - Content Bottom */}
+        <AdSpace position="content-bottom" />
       </PageWithSidebar>
     </main>
   )

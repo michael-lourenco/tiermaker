@@ -21,3 +21,4 @@ export async function isAdmin(supabase: any): Promise<boolean> {
   return isAdminEmail(user.email)
 }
 
+

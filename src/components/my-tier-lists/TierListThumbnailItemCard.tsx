@@ -53,3 +53,4 @@ export function TierListThumbnailItemCard({ item }: TierListThumbnailItemCardPro
   )
 }
 
+

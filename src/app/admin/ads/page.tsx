@@ -26,3 +26,4 @@ export default async function AdminAdsPage() {
   return <AdminAdSpacesPageClient adSpaces={adSpaces} />
 }
 
+

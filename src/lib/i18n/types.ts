@@ -180,5 +180,13 @@ export interface Translations {
       description: string
     }
   }
+  footer: {
+    description: string
+    links: string
+    legal: string
+    privacy: string
+    terms: string
+    rights: string
+  }
 }
 

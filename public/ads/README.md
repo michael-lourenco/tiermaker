@@ -64,3 +64,4 @@ Cada placeholder tem uma cor diferente para facilitar a identificação:
 - 🔴 Vermelho (320x50) - Mobile Banner
 - 🌸 Rosa (320x100) - Large Mobile Banner
 
+

@@ -119,3 +119,4 @@ Criar uma área de administração para gerenciar categorias do sistema, permiti
 - Adicionar preview de imagem antes de excluir
 - Adicionar confirmação visual ao salvar
 
+

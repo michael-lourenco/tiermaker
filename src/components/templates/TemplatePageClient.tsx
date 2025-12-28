@@ -7,6 +7,8 @@ import { ShareButton } from '@/components/share/ShareButton'
 import { TemplateItemCard } from './TemplateItemCard'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useViewTracking } from '@/hooks/useViewTracking'
+import { AdSpace } from '@/components/ads/AdSpace'
+import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
 import type { TemplateWithItemsAndCategories } from '@/types/template.types'
 
 interface TemplatePageClientProps {
@@ -21,7 +23,7 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
 
   return (
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+      <PageWithSidebar showRightSidebar={true}>
         <div className="mb-6 md:mb-8">
           <div className="flex items-center justify-between mb-4">
             <Link href="/templates">
@@ -30,6 +32,9 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
             <ShareButton type="template" data={template} />
           </div>
         </div>
+
+        {/* Ad Space - Content Top */}
+        <AdSpace position="content-top" />
 
         {template.cover_image_url && (
           <div className="relative w-full h-48 sm:h-64 md:h-96 rounded-lg overflow-hidden mb-6 md:mb-8">
@@ -64,18 +69,24 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
           </div>
         </div>
 
+        {/* Ad Space - Content Middle */}
+        <AdSpace position="content-middle" />
+
         <div className="flex flex-wrap gap-3 sm:gap-4 mb-6 md:mb-8">
           {template.items.map((item) => (
             <TemplateItemCard key={item.id} item={item} />
           ))}
         </div>
 
+        {/* Ad Space - Content Bottom */}
+        <AdSpace position="content-bottom" />
+
         <div className="flex justify-center px-4">
           <Link href={`/editor/${template.id}`} className="w-full sm:w-auto">
             <Button size="lg" className="w-full sm:w-auto">{t('template.createTierList')}</Button>
           </Link>
         </div>
-      </div>
+      </PageWithSidebar>
     </main>
   )
 }

@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ShareButton } from '@/components/share/ShareButton'
 import { useTranslation } from '@/hooks/useTranslation'
+import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
+import { AdSpace } from '@/components/ads/AdSpace'
 
 interface CategoriesPageClientProps {
   categories: Array<{ category: string; count: number; category_id?: string; image_url?: string | null }>
@@ -16,7 +18,7 @@ export function CategoriesPageClient({ categories }: CategoriesPageClientProps) 
 
   return (
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+      <PageWithSidebar showLeftSidebar={true}>
         <div className="mb-6 md:mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex-1">
@@ -71,7 +73,10 @@ export function CategoriesPageClient({ categories }: CategoriesPageClientProps) 
             </Link>
           </div>
         )}
-      </div>
+
+        {/* Ad Space - Content Bottom */}
+        <AdSpace position="content-bottom" />
+      </PageWithSidebar>
     </main>
   )
 }

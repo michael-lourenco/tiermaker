@@ -58,3 +58,4 @@ Se preferir, você pode:
 3. Colar no SQL Editor do Supabase
 4. Executar
 
+

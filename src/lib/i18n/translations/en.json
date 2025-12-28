@@ -179,6 +179,14 @@
       "text": "Create your tier list now!",
       "description": "Start creating your tier list right now!"
     }
+  },
+  "footer": {
+    "description": "Create, rank, and share tier lists for any topic",
+    "links": "Links",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "rights": "All rights reserved."
   }
 }
 

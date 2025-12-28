@@ -43,3 +43,4 @@ export function ManualAd({ adSpace, className }: ManualAdProps) {
   return content
 }
 
+

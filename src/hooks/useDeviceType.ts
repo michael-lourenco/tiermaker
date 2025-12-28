@@ -5,7 +5,13 @@ import { useState, useEffect } from 'react'
 export type DeviceType = 'desktop' | 'mobile'
 
 export function useDeviceType(): DeviceType {
-  const [deviceType, setDeviceType] = useState<DeviceType>('desktop')
+  // Initialize with desktop to avoid SSR mismatch and ensure sidebar ads work on first render
+  const [deviceType, setDeviceType] = useState<DeviceType>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768 ? 'desktop' : 'mobile'
+    }
+    return 'desktop' // Default to desktop for SSR
+  })
 
   useEffect(() => {
     const checkDeviceType = () => {
@@ -14,6 +20,7 @@ export function useDeviceType(): DeviceType {
       }
     }
 
+    // Check immediately on mount
     checkDeviceType()
     window.addEventListener('resize', checkDeviceType)
 
@@ -24,4 +31,5 @@ export function useDeviceType(): DeviceType {
 
   return deviceType
 }
+
 

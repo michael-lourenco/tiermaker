@@ -6,6 +6,7 @@ import { TemplateGrid } from '@/components/templates/TemplateGrid'
 import { useTranslation } from '@/hooks/useTranslation'
 import type { TemplateWithCategories } from '@/types/template.types'
 import { AdSpace } from '@/components/ads/AdSpace'
+import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
 
 interface TemplatesPageClientProps {
   templates: TemplateWithCategories[]
@@ -17,7 +18,7 @@ export function TemplatesPageClient({ templates, categoryName }: TemplatesPageCl
 
   return (
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+      <PageWithSidebar showLeftSidebar={true}>
         <div className="mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div className="flex-1">
@@ -53,7 +54,10 @@ export function TemplatesPageClient({ templates, categoryName }: TemplatesPageCl
         <AdSpace position="content-top" />
         
         <TemplateGrid templates={templates} />
-      </div>
+
+        {/* Ad Space - Content Bottom */}
+        <AdSpace position="content-bottom" />
+      </PageWithSidebar>
     </main>
   )
 }

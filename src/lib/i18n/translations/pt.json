@@ -179,6 +179,14 @@
       "text": "Crie sua tier list agora!",
       "description": "Comece a criar sua tier list agora mesmo!"
     }
+  },
+  "footer": {
+    "description": "Crie, classifique e compartilhe tier lists sobre qualquer tema",
+    "links": "Links",
+    "legal": "Legal",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Serviço",
+    "rights": "Todos os direitos reservados."
   }
 }
 

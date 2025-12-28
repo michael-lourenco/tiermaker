@@ -25,6 +25,7 @@ import { useState } from 'react'
 import { TierListService } from '@/services/tierList.service'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
+import { AdSpace } from '@/components/ads/AdSpace'
 import type { TierList, TierListWithData } from '@/types/tierList.types'
 
 interface MyTierListsPageClientProps {
@@ -94,14 +95,14 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {tierLists.map((tierList) => {
+              {tierLists.map((tierList, index) => {
                 const hasFullData = 'tiers' in tierList && 'items' in tierList
                 
                 return (
-                  <Card 
-                    key={tierList.id} 
-                    className="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-primary border-2 border-transparent"
-                  >
+                  <div key={tierList.id}>
+                    <Card 
+                      className="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-primary border-2 border-transparent"
+                    >
                     {/* Thumbnail Background */}
                     <div className="relative aspect-video w-full overflow-hidden bg-muted">
                       {hasFullData ? (
@@ -161,6 +162,9 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
                       </Tooltip>
                     </CardFooter>
                   </Card>
+                  {/* Ad Space - In Feed (a cada 6 cards) */}
+                  {(index + 1) % 6 === 0 && <AdSpace position="in-feed" className="mt-4 col-span-full" />}
+                  </div>
                 )
               })}
             </div>

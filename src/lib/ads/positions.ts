@@ -121,3 +121,4 @@ export function getAdPositionConfig(position: AdPosition): AdPositionConfig {
   return AD_POSITIONS[position]
 }
 
+

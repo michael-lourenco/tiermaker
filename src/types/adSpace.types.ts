@@ -64,3 +64,4 @@ export interface UpdateAdSpaceInput {
   priority?: number
 }
 
+

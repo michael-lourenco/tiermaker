@@ -17,3 +17,4 @@ COMMENT ON COLUMN templates.deleted_at IS 'Timestamp when template was soft dele
 
 
 
+

@@ -50,9 +50,6 @@ export function TemplatesPageClient({ templates, categoryName }: TemplatesPageCl
           )}
         </div>
         
-        {/* Ad Space - Content Top */}
-        <AdSpace position="content-top" />
-        
         <TemplateGrid templates={templates} />
 
         {/* Ad Space - Content Bottom */}

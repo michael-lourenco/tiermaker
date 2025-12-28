@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { Database } from '@/lib/supabase/types'
 
 export interface Category {
   id: string
@@ -26,7 +28,11 @@ export interface UpdateCategoryInput {
 }
 
 export class CategoryService {
-  private supabase = createClient()
+  private supabase: any
+
+  constructor(supabase?: any) {
+    this.supabase = supabase || createClient()
+  }
 
   /**
    * Get all categories
@@ -45,6 +51,97 @@ export class CategoryService {
       throw error
     }
     return data || []
+  }
+
+  /**
+   * Get categories with image that have at least one tier list
+   * Returns categories that have image_url and at least one tier list created from a template in that category
+   */
+  async getCategoriesWithImageAndTierLists(): Promise<Category[]> {
+    // First, get all categories with image_url
+    const { data: categories, error: categoriesError } = await this.supabase
+      .from('categories')
+      .select('*')
+      .not('image_url', 'is', null)
+      .order('name', { ascending: true })
+
+    if (categoriesError) {
+      // If table doesn't exist, return empty array
+      if (categoriesError.code === '42P01') {
+        return []
+      }
+      throw categoriesError
+    }
+
+    if (!categories || categories.length === 0) {
+      return []
+    }
+
+    // For each category, check if it has templates with tier lists
+    const categoriesWithTierLists: Category[] = []
+
+    for (const category of categories as Category[]) {
+      // Get template IDs in this category that are public and not deleted
+      const { data: templateCategories, error: tcError } = await this.supabase
+        .from('template_categories')
+        .select('template_id')
+        .eq('category_id', category.id)
+
+      if (tcError) {
+        continue
+      }
+      
+      if (!templateCategories || templateCategories.length === 0) {
+        continue
+      }
+
+      const templateIds = templateCategories.map((tc: any) => tc.template_id).filter(Boolean)
+
+      if (templateIds.length === 0) {
+        continue
+      }
+
+      // Get active public templates
+      const { data: activeTemplates, error: templatesError } = await this.supabase
+        .from('templates')
+        .select('id, name, is_public, deleted_at')
+        .in('id', templateIds)
+        .eq('is_public', true)
+        .is('deleted_at', null)
+
+      if (templatesError) {
+        continue
+      }
+
+      if (!activeTemplates || activeTemplates.length === 0) {
+        continue
+      }
+
+      const activeTemplateIds = activeTemplates.map((t: any) => t.id).filter(Boolean)
+
+      if (activeTemplateIds.length === 0) {
+        continue
+      }
+
+      // Check if any template has tier lists (count all, not just public)
+      // This is for determining if a category should appear on homepage
+      // We count all tier lists because we're using service role client to bypass RLS
+      const { count, error: tierListsError } = await this.supabase
+        .from('tier_lists')
+        .select('*', { count: 'exact', head: true })
+        .in('template_id', activeTemplateIds)
+
+      if (tierListsError) {
+        continue
+      }
+
+      // If count > 0, this category has tier lists
+      if (count && count > 0) {
+        categoriesWithTierLists.push(category)
+      }
+    }
+    
+    return categoriesWithTierLists
   }
 
   /**

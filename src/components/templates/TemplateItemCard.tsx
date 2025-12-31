@@ -2,18 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { useUserPreferences } from '@/hooks/useUserPreferences'
 import type { TemplateItem } from '@/types/template.types'
 
 interface TemplateItemCardProps {
   item: TemplateItem
+  showItemName?: boolean
 }
 
 const FIXED_HEIGHT = 150 // Altura fixa em pixels (maior que no editor para melhor visualização)
 
-export function TemplateItemCard({ item }: TemplateItemCardProps) {
+export function TemplateItemCard({ item, showItemName = false }: TemplateItemCardProps) {
   const [containerWidth, setContainerWidth] = useState<number>(FIXED_HEIGHT) // Default to square
-  const { showItemNames } = useUserPreferences()
 
   // Load image to get natural dimensions
   useEffect(() => {
@@ -50,7 +49,7 @@ export function TemplateItemCard({ item }: TemplateItemCardProps) {
         height={FIXED_HEIGHT}
         className="object-contain w-full h-full"
       />
-      {showItemNames && (
+      {showItemName && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm text-white p-1.5 sm:p-2 text-xs sm:text-sm text-center">
           {item.name}
         </div>

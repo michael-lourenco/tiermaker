@@ -96,7 +96,7 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
 
         <div className="flex flex-wrap gap-3 sm:gap-4 mb-6 md:mb-8">
           {template.items.map((item) => (
-            <TemplateItemCard key={item.id} item={item} />
+            <TemplateItemCard key={item.id} item={item} showItemName={showItemNames} />
           ))}
         </div>
 

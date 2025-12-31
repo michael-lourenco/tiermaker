@@ -13,6 +13,7 @@ interface TierRowProps {
   items: TemplateItem[]
   activeId: string | null
   showItemName?: boolean
+  isDragging?: boolean
   onTierNameChange: (tierId: string, newName: string) => void
   onTierColorChange: (tierId: string, newColor: string) => void
   onTierDelete: (tierId: string) => void
@@ -23,6 +24,7 @@ export function TierRow({
   items,
   activeId,
   showItemName = false,
+  isDragging: isDraggingProp = false,
   onTierNameChange,
   onTierColorChange,
   onTierDelete,
@@ -33,8 +35,11 @@ export function TierRow({
     setNodeRef: setSortableRef,
     transform,
     transition,
-    isDragging,
+    isDragging: isDraggingInternal,
   } = useSortable({ id: tier.id })
+  
+  // Use prop if provided, otherwise use internal state
+  const isDragging = isDraggingProp || isDraggingInternal
 
   // Also make the row droppable for items (when not dragging the tier itself)
   const { setNodeRef: setDroppableRef, isOver } = useDroppable({
@@ -50,20 +55,23 @@ export function TierRow({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    ...(isDragging && { cursor: 'grabbing' }),
   }
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="relative group"
+      className={`relative group ${isDragging ? 'cursor-grabbing' : ''}`}
     >
       <div className="flex items-center gap-0">
         {/* Drag Handle */}
         <div
           {...attributes}
           {...listeners}
-          className="flex-shrink-0 w-6 h-full flex items-center justify-center cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100"
+          className={`flex-shrink-0 w-6 h-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100 ${
+            isDragging ? 'cursor-grabbing' : 'cursor-grab active:cursor-grabbing'
+          }`}
           title="Arraste para reordenar"
         >
           <GripVertical className="h-5 w-5" />

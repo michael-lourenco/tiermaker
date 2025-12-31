@@ -118,6 +118,8 @@ export function TierListEditor({
     const tier = tiers.find((t) => t.id === event.active.id)
     if (tier) {
       setDraggingTierId(tier.id)
+      // Add class to body to ensure cursor-grabbing is applied globally
+      document.body.classList.add('dragging-tier')
     }
   }
 
@@ -388,6 +390,8 @@ export function TierListEditor({
 
     setActiveId(null)
     setDraggingTierId(null)
+    // Remove class from body when drag ends
+    document.body.classList.remove('dragging-tier')
   }
 
   const getNextOrderForTier = (tierName: string): number => {
@@ -522,6 +526,9 @@ export function TierListEditor({
     ? items.get(activeId)?.template_item 
     : null
 
+  // Check if a tier is being dragged
+  const isDraggingTier = draggingTierId !== null
+
   return (
     <DndContext
       sensors={sensors}
@@ -530,7 +537,7 @@ export function TierListEditor({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-0">
+      <div className={`space-y-0 ${isDraggingTier ? 'cursor-grabbing' : ''}`}>
         {/* Tiers - Sortable */}
         <SortableContext items={tierIds} strategy={verticalListSortingStrategy}>
           {tiers.map((tier) => {
@@ -542,6 +549,7 @@ export function TierListEditor({
                 items={tierItems}
                 activeId={activeId}
                 showItemName={showItemNames}
+                isDragging={draggingTierId === tier.id}
                 onTierNameChange={handleTierNameChange}
                 onTierColorChange={handleTierColorChange}
                 onTierDelete={handleTierDelete}

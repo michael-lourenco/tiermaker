@@ -102,11 +102,12 @@ export function TierColumn({
       ref={setNodeRef}
       className={`flex border-2 rounded-lg transition-all touch-manipulation ${
         isOver ? 'border-primary bg-primary/20 border-4' : 'border-border'
-      } ${isDragging ? 'opacity-50' : ''}`}
+      } ${isDragging ? 'opacity-50 cursor-grabbing' : ''}`}
       style={{
         backgroundColor: tier.color ? `${tier.color}15` : undefined,
         borderColor: tier.color || undefined,
         minHeight: '90px', // Half of previous height
+        ...(isDragging && { cursor: 'grabbing' }),
       }}
     >
       {/* Tier Label Section - Left Side */}

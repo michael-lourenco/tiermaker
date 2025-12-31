@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { TierListEditor } from '@/components/editor/TierListEditor'
 import { TierListService } from '@/services/tierList.service'
 import { Input } from '@/components/ui/input'
@@ -20,6 +21,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const { user } = useAuth()
   const router = useRouter()
   const tierListService = new TierListService()
+  const { showItemNames, setShowItemNames, loading: preferencesLoading } = useUserPreferences()
 
   const handleSave = async (data: {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
@@ -75,6 +77,8 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
       </div>
       <TierListEditor
         templateItems={template.items}
+        showItemNames={showItemNames}
+        onShowItemNamesChange={setShowItemNames}
         onSave={handleSave}
       />
       {saving && (

@@ -5,6 +5,8 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { ItemCard } from './ItemCard'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import { Pin, PinOff } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import type { TemplateItem } from '@/types/template.types'
@@ -12,9 +14,11 @@ import { useTranslation } from '@/hooks/useTranslation'
 
 interface UnassignedDropZoneProps {
   items: TemplateItem[]
+  showItemName?: boolean
+  onShowItemNameChange?: (show: boolean) => void
 }
 
-export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
+export function UnassignedDropZone({ items, showItemName = false, onShowItemNameChange }: UnassignedDropZoneProps) {
   const { t } = useTranslation()
   const [isPinned, setIsPinned] = useState(false)
   const { setNodeRef, isOver } = useDroppable({
@@ -39,8 +43,8 @@ export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
         bottom: isPinned ? 'auto' : '20px', // Quando desafixado, fica na parte inferior mas com espaço para ver imagens
       }}
     >
-      {/* Botão de fixar/desafixar - sempre no topo à direita do bloco */}
-      <div className="absolute top-2 right-2 z-30">
+      {/* Botão de fixar/desafixar e switch de nomes - sempre no topo à direita do bloco */}
+      <div className="absolute top-2 right-2 z-30 flex flex-col gap-2 items-end">
         <Button
           variant="outline"
           size="sm"
@@ -60,6 +64,18 @@ export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
             </>
           )}
         </Button>
+        {onShowItemNameChange && (
+          <div className="flex items-center gap-2 bg-background/95 backdrop-blur-sm px-2 py-1 rounded border border-border">
+            <Label htmlFor="show-item-names" className="text-xs cursor-pointer">
+              {t('editor.showItemNames')}
+            </Label>
+            <Switch
+              id="show-item-names"
+              checked={showItemName}
+              onCheckedChange={onShowItemNameChange}
+            />
+          </div>
+        )}
       </div>
         {items.length > 0 ? (
           <SortableContext
@@ -68,7 +84,7 @@ export function UnassignedDropZone({ items }: UnassignedDropZoneProps) {
           >
             <div className="flex flex-wrap gap-2 sm:gap-4 overflow-y-auto" style={{ maxHeight: 'calc(40vh - 2rem)' }}>
               {items.map((item) => (
-                <ItemCard key={item.id} item={item} />
+                <ItemCard key={item.id} item={item} showItemName={showItemName} />
               ))}
             </div>
           </SortableContext>

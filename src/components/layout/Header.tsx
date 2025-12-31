@@ -157,6 +157,17 @@ export function Header() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
                       <Link 
+                        href="/profile"
+                        className={cn(
+                          'w-full cursor-pointer',
+                          isActive('/profile') && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                      >
+                        {t('profile.title') || 'Profile'}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link 
                         href="/my-templates"
                         className={cn(
                           'w-full cursor-pointer',
@@ -312,6 +323,20 @@ export function Header() {
                       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         {t('nav.myAccount') || 'My Account'}
                       </h3>
+                      
+                      {/* Perfil */}
+                      <Link
+                        href="/profile"
+                        className={cn(
+                          'block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                          isActive('/profile')
+                            ? 'bg-primary/10 text-primary font-semibold'
+                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                        )}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {t('profile.title') || 'Profile'}
+                      </Link>
                       
                       {/* Criar Template */}
                       <Link

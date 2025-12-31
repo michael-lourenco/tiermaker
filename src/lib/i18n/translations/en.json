@@ -98,6 +98,7 @@
     "unassignedDescription": "Drag items here to remove them from tiers",
     "tier": "Tier",
     "dragItemsHere": "Drag items here",
+    "showItemNames": "Show names",
     "removeTier": "Remove tier",
     "changeTierColor": "Change tier color",
     "confirmDelete": "Confirm Removal",
@@ -187,6 +188,13 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "rights": "All rights reserved."
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Manage your preferences and settings",
+    "preferences": "Preferences",
+    "preferencesDescription": "Customize how you view tier lists",
+    "showItemNamesDescription": "Show or hide item names on tier list images"
   }
 }
 

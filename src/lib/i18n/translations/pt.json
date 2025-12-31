@@ -98,6 +98,7 @@
     "unassignedDescription": "Arraste itens aqui para removê-los dos tiers",
     "tier": "Tier",
     "dragItemsHere": "Arraste itens aqui",
+    "showItemNames": "Mostrar nomes",
     "removeTier": "Remover tier",
     "changeTierColor": "Alterar cor do tier",
     "confirmDelete": "Confirmar Remoção",
@@ -187,6 +188,13 @@
     "privacy": "Política de Privacidade",
     "terms": "Termos de Serviço",
     "rights": "Todos os direitos reservados."
+  },
+  "profile": {
+    "title": "Perfil",
+    "description": "Gerencie suas preferências e configurações",
+    "preferences": "Preferências",
+    "preferencesDescription": "Personalize como você visualiza as tier lists",
+    "showItemNamesDescription": "Exibir ou ocultar os nomes dos itens nas imagens das tier lists"
   }
 }
 

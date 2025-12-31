@@ -12,6 +12,7 @@ interface TierRowProps {
   tier: TierListTier
   items: TemplateItem[]
   activeId: string | null
+  showItemName?: boolean
   onTierNameChange: (tierId: string, newName: string) => void
   onTierColorChange: (tierId: string, newColor: string) => void
   onTierDelete: (tierId: string) => void
@@ -21,6 +22,7 @@ export function TierRow({
   tier,
   items,
   activeId,
+  showItemName = false,
   onTierNameChange,
   onTierColorChange,
   onTierDelete,
@@ -73,6 +75,7 @@ export function TierRow({
             tier={tier}
             items={items}
             activeId={activeId}
+            showItemName={showItemName}
             onTierNameChange={onTierNameChange}
             onTierColorChange={onTierColorChange}
             onTierDelete={onTierDelete}

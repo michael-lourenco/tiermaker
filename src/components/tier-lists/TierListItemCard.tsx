@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useUserPreferences } from '@/hooks/useUserPreferences'
 import type { TierListItem } from '@/types/tierList.types'
 import type { TemplateItem } from '@/types/template.types'
 
@@ -13,6 +14,7 @@ const FIXED_HEIGHT = 100 // Altura fixa em pixels (mesma do editor)
 
 export function TierListItemCard({ item }: TierListItemCardProps) {
   const [containerWidth, setContainerWidth] = useState<number>(FIXED_HEIGHT) // Default to square
+  const { showItemNames } = useUserPreferences()
 
   // Load image to get natural dimensions
   useEffect(() => {
@@ -49,9 +51,11 @@ export function TierListItemCard({ item }: TierListItemCardProps) {
         height={FIXED_HEIGHT}
         className="object-contain w-full h-full"
       />
-      <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
-        {item.template_item.name}
-      </div>
+      {showItemNames && (
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
+          {item.template_item.name}
+        </div>
+      )}
     </div>
   )
 }

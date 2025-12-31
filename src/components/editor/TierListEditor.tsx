@@ -32,6 +32,8 @@ interface TierListEditorProps {
   templateItems: TemplateItem[]
   initialTiers?: TierListTier[]
   initialItems?: (TierListItem & { template_item: TemplateItem })[]
+  showItemNames?: boolean
+  onShowItemNamesChange?: (show: boolean) => void
   onSave?: (data: {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
@@ -42,6 +44,8 @@ export function TierListEditor({
   templateItems,
   initialTiers,
   initialItems,
+  showItemNames = false,
+  onShowItemNamesChange,
   onSave,
 }: TierListEditorProps) {
   const { t } = useTranslation()
@@ -530,6 +534,7 @@ export function TierListEditor({
                 tier={tier}
                 items={tierItems}
                 activeId={activeId}
+                showItemName={showItemNames}
                 onTierNameChange={handleTierNameChange}
                 onTierColorChange={handleTierColorChange}
                 onTierDelete={handleTierDelete}
@@ -551,7 +556,11 @@ export function TierListEditor({
         </div>
 
         {/* Unassigned items - always show, even when empty */}
-        <UnassignedDropZone items={getUnassignedItems()} />
+        <UnassignedDropZone 
+          items={getUnassignedItems()} 
+          showItemName={showItemNames}
+          onShowItemNameChange={onShowItemNamesChange}
+        />
 
             {onSave && (
               <div className="flex justify-end px-4 pb-4">

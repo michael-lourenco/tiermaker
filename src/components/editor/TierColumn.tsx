@@ -23,6 +23,7 @@ interface TierColumnProps {
   tier: TierListTier
   items: TemplateItem[]
   activeId: string | null
+  showItemName?: boolean
   onTierNameChange: (tierId: string, newName: string) => void
   onTierColorChange: (tierId: string, newColor: string) => void
   onTierDelete: (tierId: string) => void
@@ -33,6 +34,7 @@ export function TierColumn({
   tier,
   items,
   activeId,
+  showItemName = false,
   onTierNameChange,
   onTierColorChange,
   onTierDelete,
@@ -149,7 +151,7 @@ export function TierColumn({
           {items.length > 0 ? (
             <div className="flex flex-wrap gap-1.5 sm:gap-2 min-h-[84px]">
               {items.map((item) => (
-                <ItemCard key={item.id} item={item} />
+                <ItemCard key={item.id} item={item} showItemName={showItemName} />
               ))}
             </div>
           ) : (

@@ -215,6 +215,26 @@ export interface Database {
           updated_at?: string
         }
       }
+      user_preferences: {
+        Row: {
+          user_id: string
+          show_item_names: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          show_item_names?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          show_item_names?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

@@ -48,7 +48,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
           </div>
           
           {/* Title - Bottom */}
-          <div className="absolute bottom-0 left-0 right-0 z-10 p-3">
+          <div className="absolute bottom-0 left-0 right-0 z-10 p-3 bg-black/60 backdrop-blur-sm">
             <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
               {template.name}
             </h3>

@@ -67,7 +67,7 @@ export function ItemCard({ item }: ItemCardProps) {
         height={FIXED_HEIGHT}
         className="object-contain w-full h-full"
       />
-      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
+      <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">
         {item.name}
       </div>
     </div>

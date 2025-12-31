@@ -48,7 +48,7 @@ export function TemplateItemCard({ item }: TemplateItemCardProps) {
         height={FIXED_HEIGHT}
         className="object-contain w-full h-full"
       />
-      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1.5 sm:p-2 text-xs sm:text-sm text-center">
+      <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm text-white p-1.5 sm:p-2 text-xs sm:text-sm text-center">
         {item.name}
       </div>
     </div>

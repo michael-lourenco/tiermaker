@@ -300,7 +300,7 @@ function TemplateCard({ template, onDelete, onRestore, deleting, restoring, t }:
           </div>
 
           {/* Title (Bottom) */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+          <div className="absolute bottom-0 left-0 right-0 p-4 z-10 bg-black/60 backdrop-blur-sm">
             <h3 className="text-lg font-bold text-white line-clamp-2">
               {template.name}
             </h3>

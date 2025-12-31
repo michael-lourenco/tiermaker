@@ -76,7 +76,7 @@ export function HomePageClient({ templates, categories }: HomePageClientProps) {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
                       {/* Title - Bottom */}
-                      <div className="absolute bottom-0 left-0 right-0 z-10 p-3">
+                      <div className="absolute bottom-0 left-0 right-0 z-10 p-3 bg-black/60 backdrop-blur-sm">
                         <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
                           {category.name}
                         </h3>

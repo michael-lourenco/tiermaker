@@ -11,6 +11,7 @@ import {
   DragEndEvent,
   DragOverEvent,
   DragStartEvent,
+  DragOverlay,
 } from '@dnd-kit/core'
 import {
   arrayMove,
@@ -20,6 +21,7 @@ import {
 } from '@dnd-kit/sortable'
 import { TierRow } from './TierRow'
 import { UnassignedDropZone } from './UnassignedDropZone'
+import { ItemCard } from './ItemCard'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
@@ -515,6 +517,11 @@ export function TierListEditor({
 
   const tierIds = tiers.map((tier) => tier.id)
 
+  // Get the active item being dragged (if it's an item, not a tier)
+  const activeItem = activeId && !tiers.find((t) => t.id === activeId) 
+    ? items.get(activeId)?.template_item 
+    : null
+
   return (
     <DndContext
       sensors={sensors}
@@ -570,6 +577,15 @@ export function TierListEditor({
               </div>
             )}
       </div>
+
+      {/* Drag Overlay - Shows the item being dragged following the cursor */}
+      <DragOverlay>
+        {activeItem ? (
+          <div className="rotate-3 opacity-90">
+            <ItemCard item={activeItem} showItemName={showItemNames} />
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   )
 }

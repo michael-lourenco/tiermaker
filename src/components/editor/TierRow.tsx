@@ -52,9 +52,20 @@ export function TierRow({
     setDroppableRef(node)
   }
 
+  // Ensure transition is applied for smooth animations
+  // The @dnd-kit provides transition automatically via useSortable
+  // When this tier is being dragged, transition is null (which is correct - no transition for dragging item)
+  // When other tiers are being reordered, we need to ensure transition is applied
+  // We apply a default transition when there's an active drag and this tier is not the one being dragged
+  const isThisTierDragging = isDragging
+  // Always apply transition when provided by @dnd-kit, or when another tier is being dragged
+  const transitionStyle = transition !== null && transition !== undefined 
+    ? transition 
+    : (activeId && activeId !== tier.id && !isThisTierDragging ? 'transform 200ms cubic-bezier(0.2, 0, 0.2, 1)' : undefined)
+  
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    ...(transitionStyle && { transition: transitionStyle }),
     ...(isDragging && { cursor: 'grabbing' }),
   }
 

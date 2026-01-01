@@ -140,11 +140,50 @@ export function TierListEditor({
     // Prevenir scroll durante drag no mobile
     // Salvar scroll position antes de fixar
     const scrollY = window.scrollY
+    const viewportHeight = window.innerHeight
+    
+    // Encontrar elementos importantes para garantir visibilidade
+    const titleElement = document.getElementById('tier-list-title')
+    const firstTierElement = tiers.length > 0 
+      ? document.querySelector(`[data-tier-id="${tiers[0].id}"]`) as HTMLElement
+      : null
+    
+    // Calcular a posição mínima necessária para manter conteúdo visível
+    let minVisibleTop = 0
+    
+    if (titleElement) {
+      const titleRect = titleElement.getBoundingClientRect()
+      const titleTop = scrollY + titleRect.top
+      // Se o título está acima da viewport, ajustar para mantê-lo visível
+      if (titleRect.top < 0) {
+        minVisibleTop = Math.max(minVisibleTop, titleTop - 20) // 20px de padding
+      }
+    }
+    
+    if (firstTierElement) {
+      const tierRect = firstTierElement.getBoundingClientRect()
+      const tierTop = scrollY + tierRect.top
+      // Se a primeira tier está acima da viewport, ajustar para mantê-la visível
+      if (tierRect.top < 0) {
+        minVisibleTop = Math.max(minVisibleTop, tierTop - 20) // 20px de padding
+      }
+    }
+    
+    // Calcular o top ajustado
+    // Se minVisibleTop > 0, significa que precisamos ajustar para mostrar conteúdo
+    const adjustedScrollY = minVisibleTop > 0 ? minVisibleTop : scrollY
+    
+    // Fixar body com posição ajustada
     document.body.style.position = 'fixed'
-    document.body.style.top = `-${scrollY}px`
+    document.body.style.top = `-${adjustedScrollY}px`
     document.body.style.width = '100%'
     document.body.style.overflow = 'hidden'
+    // Salvar a posição original para restaurar depois
     document.body.setAttribute('data-scroll-y', scrollY.toString())
+    // Salvar também a posição ajustada se diferente
+    if (adjustedScrollY !== scrollY) {
+      document.body.setAttribute('data-adjusted-scroll-y', adjustedScrollY.toString())
+    }
   }
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -332,8 +371,9 @@ export function TierListEditor({
     document.body.style.top = ''
     document.body.classList.remove('dragging-item', 'dragging-tier')
     document.body.removeAttribute('data-scroll-y')
+    document.body.removeAttribute('data-adjusted-scroll-y')
     
-    // Restaurar posição de scroll
+    // Restaurar posição de scroll original (não a ajustada)
     if (scrollY) {
       window.scrollTo(0, parseInt(scrollY))
     }

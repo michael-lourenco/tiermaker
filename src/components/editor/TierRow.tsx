@@ -75,6 +75,7 @@ export function TierRow({
       ref={setNodeRef}
       style={style}
       className={`relative group ${isDragging ? 'cursor-grabbing' : ''}`}
+      data-tier-id={tier.id}
     >
       <div className="flex items-center gap-0">
         {/* Drag Handle - Visível no mobile para facilitar uso */}

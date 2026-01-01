@@ -92,6 +92,9 @@
     "category": "Category"
   },
   "editor": {
+    "tierListTitle": "Tier List Title",
+    "tierListTitlePlaceholder": "Enter your tier list title",
+    "tierListTitleHint": "Click to edit the title",
     "addTier": "Add Tier",
     "saveTierList": "Save Tier List",
     "unassigned": "Unassigned",

@@ -7,7 +7,10 @@ import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { TierListEditor } from '@/components/editor/TierListEditor'
 import { TierListService } from '@/services/tierList.service'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Edit2 } from 'lucide-react'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { TemplateWithItems } from '@/types/template.types'
 import type { TierListTier } from '@/types/tierList.types'
 
@@ -22,6 +25,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const router = useRouter()
   const tierListService = new TierListService()
   const { showItemNames, setShowItemNames, loading: preferencesLoading } = useUserPreferences()
+  const { t } = useTranslation()
 
   const handleSave = async (data: {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
@@ -67,12 +71,19 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
 
   return (
     <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 md:px-8">
-      <div className="flex items-center gap-4">
+      {/* Título da Tier List - Centralizado */}
+      <div className="flex flex-col items-center gap-2 py-2">
+        <Label htmlFor="tier-list-title" className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <Edit2 className="h-4 w-4 text-muted-foreground" />
+          {t('editor.tierListTitle')}
+        </Label>
         <Input
+          id="tier-list-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Tier List Title"
-          className="w-full sm:max-w-md text-sm sm:text-base"
+          placeholder={t('editor.tierListTitlePlaceholder')}
+          className="w-full sm:max-w-lg text-center text-base sm:text-lg font-medium focus:ring-2 focus:ring-primary"
+          title={t('editor.tierListTitleHint')}
         />
       </div>
       <TierListEditor

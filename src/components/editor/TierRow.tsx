@@ -67,6 +67,7 @@ export function TierRow({
     transform: CSS.Transform.toString(transform),
     ...(transitionStyle && { transition: transitionStyle }),
     ...(isDragging && { cursor: 'grabbing' }),
+    touchAction: 'none' as const, // Previne scroll durante drag no mobile
   }
 
   return (

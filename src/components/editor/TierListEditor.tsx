@@ -105,18 +105,17 @@ export function TierListEditor({
   }, [templateItems, initialItems])
 
   // Configuração de sensors para mobile e desktop
-  // No mobile, adiciona delay e distancia mínima para evitar conflito com scroll
+  // Usa apenas tolerance (distância) sem delay para evitar "engasgo"
+  // No mobile, tolerance maior ajuda a distinguir drag de scroll
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 100, // Delay de 100ms antes de iniciar drag
-        tolerance: 8, // Distância mínima de 8px antes de iniciar drag
+        distance: 5, // Distância mínima de 5px antes de iniciar drag (sem delay)
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 150, // Delay maior para touch
-        tolerance: 10, // Distância maior para touch
+        distance: 8, // Distância maior para touch ajuda a evitar conflito com scroll
       },
     }),
     useSensor(KeyboardSensor, {
@@ -128,13 +127,24 @@ export function TierListEditor({
     setActiveId(event.active.id as string)
     lastDragOverRef.current = null // Reset drag over tracking
     
+    // Adicionar classe ao body para cursor grabbing em qualquer drag
+    document.body.classList.add('dragging-item')
+    
     // Check if we're dragging a tier
     const tier = tiers.find((t) => t.id === event.active.id)
     if (tier) {
       setDraggingTierId(tier.id)
-      // Add class to body to ensure cursor-grabbing is applied globally
       document.body.classList.add('dragging-tier')
     }
+    
+    // Prevenir scroll durante drag no mobile
+    // Salvar scroll position antes de fixar
+    const scrollY = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+    document.body.style.overflow = 'hidden'
+    document.body.setAttribute('data-scroll-y', scrollY.toString())
   }
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -315,10 +325,18 @@ export function TierListEditor({
     const { active, over } = event
 
     // Restaurar scroll após drag
+    const scrollY = document.body.getAttribute('data-scroll-y')
     document.body.style.overflow = ''
     document.body.style.position = ''
     document.body.style.width = ''
-    document.body.classList.remove('dragging-tier')
+    document.body.style.top = ''
+    document.body.classList.remove('dragging-item', 'dragging-tier')
+    document.body.removeAttribute('data-scroll-y')
+    
+    // Restaurar posição de scroll
+    if (scrollY) {
+      window.scrollTo(0, parseInt(scrollY))
+    }
 
     lastDragOverRef.current = null // Reset drag over tracking
 
@@ -410,8 +428,19 @@ export function TierListEditor({
 
     setActiveId(null)
     setDraggingTierId(null)
-    // Remove class from body when drag ends
-    document.body.classList.remove('dragging-tier')
+    // Restaurar scroll após cancel (final do handleDragOver)
+    const savedScrollY = document.body.getAttribute('data-scroll-y')
+    document.body.style.overflow = ''
+    document.body.style.position = ''
+    document.body.style.width = ''
+    document.body.style.top = ''
+    document.body.classList.remove('dragging-item', 'dragging-tier')
+    document.body.removeAttribute('data-scroll-y')
+    
+    // Restaurar posição de scroll
+    if (savedScrollY) {
+      window.scrollTo(0, parseInt(savedScrollY))
+    }
   }
 
   const getNextOrderForTier = (tierName: string): number => {

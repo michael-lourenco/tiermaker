@@ -67,6 +67,7 @@ export function ItemCard({ item, showItemName = false }: ItemCardProps) {
     opacity: isDragging ? 0.5 : 1,
     width: `${containerWidth}px`,
     height: `${fixedHeight}px`,
+    touchAction: 'none' as const, // Previne scroll durante drag no mobile
   }
 
   return (

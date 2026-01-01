@@ -107,6 +107,7 @@ export function TierColumn({
         backgroundColor: tier.color ? `${tier.color}15` : undefined,
         borderColor: tier.color || undefined,
         minHeight: '60px', // Menor no mobile
+        touchAction: 'none' as const, // Previne scroll durante drag no mobile
         ...(isDragging && { cursor: 'grabbing' }),
       }}
     >

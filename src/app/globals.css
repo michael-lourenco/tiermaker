@@ -3,8 +3,10 @@
 @tailwind utilities;
 
 /* Ensure cursor-grabbing is applied during drag */
+body.dragging-item *,
 body.dragging-tier * {
   cursor: grabbing !important;
+  touch-action: none !important; /* Previne scroll durante drag no mobile */
 }
 
 @layer base {

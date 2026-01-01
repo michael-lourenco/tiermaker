@@ -570,6 +570,15 @@ export function TierListEditor({
             </Button>
         </div>
 
+        {/* Botão Salvar acima da lista de imagens */}
+        {onSave && (
+          <div className="flex justify-center px-4 pt-6 pb-4">
+            <Button onClick={handleSave} className="px-6 py-2 w-full sm:w-auto touch-manipulation">
+              {t('editor.saveTierList')}
+            </Button>
+          </div>
+        )}
+
         {/* Unassigned items - always show, even when empty */}
         <UnassignedDropZone 
           items={getUnassignedItems()} 
@@ -577,13 +586,14 @@ export function TierListEditor({
           onShowItemNameChange={onShowItemNamesChange}
         />
 
-            {onSave && (
-              <div className="flex justify-end px-4 pb-4">
-                <Button onClick={handleSave} className="px-6 py-2 w-full sm:w-auto touch-manipulation">
-                  {t('editor.saveTierList')}
-                </Button>
-              </div>
-            )}
+        {/* Botão Salvar centralizado no final */}
+        {onSave && (
+          <div className="flex justify-center px-4 pt-6 pb-4">
+            <Button onClick={handleSave} className="px-6 py-2 w-full sm:w-auto touch-manipulation">
+              {t('editor.saveTierList')}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Drag Overlay - Shows the item being dragged following the cursor */}

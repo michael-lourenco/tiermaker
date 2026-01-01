@@ -38,9 +38,9 @@ export function UnassignedDropZone({ items, showItemName = false, onShowItemName
         isOver ? 'border-primary bg-primary/20 border-4' : 'border-border'
       )}
       style={{ 
-        maxHeight: '40vh',
-        minHeight: '140px', // Altura mínima reduzida para mobile
-        bottom: isPinned ? 'auto' : '20px', // Quando desafixado, fica na parte inferior mas com espaço para ver imagens
+        maxHeight: isPinned ? '50vh' : '35vh', // Mais espaço quando fixado
+        minHeight: '120px', // Altura mínima reduzida para mobile
+        bottom: isPinned ? 'auto' : '10px', // Menos espaço no mobile quando desafixado
       }}
     >
       {/* Botão de fixar/desafixar e switch de nomes - sempre no topo à direita do bloco */}
@@ -82,7 +82,7 @@ export function UnassignedDropZone({ items, showItemName = false, onShowItemName
             items={items.map((item) => item.id)}
             strategy={rectSortingStrategy}
           >
-            <div className="flex flex-wrap gap-2 sm:gap-4 overflow-y-auto" style={{ maxHeight: 'calc(40vh - 2rem)' }}>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 md:gap-4 overflow-y-auto" style={{ maxHeight: isPinned ? 'calc(50vh - 2rem)' : 'calc(35vh - 2rem)' }}>
               {items.map((item) => (
                 <ItemCard key={item.id} item={item} showItemName={showItemName} />
               ))}

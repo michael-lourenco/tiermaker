@@ -11,10 +11,26 @@ interface ItemCardProps {
   showItemName?: boolean
 }
 
-const FIXED_HEIGHT = 100 // Altura fixa em pixels
+// Altura fixa: menor no mobile, maior no desktop
+const FIXED_HEIGHT_MOBILE = 70
+const FIXED_HEIGHT_DESKTOP = 100
 
 export function ItemCard({ item, showItemName = false }: ItemCardProps) {
-  const [containerWidth, setContainerWidth] = useState<number>(FIXED_HEIGHT) // Default to square
+  const [containerWidth, setContainerWidth] = useState<number>(FIXED_HEIGHT_DESKTOP) // Default to desktop
+  const [fixedHeight, setFixedHeight] = useState<number>(FIXED_HEIGHT_DESKTOP)
+
+  // Detectar se é mobile
+  useEffect(() => {
+    const updateHeight = () => {
+      const isMobile = window.innerWidth < 640 // sm breakpoint
+      const height = isMobile ? FIXED_HEIGHT_MOBILE : FIXED_HEIGHT_DESKTOP
+      setFixedHeight(height)
+    }
+    
+    updateHeight()
+    window.addEventListener('resize', updateHeight)
+    return () => window.removeEventListener('resize', updateHeight)
+  }, [])
 
   const {
     attributes,
@@ -35,22 +51,22 @@ export function ItemCard({ item, showItemName = false }: ItemCardProps) {
       
       // Calculate width based on fixed height and image aspect ratio
       const aspectRatio = width / height
-      const calculatedWidth = FIXED_HEIGHT * aspectRatio
+      const calculatedWidth = fixedHeight * aspectRatio
       setContainerWidth(calculatedWidth)
     }
     img.onerror = () => {
       // Fallback to square if image fails to load
-      setContainerWidth(FIXED_HEIGHT)
+      setContainerWidth(fixedHeight)
     }
     img.src = item.image_url
-  }, [item.image_url])
+  }, [item.image_url, fixedHeight])
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     width: `${containerWidth}px`,
-    height: `${FIXED_HEIGHT}px`,
+    height: `${fixedHeight}px`,
   }
 
   return (
@@ -65,7 +81,7 @@ export function ItemCard({ item, showItemName = false }: ItemCardProps) {
         src={item.image_url}
         alt={item.name}
         width={containerWidth}
-        height={FIXED_HEIGHT}
+        height={fixedHeight}
         className="object-contain w-full h-full"
       />
       {showItemName && (

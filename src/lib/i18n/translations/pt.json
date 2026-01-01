@@ -198,6 +198,57 @@
     "preferences": "Preferências",
     "preferencesDescription": "Personalize como você visualiza as tier lists",
     "showItemNamesDescription": "Exibir ou ocultar os nomes dos itens nas imagens das tier lists"
+  },
+  "auth": {
+    "title": "Autenticação",
+    "login": {
+      "title": "Entrar",
+      "description": "Digite suas credenciais para acessar sua conta",
+      "email": "Email",
+      "password": "Senha",
+      "signIn": "Entrar",
+      "signingIn": "Entrando...",
+      "noAccount": "Não tem uma conta?",
+      "signUp": "Cadastrar-se",
+      "emailPlaceholder": "voce@exemplo.com"
+    },
+    "register": {
+      "title": "Criar Conta",
+      "description": "Cadastre-se para começar a criar tier lists",
+      "email": "Email",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "signUp": "Cadastrar",
+      "creatingAccount": "Criando conta...",
+      "hasAccount": "Já tem uma conta?",
+      "signIn": "Entrar",
+      "emailPlaceholder": "voce@exemplo.com",
+      "passwordsNotMatch": "As senhas não coincidem",
+      "passwordMinLength": "A senha deve ter pelo menos 6 caracteres",
+      "passwordRequirements": "A senha deve conter pelo menos 6 caracteres",
+      "invalidEmail": "Email inválido"
+    },
+    "errors": {
+      "invalidCredentials": "Credenciais inválidas",
+      "emailNotConfirmed": "Email não confirmado. Verifique sua caixa de entrada",
+      "userAlreadyRegistered": "Este usuário já está cadastrado",
+      "emailRateLimit": "Muitas tentativas. Tente novamente mais tarde",
+      "invalidEmail": "Email inválido",
+      "weakPassword": "A senha é muito fraca",
+      "genericError": "Ocorreu um erro. Tente novamente"
+    },
+    "emailVerification": {
+      "title": "Verifique seu Email",
+      "message": "Enviamos um email de confirmação para {email}",
+      "instructions": "Por favor, verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.",
+      "notReceived": "Não recebeu o email?",
+      "resendEmail": "Reenviar Email",
+      "resending": "Reenviando...",
+      "resendSuccess": "Email reenviado com sucesso!",
+      "resendError": "Erro ao reenviar email. Tente novamente.",
+      "backToLogin": "Voltar para Login",
+      "checkSpam": "Verifique também sua pasta de spam"
+    }
   }
 }
 

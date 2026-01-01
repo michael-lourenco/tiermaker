@@ -27,11 +27,11 @@ export default async function EditorPage({ params }: EditorPageProps) {
   }
 
   return (
-    <main className="min-h-screen p-4 sm:p-6 md:p-8">
+    <main className="min-h-screen p-2 sm:p-4 md:p-6 lg:p-8">
       <PageWithSidebar showRightSidebar={true}>
-        <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Create Tier List</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2">Create Tier List</h1>
+          <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
             Drag and drop items to organize them into tiers
           </p>
         </div>

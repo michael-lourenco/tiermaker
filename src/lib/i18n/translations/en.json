@@ -198,6 +198,57 @@
     "preferences": "Preferences",
     "preferencesDescription": "Customize how you view tier lists",
     "showItemNamesDescription": "Show or hide item names on tier list images"
+  },
+  "auth": {
+    "title": "Authentication",
+    "login": {
+      "title": "Sign In",
+      "description": "Enter your credentials to access your account",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign In",
+      "signingIn": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "emailPlaceholder": "you@example.com"
+    },
+    "register": {
+      "title": "Create Account",
+      "description": "Sign up to start creating tier lists",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "signUp": "Sign Up",
+      "creatingAccount": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "emailPlaceholder": "you@example.com",
+      "passwordsNotMatch": "Passwords do not match",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordRequirements": "Password must contain at least 6 characters",
+      "invalidEmail": "Invalid email"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid credentials",
+      "emailNotConfirmed": "Email not confirmed. Please check your inbox",
+      "userAlreadyRegistered": "This user is already registered",
+      "emailRateLimit": "Too many attempts. Please try again later",
+      "invalidEmail": "Invalid email",
+      "weakPassword": "Password is too weak",
+      "genericError": "An error occurred. Please try again"
+    },
+    "emailVerification": {
+      "title": "Verify your Email",
+      "message": "We sent a confirmation email to {email}",
+      "instructions": "Please check your inbox and click the confirmation link to activate your account.",
+      "notReceived": "Didn't receive the email?",
+      "resendEmail": "Resend Email",
+      "resending": "Resending...",
+      "resendSuccess": "Email resent successfully!",
+      "resendError": "Error resending email. Please try again.",
+      "backToLogin": "Back to Login",
+      "checkSpam": "Also check your spam folder"
+    }
   }
 }
 

@@ -6,6 +6,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -103,8 +104,21 @@ export function TierListEditor({
     }
   }, [templateItems, initialItems])
 
+  // Configuração de sensors para mobile e desktop
+  // No mobile, adiciona delay e distancia mínima para evitar conflito com scroll
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 100, // Delay de 100ms antes de iniciar drag
+        tolerance: 8, // Distância mínima de 8px antes de iniciar drag
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150, // Delay maior para touch
+        tolerance: 10, // Distância maior para touch
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -299,6 +313,12 @@ export function TierListEditor({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
+
+    // Restaurar scroll após drag
+    document.body.style.overflow = ''
+    document.body.style.position = ''
+    document.body.style.width = ''
+    document.body.classList.remove('dragging-tier')
 
     lastDragOverRef.current = null // Reset drag over tracking
 
@@ -559,21 +579,21 @@ export function TierListEditor({
         </SortableContext>
 
         {/* Add Tier Button */}
-        <div className="flex justify-center px-4">
+        <div className="flex justify-center px-2 sm:px-4">
             <Button
               onClick={handleAddTier}
               variant="outline"
-              className="flex items-center gap-2 w-full sm:w-auto touch-manipulation"
+              className="flex items-center gap-2 w-full sm:w-auto touch-manipulation text-sm sm:text-base"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               {t('editor.addTier')}
             </Button>
         </div>
 
         {/* Botão Salvar acima da lista de imagens */}
         {onSave && (
-          <div className="flex justify-center px-4 pt-6 pb-4">
-            <Button onClick={handleSave} className="px-6 py-2 w-full sm:w-auto touch-manipulation">
+          <div className="flex justify-center px-2 sm:px-4 pt-4 sm:pt-6 pb-3 sm:pb-4">
+            <Button onClick={handleSave} className="px-4 sm:px-6 py-2 w-full sm:w-auto touch-manipulation text-sm sm:text-base">
               {t('editor.saveTierList')}
             </Button>
           </div>
@@ -588,8 +608,8 @@ export function TierListEditor({
 
         {/* Botão Salvar centralizado no final */}
         {onSave && (
-          <div className="flex justify-center px-4 pt-6 pb-4">
-            <Button onClick={handleSave} className="px-6 py-2 w-full sm:w-auto touch-manipulation">
+          <div className="flex justify-center px-2 sm:px-4 pt-4 sm:pt-6 pb-3 sm:pb-4">
+            <Button onClick={handleSave} className="px-4 sm:px-6 py-2 w-full sm:w-auto touch-manipulation text-sm sm:text-base">
               {t('editor.saveTierList')}
             </Button>
           </div>

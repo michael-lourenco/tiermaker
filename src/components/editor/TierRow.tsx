@@ -76,16 +76,16 @@ export function TierRow({
       className={`relative group ${isDragging ? 'cursor-grabbing' : ''}`}
     >
       <div className="flex items-center gap-0">
-        {/* Drag Handle */}
+        {/* Drag Handle - Visível no mobile para facilitar uso */}
         <div
           {...attributes}
           {...listeners}
-          className={`flex-shrink-0 w-6 h-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100 ${
+          className={`flex-shrink-0 w-5 sm:w-6 h-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors opacity-60 sm:opacity-0 sm:group-hover:opacity-100 ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab active:cursor-grabbing'
           }`}
           title="Arraste para reordenar"
         >
-          <GripVertical className="h-5 w-5" />
+          <GripVertical className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
 
         {/* Tier Column */}

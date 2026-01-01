@@ -188,5 +188,63 @@ export interface Translations {
     terms: string
     rights: string
   }
+  profile: {
+    title: string
+    description: string
+    preferences: string
+    preferencesDescription: string
+    showItemNamesDescription: string
+  }
+  auth: {
+    title: string
+    login: {
+      title: string
+      description: string
+      email: string
+      password: string
+      signIn: string
+      signingIn: string
+      noAccount: string
+      signUp: string
+      emailPlaceholder: string
+    }
+    register: {
+      title: string
+      description: string
+      email: string
+      password: string
+      confirmPassword: string
+      signUp: string
+      creatingAccount: string
+      hasAccount: string
+      signIn: string
+      emailPlaceholder: string
+      passwordsNotMatch: string
+      passwordMinLength: string
+      passwordRequirements: string
+      invalidEmail: string
+    }
+    errors: {
+      invalidCredentials: string
+      emailNotConfirmed: string
+      userAlreadyRegistered: string
+      emailRateLimit: string
+      invalidEmail: string
+      weakPassword: string
+      genericError: string
+    }
+    emailVerification: {
+      title: string
+      message: string
+      instructions: string
+      notReceived: string
+      resendEmail: string
+      resending: string
+      resendSuccess: string
+      resendError: string
+      backToLogin: string
+      checkSpam: string
+    }
+  }
 }
 

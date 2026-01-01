@@ -106,13 +106,13 @@ export function TierColumn({
       style={{
         backgroundColor: tier.color ? `${tier.color}15` : undefined,
         borderColor: tier.color || undefined,
-        minHeight: '90px', // Half of previous height
+        minHeight: '60px', // Menor no mobile
         ...(isDragging && { cursor: 'grabbing' }),
       }}
     >
       {/* Tier Label Section - Left Side */}
       <div
-        className="flex-shrink-0 w-24 sm:w-32 md:w-48 flex items-center justify-center px-2 sm:px-3 py-1 border-r-2"
+        className="flex-shrink-0 w-16 sm:w-24 md:w-32 lg:w-48 flex items-center justify-center px-1 sm:px-2 md:px-3 py-1 border-r-2"
         style={{
           borderColor: tier.color || undefined,
           backgroundColor: tier.color ? `${tier.color}30` : undefined,
@@ -130,10 +130,10 @@ export function TierColumn({
             target.style.height = `${target.scrollHeight}px`
           }}
           onBlur={handleNameBlur}
-          className="w-full font-bold text-sm sm:text-base md:text-xl lg:text-2xl bg-transparent border-0 focus:outline-none resize-none overflow-hidden text-center"
+          className="w-full font-bold text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl bg-transparent border-0 focus:outline-none resize-none overflow-hidden text-center"
           style={{ 
             color: tier.color || undefined,
-            minHeight: '1.5rem',
+            minHeight: '1.25rem',
             lineHeight: '1.2',
             wordWrap: 'break-word',
             overflowWrap: 'break-word',
@@ -144,20 +144,20 @@ export function TierColumn({
       </div>
 
       {/* Items Section - Middle */}
-      <div className="flex-1 p-1.5 sm:p-2 min-h-[88px]">
+      <div className="flex-1 p-0.5 sm:p-1 md:p-1.5 lg:p-2 min-h-[60px] sm:min-h-[70px] md:min-h-[88px]">
         <SortableContext
           items={items.map((item) => item.id)}
           strategy={rectSortingStrategy}
         >
           {items.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 min-h-[84px]">
+            <div className="flex flex-wrap gap-1 sm:gap-1.5 md:gap-2 min-h-[60px] sm:min-h-[70px] md:min-h-[84px]">
               {items.map((item) => (
                 <ItemCard key={item.id} item={item} showItemName={showItemName} />
               ))}
             </div>
           ) : (
-            <div className="w-full text-center text-muted-foreground py-2 flex items-center justify-center min-h-[84px]">
-              <span className="text-xs">{t('editor.dragItemsHere')}</span>
+            <div className="w-full text-center text-muted-foreground py-1 sm:py-2 flex items-center justify-center min-h-[60px] sm:min-h-[70px] md:min-h-[84px]">
+              <span className="text-[10px] sm:text-xs">{t('editor.dragItemsHere')}</span>
             </div>
           )}
         </SortableContext>
@@ -165,7 +165,7 @@ export function TierColumn({
 
       {/* Controls Section - Right Side */}
       <div
-        className="flex-shrink-0 w-20 sm:w-24 md:w-48 flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 border-l-2"
+        className="flex-shrink-0 w-16 sm:w-20 md:w-24 lg:w-48 flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-2 md:px-3 py-1 border-l-2"
         style={{
           borderColor: tier.color || undefined,
           backgroundColor: tier.color ? `${tier.color}30` : undefined,
@@ -175,14 +175,14 @@ export function TierColumn({
           type="color"
           value={tierColor}
           onChange={handleColorChange}
-          className="w-6 h-6 sm:w-8 sm:h-8 rounded border cursor-pointer touch-manipulation"
+          className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded border cursor-pointer touch-manipulation"
           title={t('editor.changeTierColor')}
         />
         <Button
           variant="ghost"
           size="sm"
           onClick={handleDeleteClick}
-          className="h-6 w-6 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation"
+          className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation"
           title={t('editor.removeTier')}
         >
           <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />

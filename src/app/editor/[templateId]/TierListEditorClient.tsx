@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
+import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits'
 import { TierListEditor } from '@/components/editor/TierListEditor'
 import { TierListService } from '@/services/tierList.service'
 import { Input } from '@/components/ui/input'
@@ -11,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Edit2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
+import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import type { TemplateWithItems } from '@/types/template.types'
 import type { TierListTier } from '@/types/tierList.types'
 
@@ -21,11 +23,13 @@ interface TierListEditorClientProps {
 export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const [title, setTitle] = useState('My Tier List')
   const [saving, setSaving] = useState(false)
+  const [showLimitModal, setShowLimitModal] = useState(false)
   const { user } = useAuth()
   const router = useRouter()
   const tierListService = new TierListService()
   const { showItemNames, setShowItemNames, loading: preferencesLoading } = useUserPreferences()
   const { t } = useTranslation()
+  const { canPerform, hasReached, limit, loading: limitsLoading } = useSubscriptionLimits('tier_lists_count')
 
   const handleSave = async (data: {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
@@ -35,6 +39,12 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     if (!user) {
       alert('You must be logged in to save a tier list. Please log in and try again.')
       router.push('/login')
+      return
+    }
+
+    // Verificar limite antes de salvar
+    if (!canPerform || hasReached) {
+      setShowLimitModal(true)
       return
     }
 
@@ -98,6 +108,16 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
             <p className="text-sm sm:text-base">Saving tier list...</p>
           </div>
         </div>
+      )}
+
+      {limit && (
+        <LimitReachedModal
+          open={showLimitModal}
+          onOpenChange={setShowLimitModal}
+          limitType="tier_lists_count"
+          currentCount={limit.current_count}
+          maxCount={limit.max_count}
+        />
       )}
     </div>
   )

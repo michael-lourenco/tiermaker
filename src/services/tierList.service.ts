@@ -131,6 +131,9 @@ export class TierListService {
       throw new Error('User ID is required to create a tier list')
     }
 
+    // Nota: Verificação de limites deve ser feita no frontend antes de chamar este método
+    // ou através de uma API route intermediária para garantir segurança
+
     const shareToken = uuidv4()
 
     // Create tier list

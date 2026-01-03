@@ -32,6 +32,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils/cn'
 import { isAdminEmail } from '@/lib/utils/admin'
+import { useSubscription } from '@/hooks/useSubscription'
+import { Badge } from '@/components/ui/badge'
+import { Crown } from 'lucide-react'
 
 export function Header() {
   const { user, loading, signOut } = useAuth()
@@ -41,6 +44,7 @@ export function Header() {
   const { theme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const { isPremium } = useSubscription()
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -151,6 +155,12 @@ export function Header() {
                       )}
                     >
                       Meus Conteúdos
+                      {isPremium && (
+                        <Badge className="ml-2 bg-primary text-primary-foreground h-4 px-1.5 text-[10px]">
+                          <Crown className="h-2.5 w-2.5 mr-0.5" />
+                          Premium
+                        </Badge>
+                      )}
                       <ChevronDown className="ml-1 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -164,6 +174,20 @@ export function Header() {
                         )}
                       >
                         {t('profile.title') || 'Profile'}
+                        {isPremium && (
+                          <Badge className="ml-2 bg-primary text-primary-foreground h-4 px-1.5 text-[10px]">
+                            <Crown className="h-2.5 w-2.5 mr-0.5" />
+                            Premium
+                          </Badge>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        href="/account/subscription"
+                        className="w-full cursor-pointer"
+                      >
+                        Minha Assinatura
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -320,9 +344,17 @@ export function Header() {
                     <div className="w-full h-8 bg-muted animate-pulse rounded" />
                   ) : user ? (
                     <div className="space-y-2 border-t pt-4">
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        {t('nav.myAccount') || 'My Account'}
-                      </h3>
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          {t('nav.myAccount') || 'My Account'}
+                        </h3>
+                        {isPremium && (
+                          <Badge className="bg-primary text-primary-foreground h-5 px-2 text-xs">
+                            <Crown className="h-3 w-3 mr-1" />
+                            Premium
+                          </Badge>
+                        )}
+                      </div>
                       
                       {/* Perfil */}
                       <Link
@@ -336,6 +368,20 @@ export function Header() {
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {t('profile.title') || 'Profile'}
+                      </Link>
+                      
+                      {/* Assinatura */}
+                      <Link
+                        href="/account/subscription"
+                        className={cn(
+                          'block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
+                          isActive('/account/subscription')
+                            ? 'bg-primary/10 text-primary font-semibold'
+                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                        )}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Minha Assinatura
                       </Link>
                       
                       {/* Criar Template */}

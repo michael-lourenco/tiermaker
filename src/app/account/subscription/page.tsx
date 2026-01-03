@@ -1,4 +1,4 @@
-import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus'
+import { EnhancedSubscriptionStatus } from '@/components/subscription/EnhancedSubscriptionStatus'
 import { SuccessMessage } from '@/components/subscription/SuccessMessage'
 
 interface AccountSubscriptionPageProps {
@@ -16,7 +16,7 @@ export default async function AccountSubscriptionPage({
         <div className="mb-6">
           <h1 className="text-3xl sm:text-4xl font-bold mb-2">Minha Assinatura</h1>
           <p className="text-muted-foreground">
-            Gerencie sua assinatura e visualize seu status
+            Gerencie sua assinatura, altere seu plano ou cancele quando quiser
           </p>
         </div>
 
@@ -32,7 +32,7 @@ export default async function AccountSubscriptionPage({
           </div>
         )}
 
-        <SubscriptionStatus />
+        <EnhancedSubscriptionStatus />
       </div>
     </main>
   )

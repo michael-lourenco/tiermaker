@@ -8,6 +8,7 @@ import type { ShareContentType } from '@/lib/share/share.types'
 import { Share2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTierListImage } from '@/hooks/useTierListImage'
+import { useSubscription } from '@/hooks/useSubscription'
 
 interface ShareButtonProps {
   type: ShareContentType
@@ -32,7 +33,10 @@ export function ShareButton({
 }: ShareButtonProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const { isPremium } = useSubscription()
   const { generateImage, isGenerating } = useTierListImage({
+    isPremium: isPremium,
+    quality: isPremium ? '4k' : 'standard',
     onSuccess: () => {
       // Image downloaded successfully
     },

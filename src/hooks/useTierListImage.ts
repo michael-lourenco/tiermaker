@@ -11,6 +11,8 @@ import html2canvas from 'html2canvas'
 interface UseTierListImageOptions {
   onSuccess?: () => void
   onError?: (error: Error) => void
+  isPremium?: boolean // Se true, exporta sem marca d'água e em alta resolução
+  quality?: 'standard' | '4k' // Qualidade do export (4k apenas para premium)
 }
 
 /**
@@ -105,6 +107,12 @@ export function useTierListImage(options?: UseTierListImageOptions) {
       setIsGenerating(true)
 
       try {
+        const isPremium = options?.isPremium ?? false
+        const quality = options?.quality ?? (isPremium ? '4k' : 'standard')
+        
+        // Escala baseada na qualidade (2 para standard/1080p, 4 para 4K)
+        const scale = quality === '4k' ? 4 : 2
+
         // Wait for all images to load
         const images = element.querySelectorAll('img')
         const imagePromises = Array.from(images).map((img) => {
@@ -130,35 +138,61 @@ export function useTierListImage(options?: UseTierListImageOptions) {
         const scrollHeight = element.scrollHeight
 
         // Configure html2canvas options for better quality and correct proportions
-        // Using scrollWidth/scrollHeight ensures we capture the actual content size
-        // and maintain the correct aspect ratio
         const canvas = await html2canvas(element, {
-          backgroundColor: backgroundColor, // Use current theme background
-          scale: 2, // Higher quality (applied uniformly to maintain aspect ratio)
-          useCORS: true, // Allow cross-origin images
-          logging: false, // Disable console logs
-          allowTaint: false, // Don't allow tainted canvas
-          foreignObjectRendering: false, // Use native rendering for better proportions
-          imageTimeout: 15000, // Increase timeout for images
-          width: scrollWidth, // Use actual content width
-          height: scrollHeight, // Use actual content height
-          // These dimensions maintain the aspect ratio correctly
+          backgroundColor: backgroundColor,
+          scale: scale, // 2 para 1080p, 4 para 4K
+          useCORS: true,
+          logging: false,
+          allowTaint: false,
+          foreignObjectRendering: false,
+          imageTimeout: 15000,
+          width: scrollWidth,
+          height: scrollHeight,
         })
 
-        // Load logo images
+        // Se for premium, não adicionar marca d'água
+        if (isPremium) {
+          // Para premium, apenas converter canvas para blob sem logo
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                options?.onError?.(new Error('Failed to generate image blob'))
+                setIsGenerating(false)
+                return
+              }
+
+              const url = URL.createObjectURL(blob)
+              const link = document.createElement('a')
+              link.href = url
+              link.download = filename
+              document.body.appendChild(link)
+              link.click()
+              document.body.removeChild(link)
+              URL.revokeObjectURL(url)
+
+              setIsGenerating(false)
+              options?.onSuccess?.()
+            },
+            'image/png',
+            1.0 // Qualidade máxima para premium
+          )
+          return
+        }
+
+        // Para não-premium, adicionar marca d'água (logo)
         const logoIcon = await loadImage('/logo.png')
         const logoText = await loadImage(
           theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'
         )
 
         // Calculate logo dimensions (scaled)
-        const logoIconHeight = 40 * 2 // 40px at scale 2
+        const logoIconHeight = 40 * scale
         const logoIconWidth = (logoIcon.width / logoIcon.height) * logoIconHeight
-        const logoTextHeight = 32 * 2 // 32px at scale 2
+        const logoTextHeight = 32 * scale
         const logoTextWidth = (logoText.width / logoText.height) * logoTextHeight
 
         // Calculate padding for logo area
-        const padding = 20 * 2 // 20px padding at scale 2
+        const padding = 20 * scale
         const logoAreaHeight = padding + logoIconHeight + padding
 
         // Create new canvas with space for logo
@@ -220,7 +254,7 @@ export function useTierListImage(options?: UseTierListImageOptions) {
         options?.onError?.(error as Error)
       }
     },
-    [options]
+    [options, theme]
   )
 
   return {

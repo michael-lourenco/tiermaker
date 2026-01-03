@@ -6,15 +6,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
+import { EnhancedSubscriptionStatus } from '@/components/subscription/EnhancedSubscriptionStatus'
+import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 export function ProfilePageClient() {
   const { t } = useTranslation()
+  const router = useRouter()
   const { showItemNames, setShowItemNames, loading, updating } = useUserPreferences()
 
   return (
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
       <PageWithSidebar showRightSidebar={true}>
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto space-y-6">
           <div className="mb-6 md:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
               {t('profile.title')}
@@ -24,6 +28,10 @@ export function ProfilePageClient() {
             </p>
           </div>
 
+          {/* Assinatura */}
+          <EnhancedSubscriptionStatus showUpgradeButton={true} />
+
+          {/* Preferências */}
           <Card>
             <CardHeader>
               <CardTitle>{t('profile.preferences')}</CardTitle>

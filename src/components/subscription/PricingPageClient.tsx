@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Check, X } from 'lucide-react'
+import { Check, X, Crown } from 'lucide-react'
 import { formatPrice, PRICE_VALUES } from '@/lib/stripe/prices'
 import type { SubscriptionInterval } from '@/types/subscription.types'
+import { useSubscription } from '@/hooks/useSubscription'
+import { useRouter } from 'next/navigation'
 
 const BASIC_FEATURES = [
   { text: '5 tier lists salvas', included: true },
@@ -36,6 +38,8 @@ const PREMIUM_FEATURES = [
 
 export function PricingPageClient() {
   const [loading, setLoading] = useState<string | null>(null)
+  const router = useRouter()
+  const { isPremium, loading: subscriptionLoading } = useSubscription()
 
   const handleSubscribe = async (interval: SubscriptionInterval) => {
     setLoading(interval)
@@ -93,13 +97,23 @@ export function PricingPageClient() {
           </ul>
         </CardContent>
         <CardFooter>
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled
-          >
-            Plano Atual
-          </Button>
+          {isPremium ? (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => router.push('/account/subscription')}
+            >
+              Gerenciar Assinatura
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled
+            >
+              Plano Atual
+            </Button>
+          )}
         </CardFooter>
       </Card>
 
@@ -138,21 +152,34 @@ export function PricingPageClient() {
           </ul>
         </CardContent>
         <CardFooter className="flex-col gap-2">
-          <Button
-            className="w-full"
-            onClick={() => handleSubscribe('month')}
-            disabled={loading !== null}
-          >
-            {loading === 'month' ? 'Carregando...' : 'Assinar Mensal'}
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => handleSubscribe('year')}
-            disabled={loading !== null}
-          >
-            {loading === 'year' ? 'Carregando...' : 'Assinar Anual'}
-          </Button>
+          {isPremium ? (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => router.push('/account/subscription')}
+            >
+              <Crown className="h-4 w-4 mr-2" />
+              Gerenciar Assinatura Premium
+            </Button>
+          ) : (
+            <>
+              <Button
+                className="w-full"
+                onClick={() => handleSubscribe('month')}
+                disabled={loading !== null || subscriptionLoading}
+              >
+                {loading === 'month' ? 'Carregando...' : 'Assinar Mensal'}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => handleSubscribe('year')}
+                disabled={loading !== null || subscriptionLoading}
+              >
+                {loading === 'year' ? 'Carregando...' : 'Assinar Anual'}
+              </Button>
+            </>
+          )}
         </CardFooter>
       </Card>
     </div>

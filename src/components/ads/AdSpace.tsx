@@ -7,6 +7,7 @@ import { ManualAd } from './ManualAd'
 import { GoogleAd } from './GoogleAd'
 import { AdPlaceholder } from './AdPlaceholder'
 import { useDeviceType } from '@/hooks/useDeviceType'
+import { useSubscription } from '@/hooks/useSubscription'
 import { cn } from '@/lib/utils/cn'
 
 interface AdSpaceProps {
@@ -19,6 +20,7 @@ export function AdSpace({ position, className, wrapperClassName }: AdSpaceProps)
   const [adSpace, setAdSpace] = useState<AdSpaceType | null>(null)
   const [loading, setLoading] = useState(true)
   const deviceType = useDeviceType()
+  const { isPremium, loading: subscriptionLoading } = useSubscription()
 
   useEffect(() => {
     const loadAdSpace = async () => {
@@ -38,7 +40,12 @@ export function AdSpace({ position, className, wrapperClassName }: AdSpaceProps)
     loadAdSpace()
   }, [position, deviceType])
 
-  if (loading) {
+  // Não mostrar anúncios para usuários premium
+  if (isPremium) {
+    return null
+  }
+
+  if (loading || subscriptionLoading) {
     return null
   }
 

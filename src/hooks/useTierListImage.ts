@@ -116,19 +116,39 @@ export function useTierListImage(options?: UseTierListImageOptions) {
         // Wait for all images to load
         const images = element.querySelectorAll('img')
         const imagePromises = Array.from(images).map((img) => {
-          if (img.complete) return Promise.resolve()
-          return new Promise((resolve, reject) => {
-            img.onload = resolve
-            img.onerror = resolve // Continue even if some images fail
-            // Timeout after 5 seconds
-            setTimeout(resolve, 5000)
+          if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
+            return Promise.resolve(undefined)
+          }
+          
+          return new Promise<void>((resolve) => {
+            const timeout = setTimeout(() => resolve(), 10000) // Timeout after 10 seconds
+            
+            const onLoad = () => {
+              clearTimeout(timeout)
+              resolve()
+            }
+            
+            const onError = () => {
+              clearTimeout(timeout)
+              resolve() // Continue even if some images fail
+            }
+            
+            img.onload = onLoad
+            img.onerror = onError
+            
+            // Force image to load if it hasn't started
+            if (img.src && !img.complete) {
+              const src = img.src
+              // Try to trigger load
+              img.src = src
+            }
           })
         })
 
         await Promise.all(imagePromises)
 
-        // Small delay to ensure everything is rendered
-        await new Promise((resolve) => setTimeout(resolve, 200))
+        // Delay to ensure everything is rendered
+        await new Promise((resolve) => setTimeout(resolve, 300))
 
         // Get background color from current theme
         const backgroundColor = getBackgroundColor()
@@ -144,7 +164,7 @@ export function useTierListImage(options?: UseTierListImageOptions) {
           useCORS: true,
           logging: false,
           allowTaint: false,
-          foreignObjectRendering: false,
+          foreignObjectRendering: false, // Disable foreignObject rendering - it can cause issues
           imageTimeout: 15000,
           width: scrollWidth,
           height: scrollHeight,

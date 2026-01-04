@@ -116,6 +116,31 @@ export function EnhancedSubscriptionStatus({ className, showUpgradeButton = true
       <CardContent className="space-y-6">
         {subscription ? (
           <>
+            {/* Alerta de Cancelamento - Destaque no Topo */}
+            {subscription.cancel_at_period_end && (
+              <div className="flex items-start gap-3 p-4 bg-orange-500/10 border-2 border-orange-500/30 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-base font-semibold text-orange-600 dark:text-orange-400 mb-1">
+                    ✓ Cancelamento Solicitado com Sucesso
+                  </p>
+                  <p className="text-sm text-orange-700 dark:text-orange-300 mb-2">
+                    Seu pedido de cancelamento foi processado. A assinatura será cancelada automaticamente em:
+                  </p>
+                  <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                    {new Date(subscription.current_period_end).toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </p>
+                  <p className="text-xs text-orange-600/80 dark:text-orange-400/80 mt-2">
+                    Você continuará tendo acesso a todos os benefícios Premium até esta data.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Status da Assinatura */}
             <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
               <div className="flex justify-between items-center">
@@ -124,7 +149,9 @@ export function EnhancedSubscriptionStatus({ className, showUpgradeButton = true
                   variant={subscription.status === 'active' ? 'default' : 'secondary'}
                   className="capitalize"
                 >
-                  {subscription.status === 'active' ? 'Ativa' : subscription.status}
+                  {subscription.status === 'active' 
+                    ? (subscription.cancel_at_period_end ? 'Ativa (Cancelamento programado)' : 'Ativa')
+                    : subscription.status}
                 </Badge>
               </div>
               
@@ -141,28 +168,13 @@ export function EnhancedSubscriptionStatus({ className, showUpgradeButton = true
                   <span className="text-sm font-medium text-muted-foreground">
                     {subscription.cancel_at_period_end ? 'Expira em:' : 'Próxima renovação:'}
                   </span>
-                  <span className="text-sm">
+                  <span className={`text-sm ${subscription.cancel_at_period_end ? 'font-semibold text-orange-600 dark:text-orange-400' : ''}`}>
                     {new Date(subscription.current_period_end).toLocaleDateString('pt-BR', {
                       day: '2-digit',
                       month: 'long',
                       year: 'numeric'
                     })}
                   </span>
-                </div>
-              )}
-
-              {subscription.cancel_at_period_end && (
-                <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
-                  <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                      Assinatura será cancelada
-                    </p>
-                    <p className="text-xs text-yellow-600/80 dark:text-yellow-400/80 mt-1">
-                      Sua assinatura será cancelada ao final do período atual. Você continuará tendo acesso até{' '}
-                      {new Date(subscription.current_period_end).toLocaleDateString('pt-BR')}.
-                    </p>
-                  </div>
                 </div>
               )}
             </div>

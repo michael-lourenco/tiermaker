@@ -5,7 +5,6 @@ import { AdSpaceService } from '@/services/adSpace.service'
 import type { AdSpace as AdSpaceType, AdSpaceDeviceType } from '@/types/adSpace.types'
 import { ManualAd } from './ManualAd'
 import { GoogleAd } from './GoogleAd'
-import { AdPlaceholder } from './AdPlaceholder'
 import { useDeviceType } from '@/hooks/useDeviceType'
 import { useSubscription } from '@/hooks/useSubscription'
 import { cn } from '@/lib/utils/cn'
@@ -23,6 +22,16 @@ export function AdSpace({ position, className, wrapperClassName }: AdSpaceProps)
   const { isPremium, loading: subscriptionLoading } = useSubscription()
 
   useEffect(() => {
+    // Só carregar ad space se não for premium e já souber o status
+    if (subscriptionLoading) {
+      return // Aguardar até saber o status da subscription
+    }
+
+    if (isPremium) {
+      setLoading(false)
+      return // Não precisa carregar se for premium
+    }
+
     const loadAdSpace = async () => {
       try {
         const service = new AdSpaceService()
@@ -38,19 +47,27 @@ export function AdSpace({ position, className, wrapperClassName }: AdSpaceProps)
     }
 
     loadAdSpace()
-  }, [position, deviceType])
+  }, [position, deviceType, isPremium, subscriptionLoading])
+
+  // Não renderizar nada enquanto está carregando o status da subscription
+  // Isso evita o "flash" dos anúncios aparecendo e depois sumindo
+  if (subscriptionLoading) {
+    return null
+  }
 
   // Não mostrar anúncios para usuários premium
   if (isPremium) {
     return null
   }
 
-  if (loading || subscriptionLoading) {
+  // Não renderizar nada enquanto está carregando o ad space
+  if (loading) {
     return null
   }
 
+  // Se não há ad space ativo, não renderizar nada (removido AdPlaceholder para evitar espaços vazios)
   if (!adSpace || !adSpace.is_active) {
-    return <AdPlaceholder className={className} />
+    return null
   }
 
   const adContent =

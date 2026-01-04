@@ -10,9 +10,7 @@ export function Footer() {
   return (
     <footer className="border-t bg-background mt-auto">
       {/* Ad Space - Footer Top */}
-      <div className="py-4">
-        <AdSpace position="footer-top" />
-      </div>
+      <AdSpace position="footer-top" wrapperClassName="py-4" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

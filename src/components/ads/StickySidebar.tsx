@@ -2,17 +2,25 @@
 
 import { AdSpace } from './AdSpace'
 import { useDeviceType } from '@/hooks/useDeviceType'
+import { useSubscription } from '@/hooks/useSubscription'
 
 /**
  * Sticky Sidebar - Sidebar fixa que acompanha o scroll
  * Aparece apenas em desktop (xl breakpoint) e fica fixa na lateral direita da tela
  * Não interfere com o conteúdo principal devido ao z-index e pointer-events
+ * Só renderiza se não for premium e houver ad
  */
 export function StickySidebar() {
   const deviceType = useDeviceType()
   const isDesktop = deviceType === 'desktop'
+  const { isPremium, loading: subscriptionLoading } = useSubscription()
 
   if (!isDesktop) {
+    return null
+  }
+
+  // Não renderizar enquanto está carregando ou se for premium
+  if (subscriptionLoading || isPremium) {
     return null
   }
 

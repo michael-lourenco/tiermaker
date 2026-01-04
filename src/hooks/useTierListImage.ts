@@ -113,19 +113,25 @@ export function useTierListImage(options?: UseTierListImageOptions) {
         // Escala baseada na qualidade (2 para standard/1080p, 4 para 4K)
         const scale = quality === '4k' ? 4 : 2
 
-        // Wait for all images to load
+        // Wait for all images to load completely
         const images = element.querySelectorAll('img')
         const imagePromises = Array.from(images).map((img) => {
+          // Check if image is already loaded with valid dimensions
           if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
             return Promise.resolve(undefined)
           }
           
           return new Promise<void>((resolve) => {
-            const timeout = setTimeout(() => resolve(), 10000) // Timeout after 10 seconds
+            const timeout = setTimeout(() => {
+              resolve() // Resolve after timeout even if image didn't load
+            }, 15000) // Increased timeout to 15 seconds
             
             const onLoad = () => {
-              clearTimeout(timeout)
-              resolve()
+              // Verify image has dimensions
+              if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                clearTimeout(timeout)
+                resolve()
+              }
             }
             
             const onError = () => {
@@ -138,8 +144,9 @@ export function useTierListImage(options?: UseTierListImageOptions) {
             
             // Force image to load if it hasn't started
             if (img.src && !img.complete) {
+              // Trigger reload to ensure image loads
               const src = img.src
-              // Try to trigger load
+              img.src = ''
               img.src = src
             }
           })
@@ -147,8 +154,8 @@ export function useTierListImage(options?: UseTierListImageOptions) {
 
         await Promise.all(imagePromises)
 
-        // Delay to ensure everything is rendered
-        await new Promise((resolve) => setTimeout(resolve, 300))
+        // Additional delay to ensure all rendering is complete
+        await new Promise((resolve) => setTimeout(resolve, 500))
 
         // Get background color from current theme
         const backgroundColor = getBackgroundColor()
@@ -163,11 +170,12 @@ export function useTierListImage(options?: UseTierListImageOptions) {
           scale: scale, // 2 para 1080p, 4 para 4K
           useCORS: true,
           logging: false,
-          allowTaint: false,
-          foreignObjectRendering: false, // Disable foreignObject rendering - it can cause issues
-          imageTimeout: 15000,
+          allowTaint: true, // Allow taint for better image rendering
+          foreignObjectRendering: false,
+          imageTimeout: 30000, // Increase timeout for images
           width: scrollWidth,
           height: scrollHeight,
+          removeContainer: false,
         })
 
         // Adicionar logo/marca d'água sempre (para todos os usuários)

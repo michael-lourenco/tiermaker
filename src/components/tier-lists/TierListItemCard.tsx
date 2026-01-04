@@ -50,14 +50,8 @@ export function TierListItemCard({ item }: TierListItemCardProps) {
         width={containerWidth}
         height={FIXED_HEIGHT}
         className="object-contain w-full h-full"
-        unoptimized={true}
+        unoptimized={false}
         priority={false}
-        style={{
-          objectFit: 'contain',
-          width: '100%',
-          height: '100%',
-          display: 'block',
-        }}
       />
       {showItemNames && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm text-white p-1 sm:p-2 text-[10px] sm:text-xs text-center line-clamp-1">

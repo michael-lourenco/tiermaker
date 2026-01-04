@@ -157,6 +157,16 @@ export function useTierListImage(options?: UseTierListImageOptions) {
         // Additional delay to ensure all rendering is complete
         await new Promise((resolve) => setTimeout(resolve, 500))
 
+        // Force desktop layout for consistent image generation
+        // Temporarily set min-width to ensure desktop layout
+        const originalMinWidth = element.style.minWidth
+        const originalWidth = element.style.width
+        element.style.minWidth = '1024px' // Force desktop minimum width
+        element.style.width = 'auto'
+
+        // Small delay to allow layout to adjust
+        await new Promise((resolve) => setTimeout(resolve, 100))
+
         // Get background color from current theme
         const backgroundColor = getBackgroundColor()
 
@@ -176,7 +186,16 @@ export function useTierListImage(options?: UseTierListImageOptions) {
           width: scrollWidth,
           height: scrollHeight,
           removeContainer: false,
+          onclone: (clonedDoc, clonedElement) => {
+            // Force desktop layout in cloned document
+            clonedElement.style.minWidth = '1024px'
+            clonedElement.style.width = 'auto'
+          },
         })
+        
+        // Restore original styles after capture
+        element.style.minWidth = originalMinWidth || ''
+        element.style.width = originalWidth || ''
 
         // Adicionar logo/marca d'água sempre (para todos os usuários)
         // O logo identifica a origem da imagem

@@ -13,6 +13,8 @@ import { CategoryService, type Category } from '@/services/category.service'
 import { ImageService } from '@/services/image.service'
 import { useAuth } from '@/hooks/useAuth'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits'
+import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import Image from 'next/image'
 import { X, Upload } from 'lucide-react'
 
@@ -40,11 +42,13 @@ export function CreateTemplateForm() {
   const [error, setError] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
+  const [showLimitModal, setShowLimitModal] = useState(false)
   const { user } = useAuth()
   const { t } = useTranslation()
   const router = useRouter()
   const imageService = new ImageService()
   const categoryService = new CategoryService()
+  const { canPerform, hasReached, limit, loading: limitsLoading } = useSubscriptionLimits('templates_count')
 
   // Load categories from database
   useEffect(() => {
@@ -145,12 +149,16 @@ export function CreateTemplateForm() {
       return
     }
 
+    // Verificar limite antes de criar
+    if (!canPerform || hasReached) {
+      setShowLimitModal(true)
+      return
+    }
+
     setUploading(true)
     setError(null)
 
     try {
-      const templateService = new TemplateService()
-
       // Upload cover image if provided
       let coverImageUrl: string | undefined
       if (coverImage) {
@@ -175,19 +183,33 @@ export function CreateTemplateForm() {
         throw new Error('Selected category not found')
       }
 
-      // Create template
-      const template = await templateService.createTemplate(
-        {
+      // Criar template via API route (que verifica limite no backend)
+      const response = await fetch('/api/templates/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           name: data.name,
           description: data.description,
           category_id: data.category_id,
           cover_image_url: coverImageUrl,
           is_public: data.is_public,
           items: uploadedItems,
-        },
-        user.id
-      )
+        }),
+      })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        if (errorData.limitReached) {
+          setShowLimitModal(true)
+          setUploading(false)
+          return
+        }
+        throw new Error(errorData.error || 'Failed to create template')
+      }
+
+      const { template } = await response.json()
       router.push(`/templates/${template.id}`)
     } catch (err: any) {
       console.error('Error creating template:', err)
@@ -405,10 +427,25 @@ export function CreateTemplateForm() {
         >
           {t('common.cancel')}
         </Button>
-        <Button type="submit" disabled={uploading || items.length === 0} className="w-full sm:w-auto">
+        <Button 
+          type="submit" 
+          disabled={uploading || items.length === 0 || limitsLoading || !canPerform} 
+          className="w-full sm:w-auto"
+        >
           {uploading ? t('createTemplate.creatingTemplate') : t('createTemplate.createTemplate')}
         </Button>
       </div>
+
+      {/* Modal de Limite Atingido */}
+      {limit && (
+        <LimitReachedModal
+          open={showLimitModal}
+          onOpenChange={setShowLimitModal}
+          limitType="templates_count"
+          currentCount={limit.current_count}
+          maxCount={limit.max_count}
+        />
+      )}
     </form>
   )
 }

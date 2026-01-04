@@ -11,6 +11,7 @@ import type { SubscriptionLimitType, PlanType } from '@/types/subscription.types
 export const BASIC_PLAN_LIMITS: Record<SubscriptionLimitType, number> = {
   tier_lists_count: 5, // 5 tier lists salvas
   private_tier_lists_count: 0, // 0 tier lists privadas (apenas premium)
+  templates_count: 3, // 3 templates criados
 }
 
 /**
@@ -19,6 +20,7 @@ export const BASIC_PLAN_LIMITS: Record<SubscriptionLimitType, number> = {
 export const PREMIUM_PLAN_LIMITS: Record<SubscriptionLimitType, number> = {
   tier_lists_count: -1, // Ilimitado
   private_tier_lists_count: -1, // Ilimitado
+  templates_count: -1, // Ilimitado
 }
 
 /**

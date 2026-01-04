@@ -188,6 +188,7 @@ export function EnhancedSubscriptionStatus({ className, showUpgradeButton = true
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {[
+                    'Templates ilimitados',
                     'Tier lists ilimitadas',
                     'Tier lists privadas',
                     'Export sem marca d\'água',
@@ -239,6 +240,7 @@ export function EnhancedSubscriptionStatus({ className, showUpgradeButton = true
               <h4 className="text-sm font-semibold">Com Premium você ganha:</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {[
+                  'Templates ilimitados',
                   'Tier lists ilimitadas',
                   'Tier lists privadas',
                   'Export sem marca d\'água',
@@ -272,7 +274,9 @@ export function EnhancedSubscriptionStatus({ className, showUpgradeButton = true
                     <span className="text-muted-foreground">
                       {limit.limit_type === 'tier_lists_count'
                         ? 'Tier Lists Salvas'
-                        : 'Tier Lists Privadas'}
+                        : limit.limit_type === 'private_tier_lists_count'
+                        ? 'Tier Lists Privadas'
+                        : 'Templates Criados'}
                     </span>
                     <span className="font-medium">
                       {isUnlimited

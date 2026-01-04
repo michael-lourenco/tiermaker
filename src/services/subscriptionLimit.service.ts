@@ -186,7 +186,7 @@ export class SubscriptionLimitService {
   /**
    * Garantir que limites estão inicializados
    */
-  private async ensureLimitsInitialized(userId: string): Promise<void> {
+  async ensureLimitsInitialized(userId: string): Promise<void> {
     const limits = await this.getUserLimits(userId)
     if (limits.length === 0) {
       await this.initializeUserLimits(userId)

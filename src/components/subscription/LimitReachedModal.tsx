@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation'
 interface LimitReachedModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  limitType: 'tier_lists_count' | 'private_tier_lists_count'
+  limitType: 'tier_lists_count' | 'private_tier_lists_count' | 'templates_count'
   currentCount: number
   maxCount: number
 }
@@ -61,7 +61,13 @@ export function LimitReachedModal({
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>{limitType === 'tier_lists_count' ? 'Tier lists salvas ilimitadas' : 'Tier lists privadas ilimitadas'}</span>
+                <span>
+                  {limitType === 'tier_lists_count' 
+                    ? 'Tier lists salvas ilimitadas' 
+                    : limitType === 'private_tier_lists_count'
+                    ? 'Tier lists privadas ilimitadas'
+                    : 'Templates criados ilimitados'}
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>

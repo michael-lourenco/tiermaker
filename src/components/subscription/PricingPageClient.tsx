@@ -11,6 +11,7 @@ import { useSubscription } from '@/hooks/useSubscription'
 import { useRouter } from 'next/navigation'
 
 const BASIC_FEATURES = [
+  { text: '3 templates criados', included: true },
   { text: '5 tier lists salvas', included: true },
   { text: 'Tier lists públicas ilimitadas', included: true },
   { text: 'Tier lists privadas', included: false },
@@ -24,6 +25,7 @@ const BASIC_FEATURES = [
 ]
 
 const PREMIUM_FEATURES = [
+  { text: 'Templates criados ilimitados', included: true },
   { text: 'Tier lists salvas ilimitadas', included: true },
   { text: 'Tier lists públicas ilimitadas', included: true },
   { text: 'Tier lists privadas ilimitadas', included: true },

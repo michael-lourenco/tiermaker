@@ -43,6 +43,7 @@ export interface SubscriptionLimit {
 export type SubscriptionLimitType =
   | 'tier_lists_count'
   | 'private_tier_lists_count'
+  | 'templates_count'
 
 export interface SubscriptionEvent {
   id: string

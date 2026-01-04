@@ -126,7 +126,7 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
 
                       {/* Date - Top Right */}
                       <div className="absolute top-2 right-2 z-10 px-2 py-1 bg-black/60 text-white rounded-md text-xs font-semibold">
-                        {new Date(tierList.created_at).toLocaleDateString()}
+                        {new Date(tierList.created_at).toLocaleDateString('pt-BR')}
                       </div>
                     </div>
 

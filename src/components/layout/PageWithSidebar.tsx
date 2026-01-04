@@ -1,8 +1,7 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { AdSpace } from '@/components/ads/AdSpace'
-import { useDeviceType } from '@/hooks/useDeviceType'
 import { useSubscription } from '@/hooks/useSubscription'
 import { cn } from '@/lib/utils/cn'
 
@@ -19,24 +18,24 @@ export function PageWithSidebar({
   showRightSidebar = false,
   className 
 }: PageWithSidebarProps) {
-  const deviceType = useDeviceType()
-  const isDesktop = deviceType === 'desktop'
+  const [mounted, setMounted] = useState(false)
   const { isPremium, loading: subscriptionLoading } = useSubscription()
 
-  // Only show sidebars on desktop
-  if (!isDesktop) {
-    return <div className={className}>{children}</div>
-  }
+  // Avoid hydration mismatch - sempre renderizar layout desktop no SSR
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Se for premium ou estiver carregando, não mostrar sidebars (AdSpace retorna null)
   // Mas ainda renderizar o layout para não quebrar o design
-  const shouldShowLeftSidebar = showLeftSidebar && !subscriptionLoading && !isPremium
-  const shouldShowRightSidebar = showRightSidebar && !subscriptionLoading && !isPremium
+  const shouldShowLeftSidebar = showLeftSidebar && !subscriptionLoading && !isPremium && mounted
+  const shouldShowRightSidebar = showRightSidebar && !subscriptionLoading && !isPremium && mounted
 
+  // Sempre renderizar o layout desktop (mobile esconde sidebars via CSS hidden lg:block)
   return (
     <div className={cn('flex gap-6 max-w-7xl mx-auto', className)}>
-      {/* Left Sidebar - só renderiza se não for premium */}
-      {shouldShowLeftSidebar && (
+      {/* Left Sidebar - só renderiza se não for premium, e escondido no mobile via CSS */}
+      {showLeftSidebar && (
         <aside className="w-[300px] flex-shrink-0 hidden lg:block">
           <div className="sticky top-20">
             <AdSpace position="sidebar-left" wrapperClassName="my-0" />
@@ -54,8 +53,8 @@ export function PageWithSidebar({
         {children}
       </main>
 
-      {/* Right Sidebar - só renderiza se não for premium */}
-      {shouldShowRightSidebar && (
+      {/* Right Sidebar - só renderiza se não for premium, e escondido no mobile via CSS */}
+      {showRightSidebar && (
         <aside className="w-[300px] flex-shrink-0 hidden lg:block">
           <div className="sticky top-20">
             <AdSpace position="sidebar-right" wrapperClassName="my-0" />

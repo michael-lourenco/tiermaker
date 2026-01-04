@@ -60,7 +60,7 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{tierList.title}</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            {t('tierList.created')} {new Date(tierList.created_at).toLocaleDateString()}
+            {t('tierList.created')} {new Date(tierList.created_at).toLocaleDateString('pt-BR')}
           </p>
         </div>
 

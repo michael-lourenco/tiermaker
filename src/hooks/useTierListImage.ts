@@ -11,7 +11,7 @@ import html2canvas from 'html2canvas'
 interface UseTierListImageOptions {
   onSuccess?: () => void
   onError?: (error: Error) => void
-  isPremium?: boolean // Se true, exporta sem marca d'água e em alta resolução
+  isPremium?: boolean // Se true, exporta em alta resolução (4K). Logo sempre aparece para identificar a origem.
   quality?: 'standard' | '4k' // Qualidade do export (4k apenas para premium)
 }
 
@@ -170,36 +170,8 @@ export function useTierListImage(options?: UseTierListImageOptions) {
           height: scrollHeight,
         })
 
-        // Se for premium, não adicionar marca d'água
-        if (isPremium) {
-          // Para premium, apenas converter canvas para blob sem logo
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                options?.onError?.(new Error('Failed to generate image blob'))
-                setIsGenerating(false)
-                return
-              }
-
-              const url = URL.createObjectURL(blob)
-              const link = document.createElement('a')
-              link.href = url
-              link.download = filename
-              document.body.appendChild(link)
-              link.click()
-              document.body.removeChild(link)
-              URL.revokeObjectURL(url)
-
-              setIsGenerating(false)
-              options?.onSuccess?.()
-            },
-            'image/png',
-            1.0 // Qualidade máxima para premium
-          )
-          return
-        }
-
-        // Para não-premium, adicionar marca d'água (logo)
+        // Adicionar logo/marca d'água sempre (para todos os usuários)
+        // O logo identifica a origem da imagem
         const logoIcon = await loadImage('/logo.png')
         const logoText = await loadImage(
           theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'
@@ -267,7 +239,7 @@ export function useTierListImage(options?: UseTierListImageOptions) {
             options?.onSuccess?.()
           },
           'image/png',
-          0.95 // Quality (0-1)
+          isPremium ? 1.0 : 0.95 // Qualidade máxima para premium, alta para não-premium
         )
       } catch (error) {
         setIsGenerating(false)

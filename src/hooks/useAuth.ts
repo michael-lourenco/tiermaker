@@ -37,9 +37,17 @@ export function useAuth() {
   }
 
   const signUp = async (email: string, password: string) => {
+    // Get the base URL for email redirect (use current origin to support any domain)
+    const emailRedirectTo = typeof window !== 'undefined' 
+      ? `${window.location.origin}/api/auth/callback`
+      : undefined
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo,
+      },
     })
     return { data, error }
   }

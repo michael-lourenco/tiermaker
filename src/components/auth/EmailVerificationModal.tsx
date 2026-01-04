@@ -26,9 +26,17 @@ export function EmailVerificationModal({ open, email, onClose }: EmailVerificati
 
     try {
       const supabase = createClient()
+      // Get the base URL for email redirect (use current origin to support any domain)
+      const emailRedirectTo = typeof window !== 'undefined' 
+        ? `${window.location.origin}/api/auth/callback`
+        : undefined
+
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email,
+        options: {
+          emailRedirectTo,
+        },
       })
 
       if (error) {

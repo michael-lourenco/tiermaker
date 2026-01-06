@@ -1,15 +1,17 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { ShareButton } from '@/components/share/ShareButton'
+import { Heart, Plus } from 'lucide-react'
 import { TierListView } from './TierListView'
 import { useViewTracking } from '@/hooks/useViewTracking'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
+import { useAuth } from '@/hooks/useAuth'
 import { AdSpace } from '@/components/ads/AdSpace'
 import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
 import type { TierListWithData } from '@/types/tierList.types'
@@ -20,11 +22,57 @@ interface TierListPageClientProps {
 
 export function TierListPageClient({ tierList }: TierListPageClientProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const tierListRef = useRef<HTMLDivElement>(null)
   const { showItemNames, setShowItemNames } = useUserPreferences()
+  const [liked, setLiked] = useState(false)
+  const [likesCount, setLikesCount] = useState(tierList.likes_count)
+  const [isLiking, setIsLiking] = useState(false)
+  
+  // Check if tier list belongs to current user
+  const isOwner = user && tierList.user_id === user.id
   
   // Track view with 30-minute minimum interval validation
   useViewTracking('tier_list', tierList.id)
+
+  // Verificar se usuário curtiu
+  useEffect(() => {
+    if (user && !isOwner) {
+      fetch(`/api/tierlists/${tierList.id}/like`)
+        .then((res) => res.json())
+        .then((data) => setLiked(data.liked || false))
+        .catch(() => setLiked(false))
+    }
+  }, [user, tierList.id, isOwner])
+
+  const handleLike = async () => {
+    if (!user) {
+      // Redirecionar para login se não estiver autenticado
+      window.location.href = '/login'
+      return
+    }
+
+    if (isLiking) return
+
+    setIsLiking(true)
+    const newLiked = !liked
+
+    try {
+      const response = await fetch(`/api/tierlists/${tierList.id}/like`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) throw new Error('Failed to toggle like')
+
+      const data = await response.json()
+      setLiked(data.liked)
+      setLikesCount((prev) => (data.liked ? prev + 1 : Math.max(0, prev - 1)))
+    } catch (error) {
+      console.error('Error toggling like:', error)
+    } finally {
+      setIsLiking(false)
+    }
+  }
 
   return (
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
@@ -58,10 +106,34 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
         <AdSpace position="content-top" />
 
         <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{tierList.title}</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {t('tierList.created')} {new Date(tierList.created_at).toLocaleDateString('pt-BR')}
-          </p>
+          <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{tierList.title}</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                {t('tierList.created')} {new Date(tierList.created_at).toLocaleDateString('pt-BR')}
+              </p>
+            </div>
+            {!isOwner && (
+              <div className="flex items-center gap-3 flex-wrap">
+                <Button
+                  variant={liked ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={handleLike}
+                  disabled={isLiking}
+                  className="flex items-center gap-2"
+                >
+                  <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
+                  <span>{likesCount}</span>
+                </Button>
+                <Link href={`/editor/${tierList.template_id}`}>
+                  <Button variant="default" size="sm" className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    <span>Crie Tier List com este Template</span>
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Ad Space - Content Middle */}

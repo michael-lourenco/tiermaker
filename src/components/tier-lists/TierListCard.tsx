@@ -140,32 +140,34 @@ export function TierListCard({ tierList, onLike }: TierListCardProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="p-3 bg-background flex gap-2">
+        <div className="p-3 bg-background flex gap-2 min-w-0">
           <Link
             href={`/tier-lists/${tierList.id}`}
-            className="flex-1"
+            className="flex-1 min-w-[80px] sm:min-w-0"
             onClick={(e) => e.stopPropagation()}
           >
             <Button variant="outline" size="sm" className="w-full text-xs">
-              <ExternalLink className="h-3 w-3 mr-1" />
-              Ver
+              <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span>Ver</span>
             </Button>
           </Link>
-          <div onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
             <ShareButton
               type="tier_list"
               data={tierList}
               size="sm"
               variant="outline"
+              className="min-w-[60px]"
             />
           </div>
           <Link
             href={`/editor/${tierList.template_id}`}
             onClick={(e) => e.stopPropagation()}
+            className="flex-shrink-0 min-w-[80px]"
           >
-            <Button variant="outline" size="sm" className="text-xs">
-              <Plus className="h-3 w-3 mr-1" />
-              Criar
+            <Button variant="outline" size="sm" className="text-xs w-full whitespace-nowrap">
+              <Plus className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span>Criar</span>
             </Button>
           </Link>
         </div>

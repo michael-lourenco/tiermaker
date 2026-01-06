@@ -10,7 +10,8 @@ import { TierListService } from '@/services/tierList.service'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Edit2 } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { Edit2, Globe, Lock } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import type { TemplateWithItems } from '@/types/template.types'
@@ -22,6 +23,7 @@ interface TierListEditorClientProps {
 
 export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const [title, setTitle] = useState('My Tier List')
+  const [isPublic, setIsPublic] = useState(false)
   const [saving, setSaving] = useState(false)
   const [showLimitModal, setShowLimitModal] = useState(false)
   const { user } = useAuth()
@@ -63,7 +65,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
         {
           template_id: template.id,
           title,
-          is_public: false,
+          is_public: isPublic,
           tiers: data.tiers || [],
           items: data.items || [],
         },
@@ -95,6 +97,30 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
           className="w-full sm:max-w-lg text-center text-sm sm:text-base md:text-lg font-medium focus:ring-2 focus:ring-primary"
           title={t('editor.tierListTitleHint')}
         />
+      </div>
+
+      {/* Opção de tornar pública */}
+      <div className="flex items-center justify-center gap-2 sm:gap-3 py-2">
+        <div className="flex items-center gap-2">
+          {isPublic ? (
+            <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+          ) : (
+            <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+          )}
+          <Label htmlFor="is-public" className="text-sm sm:text-base cursor-pointer">
+            {isPublic ? 'Tornar privada' : 'Tornar pública'}
+          </Label>
+        </div>
+        <Switch
+          id="is-public"
+          checked={isPublic}
+          onCheckedChange={setIsPublic}
+        />
+        <span className="text-xs sm:text-sm text-muted-foreground">
+          {isPublic 
+            ? 'Sua tier list será visível para todos na página /tierlists'
+            : 'Sua tier list será privada e só acessível pelo link'}
+        </span>
       </div>
       <TierListEditor
         templateItems={template.items}

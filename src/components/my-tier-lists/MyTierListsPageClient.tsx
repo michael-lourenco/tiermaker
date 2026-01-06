@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -20,7 +21,8 @@ import {
 } from '@/components/ui/tooltip'
 import { useTranslation } from '@/hooks/useTranslation'
 import { TierListThumbnail } from './TierListThumbnail'
-import { Trash2 } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { Trash2, Globe, Lock } from 'lucide-react'
 import { useState } from 'react'
 import { TierListService } from '@/services/tierList.service'
 import { useAuth } from '@/hooks/useAuth'
@@ -42,6 +44,9 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [tierListToDelete, setTierListToDelete] = useState<{ id: string; title: string } | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [updatingPublic, setUpdatingPublic] = useState<string | null>(null)
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleDeleteClick = (tierListId: string, tierListTitle: string) => {
     setTierListToDelete({ id: tierListId, title: tierListTitle })
@@ -74,6 +79,41 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
     setDeleteDialogOpen(false)
     setTierListToDelete(null)
     setDeleteError(null)
+  }
+
+  const handleTogglePublic = async (tierListId: string, currentIsPublic: boolean) => {
+    if (!user) return
+
+    setUpdatingPublic(tierListId)
+    try {
+      const response = await fetch(`/api/tierlists/${tierListId}/public`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_public: !currentIsPublic }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to update tier list')
+      }
+
+      // Atualizar estado local
+      setTierLists(
+        tierLists.map((tl) =>
+          tl.id === tierListId ? { ...tl, is_public: !currentIsPublic } : tl
+        )
+      )
+    } catch (error) {
+      console.error('Error updating tier list:', error)
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Erro desconhecido ao atualizar tier list'
+      )
+      setErrorDialogOpen(true)
+    } finally {
+      setUpdatingPublic(null)
+    }
   }
 
   return (
@@ -131,36 +171,57 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
                     </div>
 
                     {/* Action Buttons */}
-                    <CardFooter className="p-3 sm:p-4 bg-background flex gap-2">
-                      <Link href={`/tier-lists/${tierList.id}`} className="flex-1">
+                    <CardFooter className="p-3 sm:p-4 bg-background flex flex-col gap-2">
+                      <div className="flex items-center justify-between w-full gap-2">
+                        <div className="flex items-center gap-2 flex-1">
+                          {tierList.is_public ? (
+                            <Globe className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Lock className="h-4 w-4 text-muted-foreground" />
+                          )}
+                          <Label htmlFor={`public-${tierList.id}`} className="text-xs sm:text-sm cursor-pointer flex-1">
+                            {tierList.is_public ? 'Pública' : 'Privada'}
+                          </Label>
+                          <Switch
+                            id={`public-${tierList.id}`}
+                            checked={tierList.is_public}
+                            onCheckedChange={() => handleTogglePublic(tierList.id, tierList.is_public)}
+                            disabled={updatingPublic === tierList.id}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2 w-full">
+                        <Link href={`/tier-lists/${tierList.id}`} className="flex-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="outline" className="w-full text-sm sm:text-base touch-manipulation">
+                                {t('common.view') || 'View'}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{t('myTierLists.viewTooltip') || 'View this tier list'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </Link>
+
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="outline" className="w-full text-sm sm:text-base touch-manipulation">
-                              {t('common.view') || 'View'}
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteClick(tierList.id, tierList.title)}
+                              disabled={deleting === tierList.id}
+                              className="touch-manipulation"
+                            >
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>{t('myTierLists.viewTooltip') || 'View this tier list'}</p>
+                            <p>{t('myTierLists.deleteTooltip') || 'Delete this tier list'}</p>
                           </TooltipContent>
                         </Tooltip>
-                      </Link>
-
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDeleteClick(tierList.id, tierList.title)}
-                            disabled={deleting === tierList.id}
-                            className="touch-manipulation"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{t('myTierLists.deleteTooltip') || 'Delete this tier list'}</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      </div>
                     </CardFooter>
                   </Card>
                   {/* Ad Space - In Feed (a cada 6 cards) */}
@@ -207,6 +268,23 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
                 {deleting !== null 
                   ? (t('myTierLists.deleting') || 'Deleting...')
                   : (t('common.delete') || 'Delete')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Error Dialog */}
+        <Dialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Erro ao Atualizar Tier List</DialogTitle>
+              <DialogDescription>
+                {errorMessage || 'Ocorreu um erro ao atualizar a tier list. Por favor, tente novamente.'}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={() => setErrorDialogOpen(false)}>
+                Fechar
               </Button>
             </DialogFooter>
           </DialogContent>

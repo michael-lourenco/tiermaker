@@ -74,8 +74,13 @@ BEGIN
 END $$;
 
 -- Criar função para atualizar contagem de templates automaticamente
+-- SECURITY DEFINER permite que a função execute com privilégios do criador, contornando RLS
 CREATE OR REPLACE FUNCTION update_templates_count()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   -- Atualizar contagem quando template é criado
   IF TG_OP = 'INSERT' AND NEW.user_id IS NOT NULL THEN

@@ -2,7 +2,12 @@ import { createClient } from '@/lib/supabase/client'
 import type { Template, TemplateItem, TemplateWithItems, CreateTemplateInput } from '@/types/template.types'
 
 export class TemplateService {
-  private supabase = createClient()
+  private supabase: any
+
+  constructor(supabaseClient?: any) {
+    // Se um cliente for passado (ex: do servidor), use-o; caso contrário, crie um cliente do navegador
+    this.supabase = supabaseClient || createClient()
+  }
 
   /**
    * Count how many tier lists are using a specific template
@@ -597,8 +602,8 @@ export class TemplateService {
         count: templateCount,
         image_url: cat.image_url || null,
       }
-    }).filter((cat) => cat.count > 0)
-      .sort((a, b) => b.count - a.count)
+    }).filter((cat: any) => cat.count > 0)
+      .sort((a: any, b: any) => b.count - a.count)
   }
 
   /**

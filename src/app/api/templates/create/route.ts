@@ -10,7 +10,6 @@ import { TemplateService } from '@/services/template.service'
 import { SubscriptionLimitService } from '@/services/subscriptionLimit.service'
 import type { CreateTemplateInput } from '@/types/template.types'
 
-const templateService = new TemplateService()
 const limitService = new SubscriptionLimitService(createServiceRoleClient())
 
 export async function POST(request: NextRequest) {
@@ -64,7 +63,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Criar template
+    // Criar template usando o cliente do servidor para garantir contexto de autenticação
+    const templateService = new TemplateService(supabase)
     const template = await templateService.createTemplate(
       {
         name,

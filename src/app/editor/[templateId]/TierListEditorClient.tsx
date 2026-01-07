@@ -18,7 +18,16 @@ import type { TemplateWithItems } from '@/types/template.types'
 import type { TierListTier } from '@/types/tierList.types'
 
 interface TierListEditorClientProps {
-  template: TemplateWithItems
+  template: TemplateWithItems & {
+    tiers?: Array<{
+      id: string
+      template_id: string
+      tier_name: string
+      tier_order: number
+      color: string | null
+      created_at: string
+    }>
+  }
 }
 
 export function TierListEditorClient({ template }: TierListEditorClientProps) {
@@ -132,6 +141,18 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
       </div>
       <TierListEditor
         templateItems={template.items}
+        initialTiers={
+          template.tiers && Array.isArray(template.tiers) && template.tiers.length > 0
+            ? template.tiers.map((tier) => ({
+                id: `tier-${tier.id}`,
+                tier_list_id: '',
+                tier_name: tier.tier_name,
+                tier_order: tier.tier_order,
+                color: tier.color,
+                created_at: tier.created_at,
+              }))
+            : undefined
+        }
         showItemNames={showItemNames}
         onShowItemNamesChange={setShowItemNames}
         onSave={handleSave}

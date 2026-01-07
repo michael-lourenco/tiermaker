@@ -32,6 +32,15 @@ export interface TemplateWithItemsAndCategories extends TemplateWithItems {
   categories: Array<{ id: string; name: string; slug: string }>
 }
 
+export interface TemplateTier {
+  id: string
+  template_id: string
+  tier_name: string
+  tier_order: number
+  color: string | null
+  created_at: string
+}
+
 export interface CreateTemplateInput {
   name: string
   description?: string
@@ -39,6 +48,11 @@ export interface CreateTemplateInput {
   cover_image_url?: string
   is_public?: boolean
   items: Omit<TemplateItem, 'id' | 'template_id' | 'created_at'>[]
+  tiers?: Array<{ tier_name: string; tier_order: number; color: string | null }>
+}
+
+export interface TemplateWithTiers extends TemplateWithItems {
+  tiers?: TemplateTier[]
 }
 
 

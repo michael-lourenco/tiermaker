@@ -180,6 +180,7 @@ export function TierColumn({
           title={t('editor.changeTierColor')}
         />
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={handleDeleteClick}
@@ -206,12 +207,14 @@ export function TierColumn({
           </DialogHeader>
           <DialogFooter>
             <Button
+              type="button"
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
             >
               {t('common.cancel')}
             </Button>
             <Button
+              type="button"
               variant="destructive"
               onClick={handleConfirmDelete}
             >

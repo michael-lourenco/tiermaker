@@ -17,6 +17,8 @@ import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits'
 import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import Image from 'next/image'
 import { X, Upload } from 'lucide-react'
+import { TemplateTiersVisualEditor, type TemplateTier } from './TemplateTiersVisualEditor'
+import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
 
 const templateSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
@@ -38,6 +40,14 @@ interface TemplateItem {
 export function CreateTemplateForm() {
   const [items, setItems] = useState<TemplateItem[]>([])
   const [coverImage, setCoverImage] = useState<{ file: File; preview: string; imageUrl?: string } | null>(null)
+  const [tiers, setTiers] = useState<TemplateTier[]>(
+    DEFAULT_TIERS.map((name, index) => ({
+      id: `tier-${name}-${Date.now()}-${index}`,
+      tier_name: name,
+      tier_order: index,
+      color: TIER_COLORS[name] || null,
+    }))
+  )
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
@@ -183,6 +193,13 @@ export function CreateTemplateForm() {
         throw new Error('Selected category not found')
       }
 
+      // Preparar tiers para envio (remover id temporário)
+      const tiersToSend = tiers.map((tier) => ({
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
+
       // Criar template via API route (que verifica limite no backend)
       const response = await fetch('/api/templates/create', {
         method: 'POST',
@@ -196,6 +213,7 @@ export function CreateTemplateForm() {
           cover_image_url: coverImageUrl,
           is_public: data.is_public,
           items: uploadedItems,
+          tiers: tiersToSend.length > 0 ? tiersToSend : undefined,
         }),
       })
 
@@ -342,6 +360,19 @@ export function CreateTemplateForm() {
               {t('createTemplate.isPublic')}
             </label>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Tiers Padrão</CardTitle>
+          <CardDescription>
+            Configure as tiers padrão que serão usadas quando alguém criar uma tier list a partir deste template.
+            Você pode editar o nome e a cor de cada tier, reordenar arrastando, adicionar novas ou remover.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TemplateTiersVisualEditor tiers={tiers} onChange={setTiers} />
         </CardContent>
       </Card>
 

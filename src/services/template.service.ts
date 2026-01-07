@@ -107,10 +107,10 @@ export class TemplateService {
   }
 
   /**
-   * Get template by ID with items and categories
+   * Get template by ID with items, categories, and tiers
    * Returns template even if soft-deleted (for internal operations)
    */
-  async getTemplateById(id: string, includeDeleted: boolean = false): Promise<(TemplateWithItems & { categories: Array<{ id: string; name: string; slug: string }> }) | null> {
+  async getTemplateById(id: string, includeDeleted: boolean = false): Promise<(TemplateWithItems & { categories: Array<{ id: string; name: string; slug: string }>; tiers?: Array<{ id: string; template_id: string; tier_name: string; tier_order: number; color: string | null; created_at: string }> }) | null> {
     let query = this.supabase
       .from('templates')
       .select(`
@@ -137,6 +137,18 @@ export class TemplateService {
 
     if (itemsError) throw itemsError
 
+    // Get template tiers
+    const { data: tiers, error: tiersError } = await this.supabase
+      .from('template_tiers')
+      .select('*')
+      .eq('template_id', id)
+      .order('tier_order', { ascending: true })
+
+    if (tiersError) {
+      // If table doesn't exist yet, tiers will be undefined (graceful degradation)
+      console.warn('Error loading template tiers:', tiersError)
+    }
+
     const { template_categories, ...templateData } = template as any
     const categories = (template_categories || [])
       .map((tc: any) => tc.categories)
@@ -146,6 +158,7 @@ export class TemplateService {
       ...(templateData as Template),
       items: items || [],
       categories,
+      tiers: tiers || undefined,
     }
   }
 
@@ -233,6 +246,22 @@ export class TemplateService {
 
     if (itemsError) throw itemsError
 
+    // Create template tiers if provided
+    if (input.tiers && input.tiers.length > 0) {
+      const tiersToInsert = input.tiers.map((tier) => ({
+        template_id: template.id,
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
+
+      const { error: tiersError } = await this.supabase
+        .from('template_tiers')
+        .insert(tiersToInsert as any)
+
+      if (tiersError) throw tiersError
+    }
+
     return {
       ...template,
       items: items || [],
@@ -281,6 +310,7 @@ export class TemplateService {
         order: number
         existingItemId?: string
       }>
+      tiers?: Array<{ tier_name: string; tier_order: number; color: string | null }>
     },
     userId: string
   ): Promise<TemplateWithItems> {
@@ -336,6 +366,28 @@ export class TemplateService {
         .insert(itemsToInsert as any)
 
       if (itemsError) throw itemsError
+    }
+
+    // Update tiers - delete all and recreate
+    await this.supabase
+      .from('template_tiers')
+      .delete()
+      .eq('template_id', templateId)
+
+    // Insert new tiers if provided
+    if (input.tiers && input.tiers.length > 0) {
+      const tiersToInsert = input.tiers.map((tier) => ({
+        template_id: templateId,
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
+
+      const { error: tiersError } = await this.supabase
+        .from('template_tiers')
+        .insert(tiersToInsert as any)
+
+      if (tiersError) throw tiersError
     }
 
     // Return updated template with items

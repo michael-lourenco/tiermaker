@@ -16,6 +16,8 @@ import { useTranslation } from '@/hooks/useTranslation'
 import Image from 'next/image'
 import { X, Upload } from 'lucide-react'
 import { EditableTemplateItemCard } from './EditableTemplateItemCard'
+import { TemplateTiersVisualEditor, type TemplateTier } from './TemplateTiersVisualEditor'
+import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
 import type { TemplateWithItemsAndCategories, TemplateItem as TemplateItemType } from '@/types/template.types'
 
 const templateSchema = z.object({
@@ -43,6 +45,7 @@ interface EditTemplateFormProps {
 export function EditTemplateForm({ template }: EditTemplateFormProps) {
   const [items, setItems] = useState<EditableItem[]>([])
   const [coverImage, setCoverImage] = useState<{ file: File; preview: string; imageUrl?: string } | { imageUrl: string } | null>(null)
+  const [tiers, setTiers] = useState<TemplateTier[]>([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
@@ -85,6 +88,26 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
         existingItemId: item.id,
       }))
       setItems(existingItems)
+
+      // Set existing tiers if available, otherwise use default tiers
+      if ('tiers' in template && template.tiers && Array.isArray(template.tiers) && template.tiers.length > 0) {
+        const existingTiers: TemplateTier[] = template.tiers.map((tier: any) => ({
+          id: tier.id,
+          tier_name: tier.tier_name,
+          tier_order: tier.tier_order,
+          color: tier.color,
+        }))
+        setTiers(existingTiers)
+      } else {
+        // Use default tiers if template doesn't have tiers
+        const defaultTiers: TemplateTier[] = DEFAULT_TIERS.map((name, index) => ({
+          id: `tier-${name}-${Date.now()}-${index}`,
+          tier_name: name,
+          tier_order: index,
+          color: TIER_COLORS[name] || null,
+        }))
+        setTiers(defaultTiers)
+      }
 
       // Reset form with template values
       reset({
@@ -221,6 +244,13 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
         })
       )
 
+      // Preparar tiers para envio
+      const tiersToSend = tiers.map((tier) => ({
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
+
       // Update template
       await templateService.updateTemplateComplete(
         template.id,
@@ -231,6 +261,7 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
           cover_image_url: coverImageUrl,
           is_public: data.is_public,
           items: processedItems,
+          tiers: tiersToSend.length > 0 ? tiersToSend : undefined,
         },
         user.id
       )
@@ -368,6 +399,19 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
               {t('createTemplate.isPublic')}
             </label>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Tiers Padrão</CardTitle>
+          <CardDescription>
+            Configure as tiers padrão que serão usadas quando alguém criar uma tier list a partir deste template.
+            Você pode editar o nome e a cor de cada tier, reordenar arrastando, adicionar novas ou remover.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TemplateTiersVisualEditor tiers={tiers} onChange={setTiers} />
         </CardContent>
       </Card>
 

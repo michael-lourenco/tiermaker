@@ -32,7 +32,11 @@ export async function POST(request: NextRequest) {
       cover_image_url,
       is_public,
       items,
-    } = body as CreateTemplateInput & { items: Array<{ name: string; image_url: string; order: number }> }
+      tiers,
+    } = body as CreateTemplateInput & { 
+      items: Array<{ name: string; image_url: string; order: number }>
+      tiers?: Array<{ tier_name: string; tier_order: number; color: string | null }>
+    }
 
     // Validar dados obrigatórios
     if (!name || !category_id || !items || items.length === 0) {
@@ -69,6 +73,7 @@ export async function POST(request: NextRequest) {
         cover_image_url,
         is_public: is_public ?? true,
         items,
+        tiers,
       },
       user.id
     )

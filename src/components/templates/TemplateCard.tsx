@@ -12,7 +12,7 @@ interface TemplateCardProps {
 
 export function TemplateCard({ template }: TemplateCardProps) {
   return (
-    <Link href={`/templates/${template.id}`}>
+    <Link href={`/editor/${template.id}`}>
       <Card className="group relative overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-2 hover:border-primary">
         <div className="relative w-full aspect-video">
           {template.cover_image_url ? (

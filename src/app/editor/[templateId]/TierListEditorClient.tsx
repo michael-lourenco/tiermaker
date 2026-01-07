@@ -22,7 +22,7 @@ interface TierListEditorClientProps {
 }
 
 export function TierListEditorClient({ template }: TierListEditorClientProps) {
-  const [title, setTitle] = useState('My Tier List')
+  const [title, setTitle] = useState(template.name || 'My Tier List')
   const [isPublic, setIsPublic] = useState(false)
   const [saving, setSaving] = useState(false)
   const [showLimitModal, setShowLimitModal] = useState(false)
@@ -83,6 +83,14 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
 
   return (
     <div className="space-y-3 sm:space-y-4 md:space-y-6 px-2 sm:px-4 md:px-6 lg:px-8">
+      {/* Informações do Template */}
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{template.name}</h1>
+        {template.description && (
+          <p className="text-sm sm:text-base text-muted-foreground">{template.description}</p>
+        )}
+      </div>
+
       {/* Título da Tier List - Centralizado */}
       <div className="flex flex-col items-center gap-1.5 sm:gap-2 py-1 sm:py-2">
         <Label htmlFor="tier-list-title" className="text-sm sm:text-base md:text-lg font-semibold flex items-center gap-1.5 sm:gap-2">

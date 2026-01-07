@@ -41,12 +41,12 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
         <AdSpace position="content-top" />
 
         {template.cover_image_url && (
-          <div className="relative w-full h-48 sm:h-64 md:h-96 rounded-lg overflow-hidden mb-6 md:mb-8">
+          <div className="relative w-1/4 aspect-video rounded-lg overflow-hidden mb-6 md:mb-8">
             <Image
               src={template.cover_image_url}
               alt={template.name}
               fill
-              sizes="(max-width: 768px) 100vw, 80vw"
+              sizes="(max-width: 768px) 100vw, 20vw"
               className="object-cover"
             />
           </div>

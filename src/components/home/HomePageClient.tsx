@@ -6,18 +6,25 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useTranslation } from '@/hooks/useTranslation'
 import { TemplateCard } from '@/components/templates/TemplateCard'
+import { TierListCard } from '@/components/tier-lists/TierListCard'
 import type { TemplateWithCategories } from '@/types/template.types'
 import type { Category } from '@/services/category.service'
+import type { TierListWithData } from '@/types/tierList.types'
 import { AdSpace } from '@/components/ads/AdSpace'
+import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
 
 interface HomePageClientProps {
   templates: TemplateWithCategories[]
   categories: Category[]
+  tierLists?: Array<TierListWithData & {
+    template_name?: string
+    category_name?: string
+    category_slug?: string
+    user_email?: string | null
+  }>
 }
 
-import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
-
-export function HomePageClient({ templates, categories }: HomePageClientProps) {
+export function HomePageClient({ templates, categories, tierLists = [] }: HomePageClientProps) {
   const { t } = useTranslation()
 
   return (
@@ -117,6 +124,30 @@ export function HomePageClient({ templates, categories }: HomePageClientProps) {
             )}
           </div>
         </section>
+
+        {/* Ad Space - Content Middle 2 */}
+        <AdSpace position="content-middle" />
+
+        {/* Popular Tier Lists */}
+        {tierLists.length > 0 && (
+          <section className="py-8 md:py-16">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center justify-between mb-4 md:mb-8 px-2">
+                <h2 className="text-2xl sm:text-3xl font-bold">{t('home.popularTierLists') || 'Tier Lists Populares'}</h2>
+                <Link href="/tierlists">
+                  <Button variant="outline" size="sm">
+                    {t('home.viewAllTierLists') || 'Ver Todas'}
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {tierLists.map((tierList) => (
+                  <TierListCard key={tierList.id} tierList={tierList} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Ad Space - Content Bottom */}
         <AdSpace position="content-bottom" />

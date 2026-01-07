@@ -20,6 +20,7 @@
     "home": "Home",
     "templates": "Templates",
     "categories": "Categories",
+    "tierLists": "Tier Lists",
     "createTemplate": "Create Template",
     "myTemplates": "My Templates",
     "myTierLists": "My Tier Lists",
@@ -39,6 +40,8 @@
     "createYourOwn": "Create Your Own",
     "popularCategories": "Popular Categories",
     "popularTemplates": "Popular Templates",
+    "popularTierLists": "Popular Tier Lists",
+    "viewAllTierLists": "View All",
     "noTemplates": "No templates available yet. Be the first to create one!",
     "createFirstTemplate": "Create Your First Template"
   },

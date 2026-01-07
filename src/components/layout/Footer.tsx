@@ -35,6 +35,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/tierlists" className="text-muted-foreground hover:text-foreground transition-colors">
+                  {t('nav.tierLists') || 'Tier Lists'}
+                </Link>
+              </li>
+              <li>
                 <Link href="/create-template" className="text-muted-foreground hover:text-foreground transition-colors">
                   {t('nav.createTemplate')}
                 </Link>

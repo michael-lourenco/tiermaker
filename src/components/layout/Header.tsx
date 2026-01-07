@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { LanguageSelector } from '@/components/language/language-selector'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from 'next-themes'
-import { Menu, X, ChevronDown } from 'lucide-react'
+import { Menu, X, ChevronDown, LayoutGrid, FolderOpen, List, Plus, User, Settings } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import {
   Sheet,
@@ -63,7 +63,7 @@ export function Header() {
       return pathname === '/'
     }
     // Exact match for specific routes
-    if (path === '/my-templates' || path === '/my-tier-lists' || path === '/admin/categories' || path === '/admin/ads') {
+    if (path === '/my-templates' || path === '/my-tier-lists' || path === '/admin/categories' || path === '/admin/ads' || path === '/tierlists') {
       return pathname === path
     }
     // Starts with for general routes like /categories, /templates, /admin
@@ -71,8 +71,9 @@ export function Header() {
   }
 
   const navLinks = [
-    { href: '/categories', label: t('nav.categories') },
-    { href: '/templates', label: t('nav.templates') },
+    { href: '/categories', label: t('nav.categories'), icon: FolderOpen },
+    { href: '/templates', label: t('nav.templates'), icon: LayoutGrid },
+    { href: '/tierlists', label: t('nav.tierLists') || 'Tier Lists', icon: List },
   ]
 
   const isAdmin = user && isAdminEmail(user.email || null)
@@ -122,146 +123,160 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <NavLink key={link.href} href={link.href} label={link.label} />
-            ))}
+          <nav className="hidden md:flex items-center gap-2 flex-1 justify-end min-w-0">
+            {/* Explorar Dropdown - Agrupa links principais */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className={cn(
+                    (isActive('/categories') || isActive('/templates') || isActive('/tierlists')) && 
+                    'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
+                  )}
+                >
+                  <LayoutGrid className="h-4 w-4 mr-1" />
+                  Explorar
+                  <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {navLinks.map((link) => {
+                  const Icon = link.icon
+                  return (
+                    <DropdownMenuItem key={link.href} asChild>
+                      <Link 
+                        href={link.href}
+                        className={cn(
+                          'w-full cursor-pointer flex items-center gap-2',
+                          isActive(link.href) && 'bg-primary/10 text-primary font-semibold'
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {link.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  )
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            <div className="flex items-center gap-2 ml-2 pl-4 border-l">
-              <LanguageSelector />
-              <ThemeToggle />
-            </div>
+            {/* Criar Template - Ícone apenas */}
+            {user && (
+              <Link href="/create-template">
+                <Button variant="default" size="sm" className="px-2">
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden lg:inline ml-1">{t('nav.createTemplate')}</span>
+                </Button>
+              </Link>
+            )}
 
+            {/* Menu do Usuário */}
             {loading ? (
-              <div className="w-20 h-8 bg-muted animate-pulse rounded" />
+              <div className="w-8 h-8 bg-muted animate-pulse rounded" />
             ) : user ? (
-              <>
-                {/* Criar Template Button */}
-                <Link href="/create-template">
-                  <Button variant="default" size="sm">
-                    {t('nav.createTemplate')}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className={cn(
+                      'px-2',
+                      (isActive('/profile') || isActive('/my-templates') || isActive('/my-tier-lists') || isActive('/account/subscription')) && 
+                      'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
+                    )}
+                  >
+                    <User className="h-4 w-4" />
+                    {isPremium && (
+                      <Badge className="ml-1 bg-primary text-primary-foreground h-4 px-1 text-[10px]">
+                        <Crown className="h-2.5 w-2.5" />
+                      </Badge>
+                    )}
                   </Button>
-                </Link>
-
-                {/* Meus Conteúdos Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link 
+                      href="/profile"
                       className={cn(
-                        (isActive('/my-templates') || isActive('/my-tier-lists')) && 
-                        'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
+                        'w-full cursor-pointer flex items-center gap-2',
+                        isActive('/profile') && 'bg-primary/10 text-primary font-semibold'
                       )}
                     >
-                      Meus Conteúdos
-                      {isPremium && (
-                        <Badge className="ml-2 bg-primary text-primary-foreground h-4 px-1.5 text-[10px]">
-                          <Crown className="h-2.5 w-2.5 mr-0.5" />
-                          Premium
-                        </Badge>
+                      <User className="h-4 w-4" />
+                      {t('profile.title') || 'Profile'}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link 
+                      href="/account/subscription"
+                      className="w-full cursor-pointer flex items-center gap-2"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Minha Assinatura
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link 
+                      href="/my-templates"
+                      className={cn(
+                        'w-full cursor-pointer',
+                        isActive('/my-templates') && 'bg-primary/10 text-primary font-semibold'
                       )}
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link 
-                        href="/profile"
-                        className={cn(
-                          'w-full cursor-pointer',
-                          isActive('/profile') && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                      >
-                        {t('profile.title') || 'Profile'}
-                        {isPremium && (
-                          <Badge className="ml-2 bg-primary text-primary-foreground h-4 px-1.5 text-[10px]">
-                            <Crown className="h-2.5 w-2.5 mr-0.5" />
-                            Premium
-                          </Badge>
-                        )}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link 
-                        href="/account/subscription"
-                        className="w-full cursor-pointer"
-                      >
-                        Minha Assinatura
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link 
-                        href="/my-templates"
-                        className={cn(
-                          'w-full cursor-pointer',
-                          isActive('/my-templates') && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                      >
-                        {t('nav.myTemplates') || 'Meus Templates'}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link 
-                        href="/my-tier-lists"
-                        className={cn(
-                          'w-full cursor-pointer',
-                          isActive('/my-tier-lists') && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                      >
-                        {t('nav.myTierLists')}
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* Admin Dropdown (only for admin) */}
-                {isAdmin && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className={cn(
-                          (isActive('/admin/categories') || isActive('/admin/ads')) && 
-                          'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
-                        )}
-                      >
-                        Admin
-                        <ChevronDown className="ml-1 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link 
-                          href="/admin/categories"
-                          className={cn(
-                            'w-full cursor-pointer',
-                            isActive('/admin/categories') && 'bg-primary/10 text-primary font-semibold'
-                          )}
-                        >
-                          Categorias
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link 
-                          href="/admin/ads"
-                          className={cn(
-                            'w-full cursor-pointer',
-                            isActive('/admin/ads') && 'bg-primary/10 text-primary font-semibold'
-                          )}
-                        >
-                          Publicidades
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-
-                <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                  {t('nav.signOut')}
-                </Button>
-              </>
+                    >
+                      {t('nav.myTemplates') || 'Meus Templates'}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link 
+                      href="/my-tier-lists"
+                      className={cn(
+                        'w-full cursor-pointer',
+                        isActive('/my-tier-lists') && 'bg-primary/10 text-primary font-semibold'
+                      )}
+                    >
+                      {t('nav.myTierLists')}
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>Admin</DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem asChild>
+                            <Link 
+                              href="/admin/categories"
+                              className={cn(
+                                'w-full cursor-pointer',
+                                isActive('/admin/categories') && 'bg-primary/10 text-primary font-semibold'
+                              )}
+                            >
+                              Categorias
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link 
+                              href="/admin/ads"
+                              className={cn(
+                                'w-full cursor-pointer',
+                                isActive('/admin/ads') && 'bg-primary/10 text-primary font-semibold'
+                              )}
+                            >
+                              Publicidades
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    {t('nav.signOut')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Link href="/login">
@@ -276,6 +291,12 @@ export function Header() {
                 </Link>
               </>
             )}
+
+            {/* Language and Theme - Ícones apenas */}
+            <div className="flex items-center gap-1 ml-2 pl-2 border-l">
+              <LanguageSelector />
+              <ThemeToggle />
+            </div>
           </nav>
 
           {/* Mobile Menu */}

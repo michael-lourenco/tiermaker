@@ -35,7 +35,7 @@ export function PageWithSidebar({
   return (
     <div className={cn('flex gap-6 max-w-7xl mx-auto', className)}>
       {/* Left Sidebar - só renderiza se não for premium, e escondido no mobile via CSS */}
-      {showLeftSidebar && (
+      {shouldShowLeftSidebar && (
         <aside className="w-[300px] flex-shrink-0 hidden lg:block">
           <div className="sticky top-20">
             <AdSpace position="sidebar-left" wrapperClassName="my-0" />
@@ -54,7 +54,7 @@ export function PageWithSidebar({
       </main>
 
       {/* Right Sidebar - só renderiza se não for premium, e escondido no mobile via CSS */}
-      {showRightSidebar && (
+      {shouldShowRightSidebar && (
         <aside className="w-[300px] flex-shrink-0 hidden lg:block">
           <div className="sticky top-20">
             <AdSpace position="sidebar-right" wrapperClassName="my-0" />

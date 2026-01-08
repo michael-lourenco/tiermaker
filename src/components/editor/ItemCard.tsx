@@ -85,7 +85,7 @@ export const ItemCard = memo(function ItemCard({ item, showItemName = false }: I
     opacity: isDragging ? 0.5 : 1,
     width: `${containerWidth}px`,
     height: `${fixedHeight}px`,
-    touchAction: 'none' as const, // Previne scroll durante drag no mobile
+    // Removido touchAction: 'none' para permitir scroll durante drag quando necessário
   }), [transform, transition, isDragging, containerWidth, fixedHeight])
 
   // Memoiza as props de drag para evitar recriar objetos

@@ -106,7 +106,7 @@ export const TierColumn = memo(function TierColumn({
     backgroundColor: tier.color ? `${tier.color}15` : undefined,
     borderColor: tier.color || undefined,
     minHeight: '60px', // Menor no mobile
-    touchAction: 'none' as const, // Previne scroll durante drag no mobile
+    // Removido touchAction: 'none' para permitir scroll durante drag
     ...(isDragging && { cursor: 'grabbing' }),
   }), [tier.color, isDragging])
 

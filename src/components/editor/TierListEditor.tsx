@@ -160,53 +160,8 @@ export function TierListEditor({
       document.body.classList.add('dragging-tier')
     }
     
-    // Prevenir scroll durante drag no mobile
-    // Salvar scroll position antes de fixar
-    const scrollY = window.scrollY
-    const viewportHeight = window.innerHeight
-    
-    // Encontrar elementos importantes para garantir visibilidade
-    const titleElement = document.getElementById('tier-list-title')
-    const firstTierElement = tiers.length > 0 
-      ? document.querySelector(`[data-tier-id="${tiers[0].id}"]`) as HTMLElement
-      : null
-    
-    // Calcular a posição mínima necessária para manter conteúdo visível
-    let minVisibleTop = 0
-    
-    if (titleElement) {
-      const titleRect = titleElement.getBoundingClientRect()
-      const titleTop = scrollY + titleRect.top
-      // Se o título está acima da viewport, ajustar para mantê-lo visível
-      if (titleRect.top < 0) {
-        minVisibleTop = Math.max(minVisibleTop, titleTop - 20) // 20px de padding
-      }
-    }
-    
-    if (firstTierElement) {
-      const tierRect = firstTierElement.getBoundingClientRect()
-      const tierTop = scrollY + tierRect.top
-      // Se a primeira tier está acima da viewport, ajustar para mantê-la visível
-      if (tierRect.top < 0) {
-        minVisibleTop = Math.max(minVisibleTop, tierTop - 20) // 20px de padding
-      }
-    }
-    
-    // Calcular o top ajustado
-    // Se minVisibleTop > 0, significa que precisamos ajustar para mostrar conteúdo
-    const adjustedScrollY = minVisibleTop > 0 ? minVisibleTop : scrollY
-    
-    // Fixar body com posição ajustada
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${adjustedScrollY}px`
-    document.body.style.width = '100%'
-    document.body.style.overflow = 'hidden'
-    // Salvar a posição original para restaurar depois
-    document.body.setAttribute('data-scroll-y', scrollY.toString())
-    // Salvar também a posição ajustada se diferente
-    if (adjustedScrollY !== scrollY) {
-      document.body.setAttribute('data-adjusted-scroll-y', adjustedScrollY.toString())
-    }
+    // Não fixar o body - permitir scroll livre durante drag
+    // Isso permite que o usuário role a tela para acessar outras tiers
   }, [tiers])
 
   // Handler interno de dragOver (não debounced) - usado para lógica crítica
@@ -434,20 +389,8 @@ export function TierListEditor({
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
 
-    // Restaurar scroll após drag
-    const scrollY = document.body.getAttribute('data-scroll-y')
-    document.body.style.overflow = ''
-    document.body.style.position = ''
-    document.body.style.width = ''
-    document.body.style.top = ''
+    // Remover classes do body
     document.body.classList.remove('dragging-item', 'dragging-tier')
-    document.body.removeAttribute('data-scroll-y')
-    document.body.removeAttribute('data-adjusted-scroll-y')
-    
-    // Restaurar posição de scroll original (não a ajustada)
-    if (scrollY) {
-      window.scrollTo(0, parseInt(scrollY))
-    }
 
     lastDragOverRef.current = null // Reset drag over tracking
 
@@ -539,19 +482,6 @@ export function TierListEditor({
 
     setActiveId(null)
     setDraggingTierId(null)
-    // Restaurar scroll após cancel (final do handleDragOver)
-    const savedScrollY = document.body.getAttribute('data-scroll-y')
-    document.body.style.overflow = ''
-    document.body.style.position = ''
-    document.body.style.width = ''
-    document.body.style.top = ''
-    document.body.classList.remove('dragging-item', 'dragging-tier')
-    document.body.removeAttribute('data-scroll-y')
-    
-    // Restaurar posição de scroll
-    if (savedScrollY) {
-      window.scrollTo(0, parseInt(savedScrollY))
-    }
   }, [tiers, items, getNextOrderForTier, getUnassignedItems])
 
   const handleTierNameChange = useCallback((tierId: string, newName: string) => {
@@ -679,6 +609,7 @@ export function TierListEditor({
       onDragStart={handleDragStart}
       onDragOver={handleDragOverCritical}
       onDragEnd={handleDragEnd}
+      autoScroll={false}
     >
       <div className={`space-y-0 ${isDraggingTier ? 'cursor-grabbing' : ''}`}>
         {/* Tiers - Sortable */}
@@ -737,9 +668,12 @@ export function TierListEditor({
       </div>
 
       {/* Drag Overlay - Shows the item being dragged following the cursor */}
-      <DragOverlay>
+      <DragOverlay
+        style={{ cursor: 'grabbing' }}
+        dropAnimation={null}
+      >
         {activeItem ? (
-          <div className="rotate-3 opacity-90">
+          <div className="rotate-3 opacity-90 pointer-events-none">
             <ItemCard item={activeItem} showItemName={showItemNames} />
           </div>
         ) : null}

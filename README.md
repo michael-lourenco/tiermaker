@@ -15,7 +15,7 @@ Uma plataforma web completa para criar, classificar e compartilhar tier lists, s
 
 ---
 
-## 🚀 Stack Tecnológica
+## 🚀 Stack Tecnológica Tiermaker
 
 - **Next.js 14+** (App Router) - Framework React
 - **TypeScript** - Tipagem estática

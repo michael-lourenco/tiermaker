@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -30,6 +30,7 @@ import type { TemplateItem } from '@/types/template.types'
 import type { TierListTier, TierListItem } from '@/types/tierList.types'
 import { v4 as uuidv4 } from 'uuid'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useDebounce } from '@/hooks/useDebounce'
 
 interface TierListEditorProps {
   templateItems: TemplateItem[]
@@ -123,7 +124,29 @@ export function TierListEditor({
     })
   )
 
-  const handleDragStart = (event: DragStartEvent) => {
+  // Memoiza funções auxiliares para evitar recriar
+  const getNextOrderForTier = useCallback((tierName: string): number => {
+    const tierItems = Array.from(items.values()).filter(
+      (item) => item.tier_name === tierName
+    )
+    return tierItems.length
+  }, [items])
+
+  const getItemsForTier = useCallback((tierName: string): TemplateItem[] => {
+    return Array.from(items.entries())
+      .filter(([_, item]) => item.tier_name === tierName)
+      .sort(([_, a], [__, b]) => a.order - b.order)
+      .map(([id]) => items.get(id)!.template_item)
+  }, [items])
+
+  const getUnassignedItems = useCallback((): TemplateItem[] => {
+    return Array.from(items.entries())
+      .filter(([_, item]) => !item.tier_name || item.tier_name === '')
+      .sort(([_, a], [__, b]) => a.order - b.order)
+      .map(([id]) => items.get(id)!.template_item)
+  }, [items])
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string)
     lastDragOverRef.current = null // Reset drag over tracking
     
@@ -184,9 +207,10 @@ export function TierListEditor({
     if (adjustedScrollY !== scrollY) {
       document.body.setAttribute('data-adjusted-scroll-y', adjustedScrollY.toString())
     }
-  }
+  }, [tiers])
 
-  const handleDragOver = (event: DragOverEvent) => {
+  // Handler interno de dragOver (não debounced) - usado para lógica crítica
+  const handleDragOverInternal = useCallback((event: DragOverEvent) => {
     const { active, over } = event
 
     if (!over) {
@@ -358,9 +382,56 @@ export function TierListEditor({
         lastDragOverRef.current = { activeId, overId }
       }
     }
-  }
+  }, [tiers, items, getNextOrderForTier, getUnassignedItems])
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  // Debounced version do dragOver para operações não-críticas (50ms)
+  // Isso reduz drasticamente as atualizações durante drag rápido
+  const handleDragOver = useDebounce(handleDragOverInternal, 50)
+
+  // Para operações críticas (como reordenação de tiers), processamos imediatamente
+  // Para items, usamos versão debounced para melhor performance
+  const handleDragOverCritical = useCallback((event: DragOverEvent) => {
+    const { active, over } = event
+
+    if (!over) {
+      lastDragOverRef.current = null
+      // Usar versão debounced para limpar estado
+      handleDragOverInternal(event)
+      return
+    }
+
+    const activeId = active.id as string
+    const overId = over.id as string
+
+    // Para reordenação de tiers, processar imediatamente (sem debounce)
+    const activeTier = tiers.find((t) => t.id === activeId)
+    const overTier = tiers.find((t) => t.id === overId)
+    
+    if (activeTier && overTier && activeId !== overId) {
+      // Check if this is the same drag operation
+      if (lastDragOverRef.current?.activeId === activeId && lastDragOverRef.current?.overId === overId) {
+        return
+      }
+
+      const oldIndex = tiers.findIndex((t) => t.id === activeId)
+      const newIndex = tiers.findIndex((t) => t.id === overId)
+      
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        const newTiers = arrayMove(tiers, oldIndex, newIndex)
+        const updatedTiers = newTiers.map((tier, index) => ({
+          ...tier,
+          tier_order: index,
+        }))
+        setTiers(updatedTiers)
+        lastDragOverRef.current = { activeId, overId }
+      }
+    } else {
+      // Para items, usar versão debounced para melhor performance
+      handleDragOver(event)
+    }
+  }, [tiers, handleDragOver, handleDragOverInternal])
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
 
     // Restaurar scroll após drag
@@ -481,30 +552,9 @@ export function TierListEditor({
     if (savedScrollY) {
       window.scrollTo(0, parseInt(savedScrollY))
     }
-  }
+  }, [tiers, items, getNextOrderForTier, getUnassignedItems])
 
-  const getNextOrderForTier = (tierName: string): number => {
-    const tierItems = Array.from(items.values()).filter(
-      (item) => item.tier_name === tierName
-    )
-    return tierItems.length
-  }
-
-  const getItemsForTier = (tierName: string): TemplateItem[] => {
-    return Array.from(items.entries())
-      .filter(([_, item]) => item.tier_name === tierName)
-      .sort(([_, a], [__, b]) => a.order - b.order)
-      .map(([id]) => items.get(id)!.template_item)
-  }
-
-  const getUnassignedItems = (): TemplateItem[] => {
-    return Array.from(items.entries())
-      .filter(([_, item]) => !item.tier_name || item.tier_name === '')
-      .sort(([_, a], [__, b]) => a.order - b.order)
-      .map(([id]) => items.get(id)!.template_item)
-  }
-
-  const handleTierNameChange = (tierId: string, newName: string) => {
+  const handleTierNameChange = useCallback((tierId: string, newName: string) => {
     // Find the tier to get the old name
     const tier = tiers.find((t) => t.id === tierId)
     if (!tier) return
@@ -536,17 +586,17 @@ export function TierListEditor({
       })
       return hasChanges ? newItems : prevItems
     })
-  }
+  }, [items])
 
-  const handleTierColorChange = (tierId: string, newColor: string) => {
+  const handleTierColorChange = useCallback((tierId: string, newColor: string) => {
     setTiers((prevTiers) =>
       prevTiers.map((tier) =>
         tier.id === tierId ? { ...tier, color: newColor } : tier
       )
     )
-  }
+  }, [])
 
-  const handleTierDelete = (tierId: string) => {
+  const handleTierDelete = useCallback((tierId: string) => {
     const tier = tiers.find((t) => t.id === tierId)
     if (!tier) return
 
@@ -570,9 +620,9 @@ export function TierListEditor({
       tier_order: index,
     }))
     setTiers(reorderedTiers)
-  }
+  }, [items, getUnassignedItems, tiers])
 
-  const handleAddTier = () => {
+  const handleAddTier = useCallback(() => {
     const newTier: TierListTier = {
       id: `tier-new-${uuidv4()}`,
       tier_list_id: '',
@@ -581,10 +631,10 @@ export function TierListEditor({
       color: '#6B7280',
       created_at: '',
     }
-    setTiers([...tiers, newTier])
-  }
+    setTiers((prevTiers) => [...prevTiers, newTier])
+  }, [tiers.length])
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (onSave) {
       // Only send the data needed to create tiers (no id, tier_list_id, created_at)
       const tierData = tiers.map((tier) => ({
@@ -606,45 +656,46 @@ export function TierListEditor({
         items: itemData,
       })
     }
-  }
+  }, [onSave, tiers, items])
 
-  const tierIds = tiers.map((tier) => tier.id)
+  // Memoiza tierIds para evitar recriar array
+  const tierIds = useMemo(() => tiers.map((tier) => tier.id), [tiers])
 
-  // Get the active item being dragged (if it's an item, not a tier)
-  const activeItem = activeId && !tiers.find((t) => t.id === activeId) 
-    ? items.get(activeId)?.template_item 
-    : null
+  // Get the active item being dragged (if it's an item, not a tier) - memoizado
+  const activeItem = useMemo(() => {
+    if (!activeId) return null
+    const isTier = tiers.some((t) => t.id === activeId)
+    if (isTier) return null
+    return items.get(activeId)?.template_item || null
+  }, [activeId, tiers, items])
 
-  // Check if a tier is being dragged
-  const isDraggingTier = draggingTierId !== null
+  // Check if a tier is being dragged - memoizado
+  const isDraggingTier = useMemo(() => draggingTierId !== null, [draggingTierId])
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
+      onDragOver={handleDragOverCritical}
       onDragEnd={handleDragEnd}
     >
       <div className={`space-y-0 ${isDraggingTier ? 'cursor-grabbing' : ''}`}>
         {/* Tiers - Sortable */}
         <SortableContext items={tierIds} strategy={verticalListSortingStrategy}>
-          {tiers.map((tier) => {
-            const tierItems = getItemsForTier(tier.tier_name)
-            return (
-              <TierRow
-                key={tier.id}
-                tier={tier}
-                items={tierItems}
-                activeId={activeId}
-                showItemName={showItemNames}
-                isDragging={draggingTierId === tier.id}
-                onTierNameChange={handleTierNameChange}
-                onTierColorChange={handleTierColorChange}
-                onTierDelete={handleTierDelete}
-              />
-            )
-          })}
+          {tiers.map((tier) => (
+            <TierRow
+              key={tier.id}
+              tier={tier}
+              items={getItemsForTier(tier.tier_name)}
+              activeId={activeId}
+              showItemName={showItemNames}
+              isDragging={draggingTierId === tier.id}
+              onTierNameChange={handleTierNameChange}
+              onTierColorChange={handleTierColorChange}
+              onTierDelete={handleTierDelete}
+            />
+          ))}
         </SortableContext>
 
         {/* Add Tier Button */}

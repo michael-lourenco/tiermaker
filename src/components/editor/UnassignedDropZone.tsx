@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, memo, useCallback } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { ItemCard } from './ItemCard'
@@ -18,16 +18,37 @@ interface UnassignedDropZoneProps {
   onShowItemNameChange?: (show: boolean) => void
 }
 
-export function UnassignedDropZone({ items, showItemName = false, onShowItemNameChange }: UnassignedDropZoneProps) {
+// Componente memoizado
+export const UnassignedDropZone = memo(function UnassignedDropZone({ 
+  items, 
+  showItemName = false, 
+  onShowItemNameChange 
+}: UnassignedDropZoneProps) {
   const { t } = useTranslation()
   const [isPinned, setIsPinned] = useState(false)
   const { setNodeRef, isOver } = useDroppable({
     id: 'unassigned',
   })
 
-  const togglePin = () => {
+  const togglePin = useCallback(() => {
     setIsPinned((prev) => !prev)
-  }
+  }, [])
+
+  // Memoiza os IDs dos items para o SortableContext
+  const itemIds = useMemo(() => items.map((item) => item.id), [items])
+
+  // Estilo do container memoizado
+  const containerStyle = useMemo(() => ({
+    maxHeight: isPinned ? '50vh' : '35vh',
+    minHeight: '120px',
+    bottom: isPinned ? 'auto' : '10px',
+  }), [isPinned])
+
+  // Altura máxima do container de itens memoizada
+  const itemsContainerMaxHeight = useMemo(() => 
+    isPinned ? 'calc(50vh - 2rem)' : 'calc(35vh - 2rem)',
+    [isPinned]
+  )
 
   return (
     <div
@@ -37,11 +58,7 @@ export function UnassignedDropZone({ items, showItemName = false, onShowItemName
         !isPinned && 'sticky z-10',
         isOver ? 'border-primary bg-primary/20 border-4' : 'border-border'
       )}
-      style={{ 
-        maxHeight: isPinned ? '50vh' : '35vh', // Mais espaço quando fixado
-        minHeight: '120px', // Altura mínima reduzida para mobile
-        bottom: isPinned ? 'auto' : '10px', // Menos espaço no mobile quando desafixado
-      }}
+      style={containerStyle}
     >
       {/* Botão de fixar/desafixar e switch de nomes - sempre no topo à direita do bloco */}
       <div className="absolute top-2 right-2 z-30 flex flex-col gap-2 items-end">
@@ -77,24 +94,39 @@ export function UnassignedDropZone({ items, showItemName = false, onShowItemName
           </div>
         )}
       </div>
-        {items.length > 0 ? (
-          <SortableContext
-            items={items.map((item) => item.id)}
-            strategy={rectSortingStrategy}
+      {items.length > 0 ? (
+        <SortableContext
+          items={itemIds}
+          strategy={rectSortingStrategy}
+        >
+          {/* Renderização otimizada - memoização garante que apenas items que mudaram re-renderizem */}
+          <div
+            className="flex flex-wrap gap-1.5 sm:gap-2 md:gap-4 overflow-y-auto"
+            style={{ maxHeight: itemsContainerMaxHeight }}
           >
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 md:gap-4 overflow-y-auto" style={{ maxHeight: isPinned ? 'calc(50vh - 2rem)' : 'calc(35vh - 2rem)' }}>
-              {items.map((item) => (
-                <ItemCard key={item.id} item={item} showItemName={showItemName} />
-              ))}
-            </div>
-          </SortableContext>
-        ) : (
-          <div className="flex items-center justify-center min-h-[140px] sm:min-h-[180px] text-muted-foreground px-4">
-            <p className="text-xs sm:text-sm text-center">{t('editor.dragItemsHere')}</p>
+            {items.map((item) => (
+              <ItemCard key={item.id} item={item} showItemName={showItemName} />
+            ))}
           </div>
-        )}
+        </SortableContext>
+      ) : (
+        <div className="flex items-center justify-center min-h-[140px] sm:min-h-[180px] text-muted-foreground px-4">
+          <p className="text-xs sm:text-sm text-center">{t('editor.dragItemsHere')}</p>
+        </div>
+      )}
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  // Comparação customizada para memo
+  if (prevProps.items.length !== nextProps.items.length) return false
+  if (prevProps.showItemName !== nextProps.showItemName) return false
+  
+  // Compara items por IDs
+  const prevIds = prevProps.items.map(item => item.id).join(',')
+  const nextIds = nextProps.items.map(item => item.id).join(',')
+  if (prevIds !== nextIds) return false
+  
+  return true
+})
 
 

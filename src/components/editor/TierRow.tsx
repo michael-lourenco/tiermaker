@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo, memo, useCallback } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
@@ -19,7 +20,8 @@ interface TierRowProps {
   onTierDelete: (tierId: string) => void
 }
 
-export function TierRow({
+// Componente memoizado para evitar re-renders desnecessários
+export const TierRow = memo(function TierRow({
   tier,
   items,
   activeId,
@@ -42,33 +44,40 @@ export function TierRow({
   const isDragging = isDraggingProp || isDraggingInternal
 
   // Also make the row droppable for items (when not dragging the tier itself)
-  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+  const { setNodeRef: setDroppableRef } = useDroppable({
     id: tier.id, // Use tier.id as droppable ID so items can be dropped on the row
   })
 
-  // Combine refs
-  const setNodeRef = (node: HTMLElement | null) => {
+  // Combine refs - memoizado para evitar recriar função
+  const setNodeRef = useCallback((node: HTMLElement | null) => {
     setSortableRef(node)
     setDroppableRef(node)
-  }
+  }, [setSortableRef, setDroppableRef])
 
-  // Ensure transition is applied for smooth animations
-  // The @dnd-kit provides transition automatically via useSortable
-  // When this tier is being dragged, transition is null (which is correct - no transition for dragging item)
-  // When other tiers are being reordered, we need to ensure transition is applied
-  // We apply a default transition when there's an active drag and this tier is not the one being dragged
-  const isThisTierDragging = isDragging
-  // Always apply transition when provided by @dnd-kit, or when another tier is being dragged
-  const transitionStyle = transition !== null && transition !== undefined 
-    ? transition 
-    : (activeId && activeId !== tier.id && !isThisTierDragging ? 'transform 200ms cubic-bezier(0.2, 0, 0.2, 1)' : undefined)
+  // Memoiza o cálculo de transition para evitar recalcular
+  const transitionStyle = useMemo(() => {
+    if (transition !== null && transition !== undefined) {
+      return transition
+    }
+    if (activeId && activeId !== tier.id && !isDragging) {
+      return 'transform 200ms cubic-bezier(0.2, 0, 0.2, 1)'
+    }
+    return undefined
+  }, [transition, activeId, tier.id, isDragging])
   
-  const style = {
+  // Memoiza o style para evitar recriar objeto
+  const style = useMemo(() => ({
     transform: CSS.Transform.toString(transform),
     ...(transitionStyle && { transition: transitionStyle }),
     ...(isDragging && { cursor: 'grabbing' }),
     touchAction: 'none' as const, // Previne scroll durante drag no mobile
-  }
+  }), [transform, transitionStyle, isDragging])
+
+  // Memoiza as props de drag
+  const dragProps = useMemo(() => ({
+    ...attributes,
+    ...listeners,
+  }), [attributes, listeners])
 
   return (
     <div
@@ -80,8 +89,7 @@ export function TierRow({
       <div className="flex items-center gap-0">
         {/* Drag Handle - Visível no mobile para facilitar uso */}
         <div
-          {...attributes}
-          {...listeners}
+          {...dragProps}
           className={`flex-shrink-0 w-5 sm:w-6 h-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors opacity-60 sm:opacity-0 sm:group-hover:opacity-100 ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab active:cursor-grabbing'
           }`}
@@ -106,5 +114,23 @@ export function TierRow({
       </div>
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  // Comparação customizada para memo
+  // Re-renderiza apenas se props relevantes mudaram
+  if (prevProps.tier.id !== nextProps.tier.id) return false
+  if (prevProps.tier.tier_name !== nextProps.tier.tier_name) return false
+  if (prevProps.tier.color !== nextProps.tier.color) return false
+  if (prevProps.tier.tier_order !== nextProps.tier.tier_order) return false
+  if (prevProps.activeId !== nextProps.activeId) return false
+  if (prevProps.isDragging !== nextProps.isDragging) return false
+  if (prevProps.showItemName !== nextProps.showItemName) return false
+  
+  // Compara items por IDs (mais eficiente que comparar objetos inteiros)
+  if (prevProps.items.length !== nextProps.items.length) return false
+  const prevIds = prevProps.items.map(item => item.id).join(',')
+  const nextIds = nextProps.items.map(item => item.id).join(',')
+  if (prevIds !== nextIds) return false
+  
+  return true // Props são iguais, não precisa re-renderizar
+})
 

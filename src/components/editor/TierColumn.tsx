@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, memo, useCallback } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { ItemCard } from './ItemCard'
@@ -30,7 +30,8 @@ interface TierColumnProps {
   isDragging?: boolean
 }
 
-export function TierColumn({
+// Componente memoizado para evitar re-renders desnecessários
+export const TierColumn = memo(function TierColumn({
   tier,
   items,
   activeId,
@@ -64,13 +65,13 @@ export function TierColumn({
     }
   }, [tier.tier_name, tier.color])
 
-  const handleNameBlur = () => {
+  const handleNameBlur = useCallback(() => {
     if (tierName.trim() && tierName !== tier.tier_name) {
       onTierNameChange(tier.id, tierName.trim())
     } else if (!tierName.trim()) {
       setTierName(tier.tier_name)
     }
-  }
+  }, [tierName, tier.tier_name, tier.id, onTierNameChange])
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -82,20 +83,55 @@ export function TierColumn({
     }
   }, [tierName])
 
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleColorChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newColor = e.target.value
     setTierColor(newColor)
     onTierColorChange(tier.id, newColor)
-  }
+  }, [tier.id, onTierColorChange])
 
-  const handleDeleteClick = () => {
+  const handleDeleteClick = useCallback(() => {
     setShowDeleteDialog(true)
-  }
+  }, [])
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     onTierDelete(tier.id)
     setShowDeleteDialog(false)
-  }
+  }, [tier.id, onTierDelete])
+
+  // Memoiza os IDs dos items para o SortableContext
+  const itemIds = useMemo(() => items.map((item) => item.id), [items])
+
+  // Memoiza o style do container
+  const containerStyle = useMemo(() => ({
+    backgroundColor: tier.color ? `${tier.color}15` : undefined,
+    borderColor: tier.color || undefined,
+    minHeight: '60px', // Menor no mobile
+    touchAction: 'none' as const, // Previne scroll durante drag no mobile
+    ...(isDragging && { cursor: 'grabbing' }),
+  }), [tier.color, isDragging])
+
+  // Memoiza o style da label section
+  const labelStyle = useMemo(() => ({
+    borderColor: tier.color || undefined,
+    backgroundColor: tier.color ? `${tier.color}30` : undefined,
+  }), [tier.color])
+
+  // Memoiza o style do textarea
+  const textareaStyle = useMemo(() => ({
+    color: tier.color || undefined,
+    minHeight: '1.25rem',
+    lineHeight: '1.2',
+    wordWrap: 'break-word' as const,
+    overflowWrap: 'break-word' as const,
+  }), [tier.color])
+
+  const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTierName(e.target.value)
+    // Auto-resize on change
+    const target = e.target as HTMLTextAreaElement
+    target.style.height = 'auto'
+    target.style.height = `${target.scrollHeight}px`
+  }, [])
 
   return (
     <div
@@ -103,42 +139,21 @@ export function TierColumn({
       className={`flex border-2 rounded-lg transition-all touch-manipulation ${
         isOver ? 'border-primary bg-primary/20 border-4' : 'border-border'
       } ${isDragging ? 'opacity-50 cursor-grabbing' : ''}`}
-      style={{
-        backgroundColor: tier.color ? `${tier.color}15` : undefined,
-        borderColor: tier.color || undefined,
-        minHeight: '60px', // Menor no mobile
-        touchAction: 'none' as const, // Previne scroll durante drag no mobile
-        ...(isDragging && { cursor: 'grabbing' }),
-      }}
+      style={containerStyle}
     >
       {/* Tier Label Section - Left Side */}
       <div
         className="flex-shrink-0 w-16 sm:w-24 md:w-32 lg:w-48 flex items-center justify-center px-1 sm:px-2 md:px-3 py-1 border-r-2"
-        style={{
-          borderColor: tier.color || undefined,
-          backgroundColor: tier.color ? `${tier.color}30` : undefined,
-        }}
+        style={labelStyle}
       >
         {/* Tier Name Textarea - No border, looks like writing directly on tier */}
         <textarea
           ref={textareaRef}
           value={tierName}
-          onChange={(e) => {
-            setTierName(e.target.value)
-            // Auto-resize on change
-            const target = e.target as HTMLTextAreaElement
-            target.style.height = 'auto'
-            target.style.height = `${target.scrollHeight}px`
-          }}
+          onChange={handleTextareaChange}
           onBlur={handleNameBlur}
           className="w-full font-bold text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl bg-transparent border-0 focus:outline-none resize-none overflow-hidden text-center"
-          style={{ 
-            color: tier.color || undefined,
-            minHeight: '1.25rem',
-            lineHeight: '1.2',
-            wordWrap: 'break-word',
-            overflowWrap: 'break-word',
-          }}
+          style={textareaStyle}
           rows={1}
           placeholder="Tier"
         />
@@ -147,7 +162,7 @@ export function TierColumn({
       {/* Items Section - Middle */}
       <div className="flex-1 p-0.5 sm:p-1 md:p-1.5 lg:p-2 min-h-[60px] sm:min-h-[70px] md:min-h-[88px]">
         <SortableContext
-          items={items.map((item) => item.id)}
+          items={itemIds}
           strategy={rectSortingStrategy}
         >
           {items.length > 0 ? (
@@ -167,10 +182,7 @@ export function TierColumn({
       {/* Controls Section - Right Side */}
       <div
         className="flex-shrink-0 w-16 sm:w-20 md:w-24 lg:w-48 flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-2 md:px-3 py-1 border-l-2"
-        style={{
-          borderColor: tier.color || undefined,
-          backgroundColor: tier.color ? `${tier.color}30` : undefined,
-        }}
+        style={labelStyle}
       >
         <input
           type="color"
@@ -225,4 +237,20 @@ export function TierColumn({
       </Dialog>
     </div>
   )
-}
+}, (prevProps, nextProps) => {
+  // Comparação customizada para memo
+  if (prevProps.tier.id !== nextProps.tier.id) return false
+  if (prevProps.tier.tier_name !== nextProps.tier.tier_name) return false
+  if (prevProps.tier.color !== nextProps.tier.color) return false
+  if (prevProps.activeId !== nextProps.activeId) return false
+  if (prevProps.isDragging !== nextProps.isDragging) return false
+  if (prevProps.showItemName !== nextProps.showItemName) return false
+  
+  // Compara items por IDs
+  if (prevProps.items.length !== nextProps.items.length) return false
+  const prevIds = prevProps.items.map(item => item.id).join(',')
+  const nextIds = nextProps.items.map(item => item.id).join(',')
+  if (prevIds !== nextIds) return false
+  
+  return true
+})

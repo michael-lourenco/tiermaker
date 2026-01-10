@@ -17,19 +17,26 @@ export function useDebounce<T extends (...args: any[]) => any>(
   }, [callback])
 
   // Cria uma versão debounced do callback que sempre usa a versão mais recente
-  const debouncedCallback = useCallback(
+  const debouncedCallbackRef = useRef(
     debounce((...args: Parameters<T>) => {
       callbackRef.current(...args)
-    }, delay),
-    [delay]
+    }, delay)
   )
+
+  // Atualiza o debounced callback quando delay muda
+  useEffect(() => {
+    debouncedCallbackRef.current.cancel()
+    debouncedCallbackRef.current = debounce((...args: Parameters<T>) => {
+      callbackRef.current(...args)
+    }, delay)
+  }, [delay])
 
   // Limpa o debounce quando o componente desmonta
   useEffect(() => {
     return () => {
-      debouncedCallback.cancel()
+      debouncedCallbackRef.current.cancel()
     }
-  }, [debouncedCallback])
+  }, [])
 
-  return debouncedCallback as T
+  return debouncedCallbackRef.current as unknown as T
 }

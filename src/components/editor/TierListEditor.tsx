@@ -596,52 +596,88 @@ export function TierListEditor({
   }, [items, onChange, notifyChange])
 
   const handleTierColorChange = useCallback((tierId: string, newColor: string) => {
-    setTiers((prevTiers) =>
-      prevTiers.map((tier) =>
-        tier.id === tierId ? { ...tier, color: newColor } : tier
-      )
+    // Calcular novos tiers antes de atualizar estado
+    const updatedTiers = tiers.map((tier) =>
+      tier.id === tierId ? { ...tier, color: newColor } : tier
     )
+    
+    setTiers(updatedTiers)
 
-    // Notificar mudança após alteração de cor
+    // Notificar mudança após alteração de cor (usar valores calculados)
     if (onChange) {
       setTimeout(() => {
-        notifyChange()
+        const tierData = updatedTiers.map((tier) => ({
+          id: tier.id,
+          tier_name: tier.tier_name,
+          tier_order: tier.tier_order,
+          color: tier.color || null,
+        }))
+
+        const itemData = Array.from(items.entries()).map(([template_item_id, item]) => ({
+          template_item_id,
+          tier_name: item.tier_name,
+          order: item.order,
+        }))
+
+        onChange({
+          tiers: tierData,
+          items: itemData,
+        })
       }, 100)
     }
-  }, [onChange, notifyChange])
+  }, [tiers, items, onChange])
 
   const handleTierDelete = useCallback((tierId: string) => {
     const tier = tiers.find((t) => t.id === tierId)
     if (!tier) return
 
-    // Move all items from this tier back to unassigned
+    // Calcular novos items e tiers antes de atualizar estados
     const newItems = new Map(items)
+    const unassignedCount = Array.from(items.values()).filter(item => !item.tier_name || item.tier_name === '').length
+    let unassignedIndex = unassignedCount
     Array.from(items.entries()).forEach(([itemId, item]) => {
       if (item.tier_name === tier.tier_name) {
         newItems.set(itemId, {
           ...item,
           tier_name: '',
-          order: getUnassignedItems().length,
+          order: unassignedIndex++,
         })
       }
     })
-    setItems(newItems)
 
-    // Remove the tier and reorder remaining tiers
     const filteredTiers = tiers.filter((t) => t.id !== tierId)
     const reorderedTiers = filteredTiers.map((tier, index) => ({
       ...tier,
       tier_order: index,
     }))
+
+    // Atualizar estados
+    setItems(newItems)
     setTiers(reorderedTiers)
 
-    // Notificar mudança após remoção de tier
+    // Notificar mudança após remoção de tier (usar valores calculados)
     if (onChange) {
       setTimeout(() => {
-        notifyChange()
+        const tierData = reorderedTiers.map((tier) => ({
+          id: tier.id,
+          tier_name: tier.tier_name,
+          tier_order: tier.tier_order,
+          color: tier.color || null,
+        }))
+
+        const itemData = Array.from(newItems.entries()).map(([template_item_id, item]) => ({
+          template_item_id,
+          tier_name: item.tier_name,
+          order: item.order,
+        }))
+
+        onChange({
+          tiers: tierData,
+          items: itemData,
+        })
       }, 100)
     }
-  }, [items, getUnassignedItems, tiers, onChange, notifyChange])
+  }, [items, tiers, onChange])
 
   const handleAddTier = useCallback(() => {
     const newTier: TierListTier = {
@@ -652,15 +688,33 @@ export function TierListEditor({
       color: '#6B7280',
       created_at: '',
     }
-    setTiers((prevTiers) => [...prevTiers, newTier])
+    // Calcular novos tiers antes de atualizar estado
+    const updatedTiers = [...tiers, newTier]
+    setTiers(updatedTiers)
 
-    // Notificar mudança após adicionar tier
+    // Notificar mudança após adicionar tier (usar valores calculados)
     if (onChange) {
       setTimeout(() => {
-        notifyChange()
+        const tierData = updatedTiers.map((tier) => ({
+          id: tier.id,
+          tier_name: tier.tier_name,
+          tier_order: tier.tier_order,
+          color: tier.color || null,
+        }))
+
+        const itemData = Array.from(items.entries()).map(([template_item_id, item]) => ({
+          template_item_id,
+          tier_name: item.tier_name,
+          order: item.order,
+        }))
+
+        onChange({
+          tiers: tierData,
+          items: itemData,
+        })
       }, 100)
     }
-  }, [tiers.length, onChange, notifyChange])
+  }, [tiers, items, onChange])
 
   const handleSave = useCallback(() => {
     if (onSave) {

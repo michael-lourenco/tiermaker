@@ -18,7 +18,8 @@ import { Edit2, Globe, Lock } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import type { TemplateWithItems } from '@/types/template.types'
-import type { TierListTier } from '@/types/tierList.types'
+import type { TemplateItem } from '@/types/template.types'
+import type { TierListTier, TierListItem } from '@/types/tierList.types'
 
 interface TierListEditorClientProps {
   template: TemplateWithItems & {
@@ -96,11 +97,8 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     return undefined
   })
 
-  const [initialItems, setInitialItems] = useState<Array<{
-    template_item_id: string
-    tier_name: string
-    order: number
-    template_item: any
+  const [initialItems, setInitialItems] = useState<Array<TierListItem & {
+    template_item: TemplateItem
   }> | undefined>(() => {
     // No primeiro render, tentar carregar draft se user?.id estiver disponível
     if (typeof window !== 'undefined' && user?.id) {
@@ -119,11 +117,14 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
             return template.items.map((templateItem) => {
               const draftItem = draftItemsMap.get(templateItem.id)
               return {
+                id: '',
+                tier_list_id: '',
                 template_item_id: templateItem.id,
                 tier_name: draftItem?.tier_name || '',
                 order: draftItem?.order ?? template.items.indexOf(templateItem),
+                created_at: '',
                 template_item: templateItem,
-              }
+              } as TierListItem & { template_item: TemplateItem }
             })
           }
         }
@@ -220,11 +221,14 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
         const mappedItems = template.items.map((templateItem) => {
           const draftItem = draftItemsMap.get(templateItem.id)
           return {
+            id: '',
+            tier_list_id: '',
             template_item_id: templateItem.id,
             tier_name: draftItem?.tier_name || '',
             order: draftItem?.order ?? template.items.indexOf(templateItem),
+            created_at: '',
             template_item: templateItem,
-          }
+          } as TierListItem & { template_item: TemplateItem }
         })
         setInitialItems(mappedItems)
       }

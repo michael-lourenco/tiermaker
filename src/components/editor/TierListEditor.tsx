@@ -38,6 +38,10 @@ interface TierListEditorProps {
   initialItems?: (TierListItem & { template_item: TemplateItem })[]
   showItemNames?: boolean
   onShowItemNamesChange?: (show: boolean) => void
+  onChange?: (data: {
+    tiers: Array<{ id: string; tier_name: string; tier_order: number; color: string | null }>
+    items: Array<{ template_item_id: string; tier_name: string; order: number }>
+  }) => void
   onSave?: (data: {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
@@ -50,10 +54,12 @@ export function TierListEditor({
   initialItems,
   showItemNames = false,
   onShowItemNamesChange,
+  onChange,
   onSave,
 }: TierListEditorProps) {
   const { t } = useTranslation()
-  const [tiers, setTiers] = useState<TierListTier[]>(
+  // Estado de tiers: inicializado uma única vez no mount
+  const [tiers, setTiers] = useState<TierListTier[]>(() =>
     initialTiers ||
       DEFAULT_TIERS.map((name, index) => ({
         id: `tier-${name}-${uuidv4()}`,
@@ -65,16 +71,11 @@ export function TierListEditor({
       }))
   )
 
+  // Estado de items: inicializado uma única vez no mount usando função lazy
   const [items, setItems] = useState<
     Map<string, { template_item: TemplateItem; tier_name: string; order: number }>
-  >(new Map())
-
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [draggingTierId, setDraggingTierId] = useState<string | null>(null)
-  const lastDragOverRef = useRef<{ activeId: string; overId: string; tierName?: string; order?: number } | null>(null)
-
-  // Initialize items from initialItems or templateItems
-  useEffect(() => {
+  >(() => {
+    // Hidratação única: usar initialItems se disponível, senão inicializar vazio
     if (initialItems && initialItems.length > 0) {
       const itemsMap = new Map<
         string,
@@ -87,7 +88,7 @@ export function TierListEditor({
           order: item.order,
         })
       })
-      setItems(itemsMap)
+      return itemsMap
     } else {
       // Initialize with all template items in "unassigned"
       const itemsMap = new Map<
@@ -101,9 +102,13 @@ export function TierListEditor({
           order: index,
         })
       })
-      setItems(itemsMap)
+      return itemsMap
     }
-  }, [templateItems, initialItems])
+  })
+
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [draggingTierId, setDraggingTierId] = useState<string | null>(null)
+  const lastDragOverRef = useRef<{ activeId: string; overId: string; tierName?: string; order?: number } | null>(null)
 
   // Configuração de sensors para mobile e desktop
   // Usa apenas tolerance (distância) sem delay para evitar "engasgo"
@@ -145,6 +150,41 @@ export function TierListEditor({
       .sort(([_, a], [__, b]) => a.order - b.order)
       .map(([id]) => items.get(id)!.template_item)
   }, [items])
+
+  // Função helper para preparar dados e notificar mudanças (declarada antes de ser usada)
+  const notifyChange = useCallback(() => {
+    if (!onChange) {
+      console.warn('notifyChange: onChange não disponível')
+      return
+    }
+
+    // Passar tiers com IDs preservados
+    const tierData = tiers.map((tier) => ({
+      id: tier.id,
+      tier_name: tier.tier_name,
+      tier_order: tier.tier_order,
+      color: tier.color || null,
+    }))
+
+    // Incluir todos os items, mesmo os não atribuídos (tier_name: '')
+    const itemData = Array.from(items.entries()).map(([template_item_id, item]) => ({
+      template_item_id,
+      tier_name: item.tier_name,
+      order: item.order,
+    }))
+
+    console.log('notifyChange chamado:', {
+      tiersCount: tierData.length,
+      itemsCount: itemData.length,
+      items: itemData,
+      itemsMapSize: items.size,
+    })
+
+    onChange({
+      tiers: tierData,
+      items: itemData,
+    })
+  }, [onChange, tiers, items])
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string)
@@ -411,6 +451,12 @@ export function TierListEditor({
       // Tier reordering is already handled in handleDragOver
       setActiveId(null)
       setDraggingTierId(null)
+      // Notificar mudança após reordenação de tier
+      if (onChange) {
+        setTimeout(() => {
+          notifyChange()
+        }, 100)
+      }
       return
     }
 
@@ -429,6 +475,12 @@ export function TierListEditor({
         // Both are items - reordering is already handled in handleDragOver
         setActiveId(null)
         setDraggingTierId(null)
+        // Notificar mudança após reordenação de items
+        if (onChange) {
+          setTimeout(() => {
+            notifyChange()
+          }, 100)
+        }
         return
       }
 
@@ -446,6 +498,12 @@ export function TierListEditor({
         setItems(newItems)
         setActiveId(null)
         setDraggingTierId(null)
+        // Notificar mudança após drop em tier
+        if (onChange) {
+          setTimeout(() => {
+            notifyChange()
+          }, 100)
+        }
         return
       }
 
@@ -462,6 +520,12 @@ export function TierListEditor({
         setItems(newItems)
         setActiveId(null)
         setDraggingTierId(null)
+        // Notificar mudança após drop em droppable
+        if (onChange) {
+          setTimeout(() => {
+            notifyChange()
+          }, 100)
+        }
         return
       }
     }
@@ -477,12 +541,18 @@ export function TierListEditor({
           order: getUnassignedItems().length,
         })
         setItems(newItems)
+        // Notificar mudança após drop em unassigned
+        if (onChange) {
+          setTimeout(() => {
+            notifyChange()
+          }, 100)
+        }
       }
     }
 
     setActiveId(null)
     setDraggingTierId(null)
-  }, [tiers, items, getNextOrderForTier, getUnassignedItems])
+  }, [tiers, items, getNextOrderForTier, getUnassignedItems, onChange, notifyChange])
 
   const handleTierNameChange = useCallback((tierId: string, newName: string) => {
     // Find the tier to get the old name
@@ -516,7 +586,14 @@ export function TierListEditor({
       })
       return hasChanges ? newItems : prevItems
     })
-  }, [items])
+
+    // Notificar mudança após alteração de nome
+    if (onChange) {
+      setTimeout(() => {
+        notifyChange()
+      }, 100)
+    }
+  }, [items, onChange, notifyChange])
 
   const handleTierColorChange = useCallback((tierId: string, newColor: string) => {
     setTiers((prevTiers) =>
@@ -524,7 +601,14 @@ export function TierListEditor({
         tier.id === tierId ? { ...tier, color: newColor } : tier
       )
     )
-  }, [])
+
+    // Notificar mudança após alteração de cor
+    if (onChange) {
+      setTimeout(() => {
+        notifyChange()
+      }, 100)
+    }
+  }, [onChange, notifyChange])
 
   const handleTierDelete = useCallback((tierId: string) => {
     const tier = tiers.find((t) => t.id === tierId)
@@ -562,7 +646,14 @@ export function TierListEditor({
       created_at: '',
     }
     setTiers((prevTiers) => [...prevTiers, newTier])
-  }, [tiers.length])
+
+    // Notificar mudança após adicionar tier
+    if (onChange) {
+      setTimeout(() => {
+        notifyChange()
+      }, 100)
+    }
+  }, [tiers.length, onChange, notifyChange])
 
   const handleSave = useCallback(() => {
     if (onSave) {

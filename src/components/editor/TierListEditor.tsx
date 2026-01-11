@@ -419,12 +419,35 @@ export function TierListEditor({
         }))
         setTiers(updatedTiers)
         lastDragOverRef.current = { activeId, overId }
+        
+        // Notificar mudança imediatamente quando a reordenação acontece (igual às outras ações)
+        if (onChange) {
+          setTimeout(() => {
+            const tierData = updatedTiers.map((tier) => ({
+              id: tier.id,
+              tier_name: tier.tier_name,
+              tier_order: tier.tier_order,
+              color: tier.color || null,
+            }))
+
+            const itemData = Array.from(items.entries()).map(([template_item_id, item]) => ({
+              template_item_id,
+              tier_name: item.tier_name,
+              order: item.order,
+            }))
+
+            onChange({
+              tiers: tierData,
+              items: itemData,
+            })
+          }, 100)
+        }
       }
     } else {
       // Para items, usar versão debounced para melhor performance
       handleDragOver(event)
     }
-  }, [tiers, handleDragOver, handleDragOverInternal])
+  }, [tiers, items, handleDragOver, handleDragOverInternal, onChange])
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
@@ -449,48 +472,9 @@ export function TierListEditor({
 
     if (activeTier && overTier && activeId !== overId) {
       // Tier reordering is already handled in handleDragOverCritical
-      // Calcular nova ordem diretamente aqui para garantir valores atualizados
-      const oldIndex = tiers.findIndex((t) => t.id === activeId)
-      const newIndex = tiers.findIndex((t) => t.id === overId)
-
-      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        const newTiers = arrayMove(tiers, oldIndex, newIndex)
-        const updatedTiers = newTiers.map((tier, index) => ({
-          ...tier,
-          tier_order: index,
-        }))
-
-        // Atualizar estado
-        setTiers(updatedTiers)
-        setActiveId(null)
-        setDraggingTierId(null)
-
-        // Notificar mudança após reordenação de tier (usar valores calculados)
-        if (onChange) {
-          setTimeout(() => {
-            const tierData = updatedTiers.map((tier) => ({
-              id: tier.id,
-              tier_name: tier.tier_name,
-              tier_order: tier.tier_order,
-              color: tier.color || null,
-            }))
-
-            const itemData = Array.from(items.entries()).map(([template_item_id, item]) => ({
-              template_item_id,
-              tier_name: item.tier_name,
-              order: item.order,
-            }))
-
-            onChange({
-              tiers: tierData,
-              items: itemData,
-            })
-          }, 100)
-        }
-      } else {
-        setActiveId(null)
-        setDraggingTierId(null)
-      }
+      // O onChange já foi chamado no handleDragOverCritical, então apenas limpar estados
+      setActiveId(null)
+      setDraggingTierId(null)
       return
     }
 

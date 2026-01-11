@@ -634,7 +634,14 @@ export function TierListEditor({
       tier_order: index,
     }))
     setTiers(reorderedTiers)
-  }, [items, getUnassignedItems, tiers])
+
+    // Notificar mudança após remoção de tier
+    if (onChange) {
+      setTimeout(() => {
+        notifyChange()
+      }, 100)
+    }
+  }, [items, getUnassignedItems, tiers, onChange, notifyChange])
 
   const handleAddTier = useCallback(() => {
     const newTier: TierListTier = {

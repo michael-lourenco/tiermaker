@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Edit2, Globe, Lock } from 'lucide-react'
+import { Edit2, Globe, Lock, Loader2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import type { TemplateWithItems } from '@/types/template.types'
@@ -47,157 +47,122 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   // Chave do localStorage sem userId (local ao navegador)
   const storageKey = `tier-list-draft-${template.id}`
   
+  // Estado de loading: inicia como true até verificar localStorage
+  const [isLoadingDraft, setIsLoadingDraft] = useState(true)
+  
+  // Estados para os dados iniciais: só serão definidos depois de verificar localStorage
+  const [initialTiers, setInitialTiers] = useState<TierListTier[] | undefined>(undefined)
+  const [initialItems, setInitialItems] = useState<Array<TierListItem & {
+    template_item: TemplateItem
+  }> | undefined>(undefined)
+  
   // Estado para controlar se há draft
-  const [hasDraft, setHasDraft] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(storageKey)
-        return stored !== null
-      } catch (error) {
-        return false
-      }
-    }
-    return false
-  })
+  const [hasDraft, setHasDraft] = useState(false)
   
   // Estado para armazenar lastModified do draft (para exibição)
-  const [draftLastModified, setDraftLastModified] = useState<number | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(storageKey)
-        if (stored) {
-          const parsed = JSON.parse(stored) as TierListDraft
-          if (parsed?.lastModified && parsed.templateId === template.id) {
-            return parsed.lastModified
-          }
-        }
-      } catch (error) {
-        // Se falhar, continuar com null
-      }
-    }
-    return null
-  })
+  const [draftLastModified, setDraftLastModified] = useState<number | null>(null)
+  
+  // Estado inicial de title e isPublic: serão definidos no useEffect
+  const [title, setTitle] = useState(template.name || 'My Tier List')
+  const [isPublic, setIsPublic] = useState(false)
 
-  // Estados iniciais: calculados uma única vez no mount usando useState lazy
-  // IMPORTANTE: A hidratação do localStorage acontece APENAS nos lazy initializers abaixo
-  // Não há useEffect que re-hidrata do localStorage após o mount
-  // localStorage só é usado para: 1) carregar no início, 2) salvar quando há mudanças
-  // Chave do localStorage: tier-list-draft-{templateId} (sem userId, pois é local ao navegador)
-  const [initialTiers, setInitialTiers] = useState<TierListTier[] | undefined>(() => {
-    // No primeiro render, tentar carregar draft do localStorage
+  // Verificar localStorage ANTES de renderizar qualquer coisa
+  useEffect(() => {
+    // PRIMEIRO: Verificar se existe no localStorage
     if (typeof window !== 'undefined') {
       try {
-        const storageKey = `tier-list-draft-${template.id}`
         const stored = localStorage.getItem(storageKey)
         if (stored) {
           const parsed = JSON.parse(stored) as TierListDraft
-          if (parsed?.tiers && parsed.tiers.length > 0 && parsed.templateId === template.id) {
-            return parsed.tiers.map((tier) => ({
-              id: tier.id,
-              tier_list_id: '',
-              tier_name: tier.tier_name,
-              tier_order: tier.tier_order,
-              color: tier.color,
-              created_at: '',
-            }))
+          if (parsed.templateId === template.id) {
+            // Encontrou no localStorage: usar dados do localStorage
+            
+            // Configurar tiers do localStorage
+            if (parsed.tiers && parsed.tiers.length > 0) {
+              setInitialTiers(parsed.tiers.map((tier) => ({
+                id: tier.id,
+                tier_list_id: '',
+                tier_name: tier.tier_name,
+                tier_order: tier.tier_order,
+                color: tier.color,
+                created_at: '',
+              })))
+            } else {
+              // Se não tem tiers no localStorage, usar do template
+              if (template.tiers && Array.isArray(template.tiers) && template.tiers.length > 0) {
+                setInitialTiers(template.tiers.map((tier) => ({
+                  id: `tier-${tier.id}`,
+                  tier_list_id: '',
+                  tier_name: tier.tier_name,
+                  tier_order: tier.tier_order,
+                  color: tier.color,
+                  created_at: tier.created_at,
+                })))
+              }
+            }
+            
+            // Configurar items do localStorage
+            if (parsed.items && parsed.items.length > 0) {
+              const draftItemsMap = new Map(
+                parsed.items.map((item) => [item.template_item_id, item])
+              )
+              
+              setInitialItems(template.items.map((templateItem) => {
+                const draftItem = draftItemsMap.get(templateItem.id)
+                return {
+                  id: '',
+                  tier_list_id: '',
+                  template_item_id: templateItem.id,
+                  tier_name: draftItem?.tier_name || '',
+                  order: draftItem?.order ?? template.items.indexOf(templateItem),
+                  created_at: '',
+                  template_item: templateItem,
+                } as TierListItem & { template_item: TemplateItem }
+              }))
+            }
+            
+            // Configurar title e isPublic do localStorage
+            if (parsed.title) {
+              setTitle(parsed.title)
+            }
+            if (parsed.isPublic !== undefined) {
+              setIsPublic(parsed.isPublic)
+            }
+            
+            // Configurar hasDraft e lastModified
+            setHasDraft(true)
+            if (parsed.lastModified) {
+              setDraftLastModified(parsed.lastModified)
+            }
+            
+            setIsLoadingDraft(false)
+            return
           }
         }
       } catch (error) {
-        // Se falhar, continuar com valores padrão
+        console.error('Erro ao ler localStorage:', error)
+        // Se falhar, continuar para usar dados do template
       }
     }
     
-    // Fallback para tiers do template
+    // SEGUNDO: Se não encontrou no localStorage, usar dados do template (base de dados)
     if (template.tiers && Array.isArray(template.tiers) && template.tiers.length > 0) {
-      return template.tiers.map((tier) => ({
+      setInitialTiers(template.tiers.map((tier) => ({
         id: `tier-${tier.id}`,
         tier_list_id: '',
         tier_name: tier.tier_name,
         tier_order: tier.tier_order,
         color: tier.color,
         created_at: tier.created_at,
-      }))
+      })))
     }
-    return undefined
-  })
-
-  const [initialItems, setInitialItems] = useState<Array<TierListItem & {
-    template_item: TemplateItem
-  }> | undefined>(() => {
-    // No primeiro render, tentar carregar draft do localStorage
-    if (typeof window !== 'undefined') {
-      try {
-        const storageKey = `tier-list-draft-${template.id}`
-        const stored = localStorage.getItem(storageKey)
-        if (stored) {
-          const parsed = JSON.parse(stored) as TierListDraft
-          if (parsed?.items && parsed.items.length > 0 && parsed.templateId === template.id) {
-            // IMPORTANTE: Sempre incluir TODOS os items do template, usando o draft para posições
-            const draftItemsMap = new Map(
-              parsed.items.map((item) => [item.template_item_id, item])
-            )
-            
-            return template.items.map((templateItem) => {
-              const draftItem = draftItemsMap.get(templateItem.id)
-              return {
-                id: '',
-                tier_list_id: '',
-                template_item_id: templateItem.id,
-                tier_name: draftItem?.tier_name || '',
-                order: draftItem?.order ?? template.items.indexOf(templateItem),
-                created_at: '',
-                template_item: templateItem,
-              } as TierListItem & { template_item: TemplateItem }
-            })
-          }
-        }
-      } catch (error) {
-        // Se falhar, continuar com undefined
-      }
-    }
-    return undefined
-  })
-
-  // Estado inicial de title e isPublic: hidratado uma única vez no mount
-  const [title, setTitle] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const storageKey = `tier-list-draft-${template.id}`
-        const stored = localStorage.getItem(storageKey)
-        if (stored) {
-          const parsed = JSON.parse(stored) as TierListDraft
-          if (parsed?.title && parsed.templateId === template.id) {
-            return parsed.title
-          }
-        }
-      } catch (error) {
-        // Se falhar, continuar com valor padrão
-      }
-    }
-    return template.name || 'My Tier List'
-  })
-  const [isPublic, setIsPublic] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const storageKey = `tier-list-draft-${template.id}`
-        const stored = localStorage.getItem(storageKey)
-        if (stored) {
-          const parsed = JSON.parse(stored) as TierListDraft
-          if (parsed?.isPublic !== undefined && parsed.templateId === template.id) {
-            return parsed.isPublic
-          }
-        }
-      } catch (error) {
-        // Se falhar, continuar com false
-      }
-    }
-    return false
-  })
-
-  // REMOVIDO: useEffect que re-hidratava do localStorage após mount
-  // Isso causava bugs: quando tiers eram deletados ou nomes alterados, valores antigos reapareciam
-  // A hidratação agora acontece APENAS nos useState lazy initializers (no mount inicial)
-  // localStorage só é usado para: 1) carregar no início, 2) salvar quando há mudanças
+    
+    // Items: undefined = TierListEditor inicializa todos como "unassigned"
+    setInitialItems(undefined)
+    
+    setHasDraft(false)
+    setIsLoadingDraft(false)
+  }, [storageKey, template.id, template.tiers, template.items])
   
   const [saving, setSaving] = useState(false)
   const [showLimitModal, setShowLimitModal] = useState(false)
@@ -346,16 +311,44 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     }
   }
 
-  // Função para limpar rascunho e resetar estado
-  // NOTA: Não podemos alterar initialTiers/initialItems pois são valores imutáveis do useState lazy
-  // O reset será feito através da key prop do TierListEditor que força remount
+  // Função para limpar rascunho e resetar estado para dados do template
   const handleClearDraft = useCallback(() => {
     clearDraft()
     setTitle(template.name || 'My Tier List')
     setIsPublic(false)
+    
+    // Resetar tiers e items para dados do template (base de dados)
+    if (template.tiers && Array.isArray(template.tiers) && template.tiers.length > 0) {
+      setInitialTiers(template.tiers.map((tier) => ({
+        id: `tier-${tier.id}`,
+        tier_list_id: '',
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+        created_at: tier.created_at,
+      })))
+    } else {
+      setInitialTiers(undefined)
+    }
+    
+    // Items: undefined = TierListEditor inicializa todos como "unassigned"
+    setInitialItems(undefined)
+    
     // Incrementar editorKey para forçar remount do TierListEditor com valores iniciais
     setEditorKey(prev => prev + 1)
-  }, [clearDraft, template.name])
+  }, [clearDraft, template.name, template.tiers])
+
+  // Mostrar loading enquanto verifica localStorage
+  if (isLoadingDraft) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3 sm:space-y-4 md:space-y-6 px-2 sm:px-4 md:px-6 lg:px-8">

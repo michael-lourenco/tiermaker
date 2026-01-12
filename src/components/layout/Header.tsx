@@ -99,28 +99,35 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <Image
-              src="/logo.png"
-              alt="SuperTierMaker Logo"
-              width={32}
-              height={32}
-              className="object-contain"
-            />
-            {mounted && (
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <Image
-                src={theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'}
-                alt="SuperTierMaker"
-                width={180}
+                src="/logo.png"
+                alt="SuperTierMaker Logo"
+                width={32}
                 height={32}
-                className="hidden sm:block object-contain h-8 w-auto"
-                priority
+                className="object-contain"
               />
-            )}
-            {!mounted && (
-              <span className="hidden sm:inline text-2xl font-bold">{t('common.appName')}</span>
-            )}
-          </Link>
+              {mounted && (
+                <Image
+                  src={theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'}
+                  alt="SuperTierMaker"
+                  width={180}
+                  height={32}
+                  className="hidden sm:block object-contain h-8 w-auto"
+                  priority
+                />
+              )}
+              {!mounted && (
+                <span className="hidden sm:inline text-2xl font-bold">{t('common.appName')}</span>
+              )}
+            </Link>
+            <Link href="/beta" className="hidden sm:inline-block">
+              <Badge className="bg-[#F5F5DC] text-black border-[#E0E0C0] hover:bg-[#EDEDD4] cursor-pointer font-semibold">
+                BETA
+              </Badge>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-2 flex-1 justify-end min-w-0">
@@ -321,14 +328,21 @@ export function Header() {
                       className="object-contain"
                     />
                     {mounted ? (
-                      <Image
-                        src={theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'}
-                        alt="SuperTierMaker"
-                        width={150}
-                        height={24}
-                        className="object-contain h-6 w-auto"
-                        priority
-                      />
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src={theme === 'dark' ? '/logo_texto_white.png' : '/logo_texto_black.png'}
+                          alt="SuperTierMaker"
+                          width={150}
+                          height={24}
+                          className="object-contain h-6 w-auto"
+                          priority
+                        />
+                        <Link href="/beta" onClick={() => setMobileMenuOpen(false)}>
+                          <Badge className="bg-[#F5F5DC] text-black border-[#E0E0C0] hover:bg-[#EDEDD4] cursor-pointer font-semibold">
+                            BETA
+                          </Badge>
+                        </Link>
+                      </div>
                     ) : (
                       <span>{t('common.appName')}</span>
                     )}

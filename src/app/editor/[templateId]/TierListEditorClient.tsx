@@ -45,7 +45,13 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const { canPerform, hasReached, limit, loading: limitsLoading } = useSubscriptionLimits('tier_lists_count')
   
   // Chave do localStorage sem userId (local ao navegador)
-  const storageKey = `tier-list-draft-${template.id}`
+  // IMPORTANTE: Armazenar valores do template em refs para usar no useEffect sem dependências
+  // Isso garante que o useEffect execute apenas UMA VEZ no mount, nunca durante edição
+  const templateIdRef = useRef(template.id)
+  const templateTiersRef = useRef(template.tiers)
+  const templateItemsRef = useRef(template.items)
+  const templateNameRef = useRef(template.name)
+  const storageKeyRef = useRef(`tier-list-draft-${template.id}`)
   
   // Estado de loading: inicia como true até verificar localStorage
   const [isLoadingDraft, setIsLoadingDraft] = useState(true)
@@ -66,16 +72,32 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const [title, setTitle] = useState(template.name || 'My Tier List')
   const [isPublic, setIsPublic] = useState(false)
 
-  // Verificar localStorage ANTES de renderizar qualquer coisa
+  // Verificar localStorage APENAS UMA VEZ no mount (nunca durante edição)
+  // IMPORTANTE: localStorage só é usado para valores INICIAIS, não durante edição
+  // Os estados do React são a única fonte de verdade durante a edição
   useEffect(() => {
+    // Usar refs para acessar valores do template sem adicionar dependências
+    const templateId = templateIdRef.current
+    const templateTiers = templateTiersRef.current
+    const templateItems = templateItemsRef.current
+    const templateName = templateNameRef.current
+    const storageKey = storageKeyRef.current
+    
+    console.log('[INIT] Verificando localStorage para inicialização', { templateId, storageKey })
+    
     // PRIMEIRO: Verificar se existe no localStorage
     if (typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem(storageKey)
         if (stored) {
           const parsed = JSON.parse(stored) as TierListDraft
-          if (parsed.templateId === template.id) {
-            // Encontrou no localStorage: usar dados do localStorage
+          if (parsed.templateId === templateId) {
+            console.log('[INIT] Draft encontrado no localStorage, usando para inicialização', {
+              tiersCount: parsed.tiers?.length || 0,
+              itemsCount: parsed.items?.length || 0,
+            })
+            
+            // Encontrou no localStorage: usar dados do localStorage APENAS para inicialização
             
             // Configurar tiers do localStorage
             if (parsed.tiers && parsed.tiers.length > 0) {
@@ -87,10 +109,11 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
                 color: tier.color,
                 created_at: '',
               })))
+              console.log('[INIT] initialTiers configurado com dados do localStorage', { count: parsed.tiers.length })
             } else {
               // Se não tem tiers no localStorage, usar do template
-              if (template.tiers && Array.isArray(template.tiers) && template.tiers.length > 0) {
-                setInitialTiers(template.tiers.map((tier) => ({
+              if (templateTiers && Array.isArray(templateTiers) && templateTiers.length > 0) {
+                setInitialTiers(templateTiers.map((tier) => ({
                   id: `tier-${tier.id}`,
                   tier_list_id: '',
                   tier_name: tier.tier_name,
@@ -98,27 +121,29 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
                   color: tier.color,
                   created_at: tier.created_at,
                 })))
+                console.log('[INIT] initialTiers configurado com dados do template', { count: templateTiers.length })
               }
             }
             
             // Configurar items do localStorage
-            if (parsed.items && parsed.items.length > 0) {
+            if (parsed.items && parsed.items.length > 0 && templateItems) {
               const draftItemsMap = new Map(
                 parsed.items.map((item) => [item.template_item_id, item])
               )
               
-              setInitialItems(template.items.map((templateItem) => {
+              setInitialItems(templateItems.map((templateItem) => {
                 const draftItem = draftItemsMap.get(templateItem.id)
                 return {
                   id: '',
                   tier_list_id: '',
                   template_item_id: templateItem.id,
                   tier_name: draftItem?.tier_name || '',
-                  order: draftItem?.order ?? template.items.indexOf(templateItem),
+                  order: draftItem?.order ?? templateItems.indexOf(templateItem),
                   created_at: '',
                   template_item: templateItem,
                 } as TierListItem & { template_item: TemplateItem }
               }))
+              console.log('[INIT] initialItems configurado com dados do localStorage', { count: templateItems.length })
             }
             
             // Configurar title e isPublic do localStorage
@@ -136,18 +161,20 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
             }
             
             setIsLoadingDraft(false)
+            console.log('[INIT] Inicialização completa com dados do localStorage')
             return
           }
         }
       } catch (error) {
-        console.error('Erro ao ler localStorage:', error)
+        console.error('[INIT] Erro ao ler localStorage:', error)
         // Se falhar, continuar para usar dados do template
       }
     }
     
     // SEGUNDO: Se não encontrou no localStorage, usar dados do template (base de dados)
-    if (template.tiers && Array.isArray(template.tiers) && template.tiers.length > 0) {
-      setInitialTiers(template.tiers.map((tier) => ({
+    console.log('[INIT] Nenhum draft encontrado, usando dados do template')
+    if (templateTiers && Array.isArray(templateTiers) && templateTiers.length > 0) {
+      setInitialTiers(templateTiers.map((tier) => ({
         id: `tier-${tier.id}`,
         tier_list_id: '',
         tier_name: tier.tier_name,
@@ -155,6 +182,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
         color: tier.color,
         created_at: tier.created_at,
       })))
+      console.log('[INIT] initialTiers configurado com dados do template', { count: templateTiers.length })
     }
     
     // Items: undefined = TierListEditor inicializa todos como "unassigned"
@@ -162,7 +190,8 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     
     setHasDraft(false)
     setIsLoadingDraft(false)
-  }, [storageKey, template.id, template.tiers, template.items])
+    console.log('[INIT] Inicialização completa com dados do template')
+  }, []) // SEM DEPENDÊNCIAS: executa apenas UMA VEZ no mount, nunca durante edição
   
   const [saving, setSaving] = useState(false)
   const [showLimitModal, setShowLimitModal] = useState(false)
@@ -174,6 +203,8 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Função para salvar draft no localStorage (sem userId)
+  // IMPORTANTE: Esta função apenas SALVA no localStorage, NUNCA lê durante edição
+  // Os estados do React são a única fonte de verdade durante a edição
   const saveDraft = useCallback((data: {
     title: string
     isPublic: boolean
@@ -181,8 +212,11 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
   }) => {
     try {
+      const storageKey = storageKeyRef.current
+      const templateId = templateIdRef.current
+      
       const draftData = {
-        templateId: template.id,
+        templateId: templateId,
         title: data.title,
         isPublic: data.isPublic,
         tiers: data.tiers,
@@ -190,13 +224,23 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
         lastModified: Date.now(),
       }
       
+      console.log('[SAVE] Salvando draft no localStorage', {
+        storageKey,
+        templateId,
+        tiersCount: data.tiers.length,
+        itemsCount: data.items.length,
+        lastModified: draftData.lastModified,
+      })
+      
       localStorage.setItem(storageKey, JSON.stringify(draftData))
       setHasDraft(true)
       setDraftLastModified(draftData.lastModified)
+      
+      console.log('[SAVE] Draft salvo com sucesso no localStorage')
     } catch (error) {
-      console.error('Erro ao salvar draft no localStorage:', error)
+      console.error('[SAVE] Erro ao salvar draft no localStorage:', error)
     }
-  }, [storageKey, template.id])
+  }, [])
 
   // Função para salvar draft com debounce
   const saveDraftDebounced = useCallback((data: {
@@ -215,15 +259,19 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   }, [saveDraft])
 
   // Função para limpar draft do localStorage
+  // IMPORTANTE: Esta função apenas LIMPA o localStorage, não interfere nos estados do React
   const clearDraft = useCallback(() => {
     try {
+      const storageKey = storageKeyRef.current
+      console.log('[CLEAR] Limpando draft do localStorage', { storageKey })
       localStorage.removeItem(storageKey)
       setHasDraft(false)
       setDraftLastModified(null)
+      console.log('[CLEAR] Draft limpo do localStorage com sucesso')
     } catch (error) {
-      console.error('Erro ao limpar draft do localStorage:', error)
+      console.error('[CLEAR] Erro ao limpar draft do localStorage:', error)
     }
-  }, [storageKey])
+  }, [])
 
   // Limpar timeout ao desmontar
   useEffect(() => {
@@ -238,18 +286,20 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   // Não salvamos quando title/isPublic mudam - isso não afeta a posição dos items
 
   // Callback para quando o editor muda (após drag end, etc)
+  // IMPORTANTE: Este callback recebe dados do estado do React (TierListEditor)
+  // Apenas salva no localStorage, NUNCA lê ou interfere nos estados
   const handleEditorChange = useCallback((data: {
     tiers: Array<{ id: string; tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
   }) => {
-    console.log('handleEditorChange chamado:', {
+    console.log('[EDIT] handleEditorChange chamado (dados do estado React)', {
       tiersCount: data.tiers.length,
       itemsCount: data.items.length,
-      items: data.items,
+      tiers: data.tiers.map(t => ({ id: t.id, name: t.tier_name, order: t.tier_order })),
     })
 
-    // Salvar draft com debounce após alteração (APENAS quando items/tiers mudam)
-    // Os tiers já vêm com IDs preservados do TierListEditor
+    // Salvar draft no localStorage com debounce (APENAS salvar, não ler)
+    // Os estados do React continuam sendo a única fonte de verdade
     // NÃO incluir showItemNames (é preferência do usuário, não do tier list)
     saveDraftDebounced({
       title,

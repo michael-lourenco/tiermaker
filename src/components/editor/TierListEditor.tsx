@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, ReactNode } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -46,6 +46,7 @@ interface TierListEditorProps {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
   }) => void
+  actionButtons?: ReactNode
 }
 
 export function TierListEditor({
@@ -56,6 +57,7 @@ export function TierListEditor({
   onShowItemNamesChange,
   onChange,
   onSave,
+  actionButtons,
 }: TierListEditorProps) {
   const { t } = useTranslation()
   // Estado de tiers: inicializado uma única vez no mount
@@ -874,16 +876,21 @@ export function TierListEditor({
           ))}
         </SortableContext>
 
-        {/* Add Tier Button */}
-        <div className="flex justify-center px-2 sm:px-4">
-            <Button
-              onClick={handleAddTier}
-              variant="outline"
-              className="flex items-center gap-2 w-full sm:w-auto touch-manipulation text-sm sm:text-base"
-            >
-              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              {t('editor.addTier')}
-            </Button>
+        {/* Add Tier Button with Action Buttons */}
+        <div className="flex justify-center items-center gap-2 px-2 sm:px-4 flex-wrap">
+          {actionButtons && (
+            <div className="flex items-center gap-2">
+              {actionButtons}
+            </div>
+          )}
+          <Button
+            onClick={handleAddTier}
+            variant="outline"
+            className="flex items-center gap-2 w-full sm:w-auto touch-manipulation text-sm sm:text-base"
+          >
+            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            {t('editor.addTier')}
+          </Button>
         </div>
 
         {/* Botão Salvar acima da lista de imagens */}

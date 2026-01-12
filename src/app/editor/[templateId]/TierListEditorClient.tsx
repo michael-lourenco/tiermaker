@@ -13,8 +13,13 @@ import { TierListService } from '@/services/tierList.service'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
 import { Edit2, Globe, Lock, Loader2 } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useTranslation } from '@/hooks/useTranslation'
 import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import type { TemplateWithItems } from '@/types/template.types'
@@ -426,52 +431,56 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
         />
       </div>
 
-      {/* Opção de tornar pública */}
-      <div className="flex items-center justify-center gap-2 sm:gap-3 py-2">
-        <div className="flex items-center gap-2">
-          {isPublic ? (
-            <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-          ) : (
-            <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-          )}
-          <Label htmlFor="is-public" className="text-sm sm:text-base cursor-pointer">
-            {isPublic ? 'Tornar privada' : 'Tornar pública'}
-          </Label>
-        </div>
-        <Switch
-          id="is-public"
-          checked={isPublic}
-          onCheckedChange={setIsPublic}
+      <TooltipProvider>
+        <TierListEditor
+          key={editorKey} // Key estável: só muda quando handleClearDraft é chamado (força remount)
+          templateItems={template.items}
+          initialTiers={initialTiers}
+          initialItems={initialItems}
+          showItemNames={showItemNames}
+          onShowItemNamesChange={(show) => {
+            setShowItemNames(show)
+          }}
+          onChange={handleEditorChange}
+          onSave={handleSave}
+          actionButtons={
+            <>
+              {/* Botão público/privado */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsPublic(!isPublic)}
+                    className="touch-manipulation"
+                  >
+                    {isPublic ? (
+                      <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                    ) : (
+                      <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    {isPublic 
+                      ? 'Sua tier list será visível para todos na página /tierlists'
+                      : 'Sua tier list será privada e só acessível pelo link'}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Botão de reiniciar (limpar rascunho) */}
+              {hasDraft && (
+                <ClearDraftButton 
+                  onClear={handleClearDraft}
+                  lastModified={draftLastModified || undefined}
+                />
+              )}
+            </>
+          }
         />
-        <span className="text-xs sm:text-sm text-muted-foreground">
-          {isPublic 
-            ? 'Sua tier list será visível para todos na página /tierlists'
-            : 'Sua tier list será privada e só acessível pelo link'}
-        </span>
-      </div>
-
-      {/* Botão de limpar rascunho */}
-      {hasDraft && (
-        <div className="flex justify-center py-2">
-          <ClearDraftButton 
-            onClear={handleClearDraft}
-            lastModified={draftLastModified || undefined}
-          />
-        </div>
-      )}
-
-      <TierListEditor
-        key={editorKey} // Key estável: só muda quando handleClearDraft é chamado (força remount)
-        templateItems={template.items}
-        initialTiers={initialTiers}
-        initialItems={initialItems}
-        showItemNames={showItemNames}
-        onShowItemNamesChange={(show) => {
-          setShowItemNames(show)
-        }}
-        onChange={handleEditorChange}
-        onSave={handleSave}
-      />
+      </TooltipProvider>
       {saving && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background p-4 sm:p-6 rounded-lg mx-4">

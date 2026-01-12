@@ -10,6 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { RotateCcw } from 'lucide-react'
 
 interface ClearDraftButtonProps {
@@ -44,21 +49,28 @@ export function ClearDraftButton({ onClear, lastModified }: ClearDraftButtonProp
     setShowDialog(false)
   }
 
+  const tooltipText = lastModified
+    ? `Reiniciar a tier list e descartar todas as alterações. Última alteração: ${formatLastModified(lastModified)}`
+    : 'Reiniciar a tier list e descartar todas as alterações'
+
   return (
     <>
-      <Button
-        variant="outline"
-        onClick={() => setShowDialog(true)}
-        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-      >
-        <RotateCcw className="h-4 w-4 mr-2" />
-        Limpar Rascunho
-        {lastModified && (
-          <span className="ml-2 text-xs text-muted-foreground">
-            (última alteração: {formatLastModified(lastModified)})
-          </span>
-        )}
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            onClick={() => setShowDialog(true)}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            size="sm"
+          >
+            <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+            Reiniciar
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{tooltipText}</p>
+        </TooltipContent>
+      </Tooltip>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>

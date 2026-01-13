@@ -23,7 +23,8 @@ export function TemplateGrid({ templates }: TemplateGridProps) {
         <div key={template.id}>
           <TemplateCard template={template} />
           {/* Ad Space - In Feed (a cada 6 cards) */}
-          {(index + 1) % 6 === 0 && <AdSpace position="in-feed" className="mt-4" />}
+          {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+          {/* {(index + 1) % 6 === 0 && <AdSpace position="in-feed" className="mt-4" />} */}
         </div>
       ))}
     </div>

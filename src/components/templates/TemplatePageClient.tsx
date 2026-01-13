@@ -38,7 +38,8 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
         </div>
 
         {/* Ad Space - Content Top */}
-        <AdSpace position="content-top" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-top" /> */}
 
         {template.cover_image_url && (
           <div className="relative w-1/4 aspect-video rounded-lg overflow-hidden mb-6 md:mb-8">
@@ -92,7 +93,8 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
         </div>
 
         {/* Ad Space - Content Middle */}
-        <AdSpace position="content-middle" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-middle" /> */}
 
         <div className="flex flex-wrap gap-3 sm:gap-4 mb-6 md:mb-8">
           {template.items.map((item) => (
@@ -107,7 +109,8 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
         </div>
 
         {/* Ad Space - Content Bottom */}
-        <AdSpace position="content-bottom" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-bottom" /> */}
       </PageWithSidebar>
     </main>
   )

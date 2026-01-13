@@ -1,8 +1,11 @@
 'use client'
 
-import { AdSpace } from './AdSpace'
-import { useDeviceType } from '@/hooks/useDeviceType'
-import { useSubscription } from '@/hooks/useSubscription'
+// BANNERS DESABILITADOS TEMPORARIAMENTE
+// Para reativar, descomente o código abaixo e remova o return null
+
+// import { AdSpace } from './AdSpace'
+// import { useDeviceType } from '@/hooks/useDeviceType'
+// import { useSubscription } from '@/hooks/useSubscription'
 
 /**
  * Sticky Sidebar - Sidebar fixa que acompanha o scroll
@@ -11,6 +14,11 @@ import { useSubscription } from '@/hooks/useSubscription'
  * Só renderiza se não for premium e houver ad
  */
 export function StickySidebar() {
+  // BANNERS DESABILITADOS - sempre retorna null
+  return null
+
+  // CÓDIGO ORIGINAL COMENTADO (para reativar no futuro):
+  /*
   const deviceType = useDeviceType()
   const isDesktop = deviceType === 'desktop'
   const { isPremium, loading: subscriptionLoading } = useSubscription()
@@ -33,5 +41,6 @@ export function StickySidebar() {
       </div>
     </aside>
   )
+  */
 }
 

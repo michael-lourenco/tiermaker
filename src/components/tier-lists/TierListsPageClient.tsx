@@ -269,9 +269,10 @@ export function TierListsPageClient({
                   onLike={handleLike}
                 />
                 {/* Ad Space - In Feed (a cada 6 cards) */}
-                {(index + 1) % 6 === 0 && (
+                {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+                {/* {(index + 1) % 6 === 0 && (
                   <AdSpace position="in-feed" className="mt-4 col-span-full" />
-                )}
+                )} */}
               </div>
             ))}
           </div>
@@ -290,7 +291,8 @@ export function TierListsPageClient({
         )}
 
         {/* Ad Space - Content Bottom */}
-        <AdSpace position="content-bottom" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-bottom" /> */}
       </PageWithSidebar>
     </main>
   )

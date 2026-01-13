@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 import type { ShareContentType } from './share.types'
 import { generateShareUrl, getShareMetadata } from './share.utils'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tiermaker-seven.vercel.app'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://superiermaker.com'
 const APP_NAME = 'SuperTierMaker'
 
 export function generateShareMetadata(

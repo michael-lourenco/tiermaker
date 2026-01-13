@@ -50,7 +50,8 @@ export function HomePageClient({ templates, categories, tierLists = [] }: HomePa
       </section>
 
       {/* Ad Space - Header Top */}
-      <AdSpace position="header-top" />
+      {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+      {/* <AdSpace position="header-top" /> */}
 
       {/* Categories with Tier Lists */}
       {categories.length > 0 && (
@@ -100,7 +101,8 @@ export function HomePageClient({ templates, categories, tierLists = [] }: HomePa
       <PageWithSidebar showLeftSidebar={false}>
 
         {/* Ad Space - Content Middle */}
-        <AdSpace position="content-middle" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-middle" /> */}
 
         {/* Popular Templates */}
         <section className="py-8 md:py-16">
@@ -126,7 +128,8 @@ export function HomePageClient({ templates, categories, tierLists = [] }: HomePa
         </section>
 
         {/* Ad Space - Content Middle 2 */}
-        <AdSpace position="content-middle" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-middle" /> */}
 
         {/* Popular Tier Lists */}
         {tierLists.length > 0 && (
@@ -150,7 +153,8 @@ export function HomePageClient({ templates, categories, tierLists = [] }: HomePa
         )}
 
         {/* Ad Space - Content Bottom */}
-        <AdSpace position="content-bottom" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-bottom" /> */}
       </PageWithSidebar>
     </main>
   )

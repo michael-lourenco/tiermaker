@@ -4,7 +4,7 @@
 
 import type { ShareData, ShareContentType } from './share.types'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tiermaker-seven.vercel.app'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://superiermaker.com'
 
 /**
  * Generate share URL based on content type

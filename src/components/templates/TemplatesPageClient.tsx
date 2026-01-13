@@ -53,7 +53,8 @@ export function TemplatesPageClient({ templates, categoryName }: TemplatesPageCl
         <TemplateGrid templates={templates} />
 
         {/* Ad Space - Content Bottom */}
-        <AdSpace position="content-bottom" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-bottom" /> */}
       </PageWithSidebar>
     </main>
   )

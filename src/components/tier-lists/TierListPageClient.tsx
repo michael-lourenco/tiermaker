@@ -22,7 +22,7 @@ interface TierListPageClientProps {
 
 export function TierListPageClient({ tierList }: TierListPageClientProps) {
   const { t } = useTranslation()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const tierListRef = useRef<HTMLDivElement>(null)
   const { showItemNames, setShowItemNames } = useUserPreferences()
   const [liked, setLiked] = useState(false)
@@ -30,20 +30,24 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
   const [isLiking, setIsLiking] = useState(false)
   
   // Check if tier list belongs to current user
-  const isOwner = user && tierList.user_id === user.id
+  // Só calcular isOwner após o carregamento do auth para evitar renderização inicial incorreta
+  const isOwner = !authLoading && user && tierList.user_id === user.id
   
   // Track view with 30-minute minimum interval validation
   useViewTracking('tier_list', tierList.id)
 
   // Verificar se usuário curtiu
   useEffect(() => {
+    // Só fazer fetch após o carregamento do auth estar completo
+    if (authLoading) return
+    
     if (user && !isOwner) {
       fetch(`/api/tierlists/${tierList.id}/like`)
         .then((res) => res.json())
         .then((data) => setLiked(data.liked || false))
         .catch(() => setLiked(false))
     }
-  }, [user, tierList.id, isOwner])
+  }, [user, tierList.id, isOwner, authLoading])
 
   const handleLike = async () => {
     if (!user) {
@@ -103,7 +107,8 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
         </div>
 
         {/* Ad Space - Content Top */}
-        <AdSpace position="content-top" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-top" /> */}
 
         <div className="mb-6 md:mb-8">
           <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
@@ -113,7 +118,8 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
                 {t('tierList.created')} {new Date(tierList.created_at).toLocaleDateString('pt-BR')}
               </p>
             </div>
-            {!isOwner && (
+            {/* Só renderizar botões após o carregamento do auth para evitar flash de renderização incorreta */}
+            {!authLoading && !isOwner && (
               <div className="flex items-center gap-3 flex-wrap">
                 <Button
                   variant={liked ? 'default' : 'outline'}
@@ -128,7 +134,7 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
                 <Link href={`/editor/${tierList.template_id}`}>
                   <Button variant="default" size="sm" className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />
-                    <span>Crie Tier List com este Template</span>
+                    <span>{t('template.createTierList')}</span>
                   </Button>
                 </Link>
               </div>
@@ -137,14 +143,16 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
         </div>
 
         {/* Ad Space - Content Middle */}
-        <AdSpace position="content-middle" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-middle" /> */}
 
         <div ref={tierListRef} className="w-full">
           <TierListView tierList={tierList} />
         </div>
 
         {/* Ad Space - Content Bottom */}
-        <AdSpace position="content-bottom" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-bottom" /> */}
       </PageWithSidebar>
     </main>
   )

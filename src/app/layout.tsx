@@ -4,7 +4,8 @@ import Script from "next/script"
 import "./globals.css"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
-import { StickySidebar } from "@/components/ads/StickySidebar"
+// BANNERS DESABILITADOS TEMPORARIAMENTE
+// import { StickySidebar } from "@/components/ads/StickySidebar"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { LanguageProvider } from "@/contexts/LanguageContext"
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext"
@@ -24,12 +25,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Script
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE - Script do Google AdSense comentado */}
+        {/* <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1741854639942970"
           crossOrigin="anonymous"
           strategy="beforeInteractive"
-        />
+        /> */}
         <LanguageProvider>
           <ThemeProvider
             attribute="class"
@@ -42,7 +44,8 @@ export default function RootLayout({
                 <Header />
                 <div className="flex-1 relative">
                   {children}
-                  <StickySidebar />
+                  {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+                  {/* <StickySidebar /> */}
                 </div>
                 <Footer />
               </div>

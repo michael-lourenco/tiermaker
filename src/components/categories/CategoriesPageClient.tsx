@@ -83,7 +83,8 @@ export function CategoriesPageClient({ categories }: CategoriesPageClientProps) 
         )}
 
         {/* Ad Space - Content Bottom */}
-        <AdSpace position="content-bottom" />
+        {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+        {/* <AdSpace position="content-bottom" /> */}
       </PageWithSidebar>
     </main>
   )

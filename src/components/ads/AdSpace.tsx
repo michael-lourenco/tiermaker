@@ -1,13 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { AdSpaceService } from '@/services/adSpace.service'
-import type { AdSpace as AdSpaceType, AdSpaceDeviceType } from '@/types/adSpace.types'
-import { ManualAd } from './ManualAd'
-import { GoogleAd } from './GoogleAd'
-import { useDeviceType } from '@/hooks/useDeviceType'
-import { useSubscription } from '@/hooks/useSubscription'
-import { cn } from '@/lib/utils/cn'
+// BANNERS DESABILITADOS TEMPORARIAMENTE
+// Para reativar, descomente o código abaixo e remova o return null
+
+// import { useEffect, useState } from 'react'
+// import { AdSpaceService } from '@/services/adSpace.service'
+// import type { AdSpace as AdSpaceType, AdSpaceDeviceType } from '@/types/adSpace.types'
+// import { ManualAd } from './ManualAd'
+// import { GoogleAd } from './GoogleAd'
+// import { useDeviceType } from '@/hooks/useDeviceType'
+// import { useSubscription } from '@/hooks/useSubscription'
+// import { cn } from '@/lib/utils/cn'
 
 interface AdSpaceProps {
   position: string
@@ -16,6 +19,11 @@ interface AdSpaceProps {
 }
 
 export function AdSpace({ position, className, wrapperClassName }: AdSpaceProps) {
+  // BANNERS DESABILITADOS - sempre retorna null
+  return null
+
+  // CÓDIGO ORIGINAL COMENTADO (para reativar no futuro):
+  /*
   const [adSpace, setAdSpace] = useState<AdSpaceType | null>(null)
   const [loading, setLoading] = useState(true)
   const deviceType = useDeviceType()
@@ -82,6 +90,7 @@ export function AdSpace({ position, className, wrapperClassName }: AdSpaceProps)
       {adContent}
     </div>
   )
+  */
 }
 
 

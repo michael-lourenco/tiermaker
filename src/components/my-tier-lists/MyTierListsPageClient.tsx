@@ -225,7 +225,8 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
                     </CardFooter>
                   </Card>
                   {/* Ad Space - In Feed (a cada 6 cards) */}
-                  {(index + 1) % 6 === 0 && <AdSpace position="in-feed" className="mt-4 col-span-full" />}
+                  {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+                  {/* {(index + 1) % 6 === 0 && <AdSpace position="in-feed" className="mt-4 col-span-full" />} */}
                   </div>
                 )
               })}

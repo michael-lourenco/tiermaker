@@ -16,6 +16,24 @@ const nextConfig = {
       },
     ],
   },
+  // Desabilitar logs de desenvolvimento (fetch, webpack, etc)
+  logging: false, // Desabilitar completamente todos os logs do Next.js
+  // Remover console.* em produção
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'], // Manter apenas error e warn em produção
+    } : false,
+  },
+  // Desabilitar logs do webpack em desenvolvimento
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // Silenciar logs do webpack no browser
+      config.infrastructureLogging = {
+        level: 'error',
+      }
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig

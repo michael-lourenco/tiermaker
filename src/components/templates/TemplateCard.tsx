@@ -35,7 +35,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
           {/* Category - Top Left */}
           {template.categories && template.categories.length > 0 && (
             <div className="absolute top-2 left-2 z-10">
-              <span className="px-2 py-1 bg-primary/90 text-primary-foreground rounded text-xs font-medium backdrop-blur-sm">
+              <span className="px-2 py-1 bg-amber-600/90 text-white rounded text-xs font-medium backdrop-blur-sm">
                 {template.categories[0].name}
               </span>
             </div>

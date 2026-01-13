@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { RotateCcw } from 'lucide-react'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface ClearDraftButtonProps {
   onClear: () => void
@@ -23,6 +24,7 @@ interface ClearDraftButtonProps {
 }
 
 export function ClearDraftButton({ onClear, lastModified }: ClearDraftButtonProps) {
+  const { t } = useTranslation()
   const [showDialog, setShowDialog] = useState(false)
 
   const formatLastModified = (timestamp: number) => {
@@ -33,15 +35,15 @@ export function ClearDraftButton({ onClear, lastModified }: ClearDraftButtonProp
     const days = Math.floor(hours / 24)
 
     if (days > 0) {
-      return `${days} ${days === 1 ? 'dia' : 'dias'} atrás`
+      return `${days} ${days === 1 ? t('editor.timeAgo.daysSingular') : t('editor.timeAgo.days')} ${t('editor.timeAgo.ago')}`
     }
     if (hours > 0) {
-      return `${hours} ${hours === 1 ? 'hora' : 'horas'} atrás`
+      return `${hours} ${hours === 1 ? t('editor.timeAgo.hoursSingular') : t('editor.timeAgo.hours')} ${t('editor.timeAgo.ago')}`
     }
     if (minutes > 0) {
-      return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'} atrás`
+      return `${minutes} ${minutes === 1 ? t('editor.timeAgo.minutesSingular') : t('editor.timeAgo.minutes')} ${t('editor.timeAgo.ago')}`
     }
-    return 'agora mesmo'
+    return t('editor.timeAgo.now')
   }
 
   const handleConfirm = () => {
@@ -50,8 +52,8 @@ export function ClearDraftButton({ onClear, lastModified }: ClearDraftButtonProp
   }
 
   const tooltipText = lastModified
-    ? `Reiniciar a tier list e descartar todas as alterações. Última alteração: ${formatLastModified(lastModified)}`
-    : 'Reiniciar a tier list e descartar todas as alterações'
+    ? t('editor.restartTooltipWithTime', { time: formatLastModified(lastModified) })
+    : t('editor.restartTooltip')
 
   return (
     <>
@@ -64,7 +66,7 @@ export function ClearDraftButton({ onClear, lastModified }: ClearDraftButtonProp
             size="sm"
           >
             <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-            Reiniciar
+            {t('editor.restart')}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -75,20 +77,20 @@ export function ClearDraftButton({ onClear, lastModified }: ClearDraftButtonProp
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Limpar Rascunho</DialogTitle>
+            <DialogTitle>{t('editor.clearDraftTitle')}</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja descartar todas as alterações e voltar do início?
+              {t('editor.clearDraftDescription')}
               <br />
               <br />
-              Esta ação não pode ser desfeita e todas as alterações não salvas serão perdidas.
+              {t('editor.clearDraftWarning')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDialog(false)}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleConfirm}>
-              Sim, Limpar Tudo
+              {t('editor.clearDraftConfirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

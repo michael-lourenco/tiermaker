@@ -160,10 +160,10 @@ export function TierListsPageClient({
       <PageWithSidebar showRightSidebar={true}>
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
-            Tier Lists Públicas
+            {t('tierList.publicTierLists')}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Explore tier lists criadas pela comunidade
+            {t('tierList.exploreDescription')}
           </p>
         </div>
 
@@ -173,7 +173,7 @@ export function TierListsPageClient({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por título..."
+              placeholder={t('tierList.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
@@ -187,7 +187,7 @@ export function TierListsPageClient({
               onValueChange={setTemplateFilter}
               className="w-full sm:w-[200px]"
             >
-              <option value="all">Todos os Templates</option>
+              <option value="all">{t('tierList.allTemplates')}</option>
               {templates.map((template) => (
                 <option key={template.id} value={template.id}>
                   {template.name}
@@ -200,7 +200,7 @@ export function TierListsPageClient({
               onValueChange={setCategoryFilter}
               className="w-full sm:w-[200px]"
             >
-              <option value="all">Todas as Categorias</option>
+              <option value="all">{t('tierList.allCategories')}</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -213,10 +213,10 @@ export function TierListsPageClient({
               onValueChange={setPeriodFilter}
               className="w-full sm:w-[200px]"
             >
-              <option value="all">Todos os Períodos</option>
-              <option value="today">Hoje</option>
-              <option value="week">Última Semana</option>
-              <option value="month">Último Mês</option>
+              <option value="all">{t('tierList.allPeriods')}</option>
+              <option value="today">{t('tierList.today')}</option>
+              <option value="week">{t('tierList.lastWeek')}</option>
+              <option value="month">{t('tierList.lastMonth')}</option>
             </Select>
 
             <Select
@@ -224,9 +224,9 @@ export function TierListsPageClient({
               onValueChange={(v) => setSort(v as 'recent' | 'views' | 'likes')}
               className="w-full sm:w-[200px]"
             >
-              <option value="recent">Mais Recentes</option>
-              <option value="views">Mais Visualizadas</option>
-              <option value="likes">Mais Curtidas</option>
+              <option value="recent">{t('tierList.sortRecent')}</option>
+              <option value="views">{t('tierList.sortViews')}</option>
+              <option value="likes">{t('tierList.sortLikes')}</option>
             </Select>
 
             {hasActiveFilters && (
@@ -237,7 +237,7 @@ export function TierListsPageClient({
                 className="w-full sm:w-auto"
               >
                 <X className="h-4 w-4 mr-1" />
-                Limpar Filtros
+                {t('tierList.clearFilters')}
               </Button>
             )}
           </div>
@@ -245,18 +245,18 @@ export function TierListsPageClient({
 
         {/* Results Count */}
         <div className="mb-4 text-sm text-muted-foreground">
-          {total} {total === 1 ? 'tier list encontrada' : 'tier lists encontradas'}
+          {total} {total === 1 ? t('tierList.foundCount') : t('tierList.foundCountPlural')}
         </div>
 
         {/* Tier Lists Grid */}
         {tierLists.length === 0 && !loading ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground mb-4">
-              Nenhuma tier list encontrada
+              {t('tierList.noTierListsFound')}
             </p>
             {hasActiveFilters && (
               <Button variant="outline" onClick={clearFilters}>
-                Limpar Filtros
+                {t('tierList.clearFilters')}
               </Button>
             )}
           </div>
@@ -280,7 +280,7 @@ export function TierListsPageClient({
         {/* Loading / Load More */}
         {loading && (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">Carregando...</p>
+            <p className="text-muted-foreground">{t('common.loading')}</p>
           </div>
         )}
 

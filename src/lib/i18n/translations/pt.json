@@ -30,6 +30,7 @@
     "openMenu": "Abrir menu",
     "menuDescription": "Menu de navegação",
     "browse": "Navegar",
+    "explore": "Explorar",
     "myAccount": "Minha Conta",
     "account": "Conta"
   },
@@ -114,7 +115,30 @@
     "pin": "Fixar",
     "unpin": "Desafixar",
     "pinUnassigned": "Fixar bloco de itens não atribuídos",
-    "unpinUnassigned": "Desafixar bloco de itens não atribuídos"
+    "unpinUnassigned": "Desafixar bloco de itens não atribuídos",
+    "savingTierList": "Salvando tier list...",
+    "makePublic": "Tornar pública",
+    "makePrivate": "Tornar privada",
+    "tierListPublicDescription": "Sua tier list será visível para todos na página /tierlists",
+    "tierListPrivateDescription": "Sua tier list será privada e só acessível pelo link",
+    "clearDraft": "Limpar Rascunho",
+    "clearDraftTitle": "Limpar Rascunho",
+    "clearDraftDescription": "Tem certeza que deseja descartar todas as alterações e voltar do início?",
+    "clearDraftWarning": "Esta ação não pode ser desfeita e todas as alterações não salvas serão perdidas.",
+    "clearDraftConfirm": "Sim, Limpar Tudo",
+    "restart": "Reiniciar",
+    "restartTooltip": "Reiniciar a tier list e descartar todas as alterações",
+    "restartTooltipWithTime": "Reiniciar a tier list e descartar todas as alterações. Última alteração: {time}",
+    "timeAgo": {
+      "days": "dias",
+      "daysSingular": "dia",
+      "hours": "horas",
+      "hoursSingular": "hora",
+      "minutes": "minutos",
+      "minutesSingular": "minuto",
+      "now": "agora mesmo",
+      "ago": "atrás"
+    }
   },
   "createTemplate": {
     "title": "Informações do Template",
@@ -154,7 +178,28 @@
     "deleteTooltip": "Excluir esta tier list"
   },
   "tierList": {
-    "created": "Criado em"
+    "created": "Criado em",
+    "publicTierLists": "Tier Lists Públicas",
+    "exploreDescription": "Explore tier lists criadas pela comunidade",
+    "searchPlaceholder": "Buscar por título...",
+    "allTemplates": "Todos os Templates",
+    "allCategories": "Todas as Categorias",
+    "allPeriods": "Todos os Períodos",
+    "today": "Hoje",
+    "lastWeek": "Última Semana",
+    "lastMonth": "Último Mês",
+    "sortRecent": "Mais Recentes",
+    "sortViews": "Mais Visualizadas",
+    "sortLikes": "Mais Curtidas",
+    "clearFilters": "Limpar Filtros",
+    "foundCount": "tier list encontrada",
+    "foundCountPlural": "tier lists encontradas",
+    "noTierListsFound": "Nenhuma tier list encontrada",
+    "templateLabel": "Template",
+    "recentlyCreated": "Recém Criada",
+    "popular": "Popular",
+    "view": "Ver",
+    "create": "Criar"
   },
   "share": {
     "title": "Compartilhar",
@@ -252,6 +297,49 @@
       "backToLogin": "Voltar para Login",
       "checkSpam": "Verifique também sua pasta de spam"
     }
+  },
+  "beta": {
+    "title": "Versão Beta",
+    "lastUpdated": "Última atualização",
+    "whatIsBeta": "O que é a Versão Beta?",
+    "whatIsBetaTitle": "O que é a Versão Beta?",
+    "whatIsBetaDescription": "O SuperTierMaker está atualmente em <strong>versão beta</strong>, o que significa que estamos constantemente melhorando e aprimorando a plataforma com base no feedback dos usuários. Esta versão permite que você teste todas as funcionalidades disponíveis, enquanto continuamos desenvolvendo novas features e refinando a experiência.",
+    "whyBeta": "Por que liberamos uma versão beta?",
+    "whyBetaTitle": "Por que liberamos uma versão beta?",
+    "whyBetaDescription": "Decidimos liberar esta versão beta para:",
+    "whyBetaReasons": {
+      "collectFeedback": "Coletar feedback valioso: Sua opinião é essencial para melhorar a plataforma",
+      "testRealConditions": "Testar em condições reais: Permitir que usuários reais usem o sistema ajuda a identificar problemas e oportunidades de melhoria",
+      "developFeatures": "Desenvolver recursos com base nas necessidades: Aprendemos quais features são mais importantes para você",
+      "ensureStability": "Garantir estabilidade: Identificar e corrigir bugs antes da versão final",
+      "optimizeExperience": "Otimizar a experiência: Melhorar a usabilidade baseada no uso real"
+    },
+    "whatToExpect": "O que você pode esperar?",
+    "whatToExpectTitle": "O que você pode esperar?",
+    "whatToExpectDescription": "Durante a versão beta:",
+    "whatToExpectItems": {
+      "completeFeatures": "Funcionalidades completas: Todas as features principais estão disponíveis e funcionais",
+      "continuousImprovements": "Melhorias contínuas: Regularmente adicionamos novos recursos e corrigimos problemas",
+      "possibleInstabilities": "Possíveis instabilidades: Podem ocorrer alguns bugs ou mudanças enquanto refinamos o sistema",
+      "activeSupport": "Suporte ativo: Estamos sempre trabalhando para resolver problemas rapidamente",
+      "newFeatures": "Novas features: Você será um dos primeiros a experimentar novas funcionalidades"
+    },
+    "howToHelp": "Como você pode ajudar?",
+    "howToHelpTitle": "Como você pode ajudar?",
+    "howToHelpDescription": "Sua participação é fundamental para o sucesso da plataforma:",
+    "howToHelpItems": {
+      "usePlatform": "Use a plataforma: Explore todas as funcionalidades e crie seus templates e tier lists",
+      "reportProblems": "Reporte problemas: Se encontrar bugs ou comportamentos inesperados, entre em contato",
+      "shareFeedback": "Compartilhe feedback: Sua opinião sobre o que funciona bem e o que pode melhorar é muito valiosa",
+      "bePatient": "Seja paciente: Estamos trabalhando duro para tornar a experiência cada vez melhor"
+    },
+    "whenFinal": "Quando será a versão final?",
+    "whenFinalTitle": "Quando será a versão final?",
+    "whenFinalDescription": "Não temos uma data específica para o lançamento da versão final. Estamos focados em criar a melhor experiência possível com base no feedback dos usuários. Quando sentirmos que a plataforma está estável, polida e atende às necessidades dos usuários, faremos a transição para a versão final. Até lá, continuaremos melhorando e adicionando recursos baseados no seu feedback.",
+    "gratitude": "Agradecimento",
+    "gratitudeTitle": "Agradecimento",
+    "gratitudeDescription": "Agradecemos por fazer parte desta jornada e por nos ajudar a construir uma plataforma melhor. Seu apoio e feedback são essenciais para o sucesso do SuperTierMaker!",
+    "backToHome": "Voltar para Início"
   }
 }
 

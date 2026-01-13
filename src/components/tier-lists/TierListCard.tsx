@@ -9,6 +9,8 @@ import { Heart, Eye, Share2, Plus, ExternalLink } from 'lucide-react'
 import { TierListThumbnail } from '@/components/my-tier-lists/TierListThumbnail'
 import { ShareButton } from '@/components/share/ShareButton'
 import { useAuth } from '@/hooks/useAuth'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguage } from '@/hooks/useLanguage'
 import type { TierListWithData } from '@/types/tierList.types'
 
 interface TierListCardProps {
@@ -23,6 +25,8 @@ interface TierListCardProps {
 
 export function TierListCard({ tierList, onLike }: TierListCardProps) {
   const { user } = useAuth()
+  const { t } = useTranslation()
+  const { language } = useLanguage()
   const [liked, setLiked] = useState(false)
   const [likesCount, setLikesCount] = useState(tierList.likes_count)
   const [isLiking, setIsLiking] = useState(false)
@@ -88,16 +92,16 @@ export function TierListCard({ tierList, onLike }: TierListCardProps) {
           <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
             {isRecent && (
               <Badge className="bg-green-500/90 text-white text-xs">
-                Recém Criada
+                {t('tierList.recentlyCreated')}
               </Badge>
             )}
             {isPopular && (
               <Badge className="bg-yellow-500/90 text-white text-xs">
-                Popular
+                {t('tierList.popular')}
               </Badge>
             )}
             {tierList.category_name && (
-              <Badge className="bg-primary/90 text-primary-foreground text-xs">
+              <Badge className="bg-amber-600/90 text-white text-xs">
                 {tierList.category_name}
               </Badge>
             )}
@@ -130,11 +134,11 @@ export function TierListCard({ tierList, onLike }: TierListCardProps) {
             </h3>
             {tierList.template_name && (
               <p className="text-white/80 text-xs line-clamp-1">
-                Template: {tierList.template_name}
+                {t('tierList.templateLabel')}: {tierList.template_name}
               </p>
             )}
             <p className="text-white/60 text-xs mt-1">
-              {new Date(tierList.created_at).toLocaleDateString('pt-BR')}
+              {new Date(tierList.created_at).toLocaleDateString(language === 'pt' ? 'pt-BR' : 'en-US')}
             </p>
           </div>
         </div>
@@ -148,7 +152,7 @@ export function TierListCard({ tierList, onLike }: TierListCardProps) {
           >
             <Button variant="outline" size="sm" className="w-full text-xs">
               <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" />
-              <span>Ver</span>
+              <span>{t('tierList.view')}</span>
             </Button>
           </Link>
           <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
@@ -167,7 +171,7 @@ export function TierListCard({ tierList, onLike }: TierListCardProps) {
           >
             <Button variant="outline" size="sm" className="text-xs w-full whitespace-nowrap">
               <Plus className="h-3 w-3 mr-1 flex-shrink-0" />
-              <span>Criar</span>
+              <span>{t('tierList.create')}</span>
             </Button>
           </Link>
         </div>

@@ -143,7 +143,7 @@ export function Header() {
                   )}
                 >
                   <LayoutGrid className="h-4 w-4 mr-1" />
-                  Explorar
+                  {t('nav.explore')}
                   <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

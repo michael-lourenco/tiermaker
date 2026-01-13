@@ -30,6 +30,7 @@ export interface Translations {
     openMenu: string
     menuDescription: string
     browse: string
+    explore: string
     myAccount: string
     account: string
   }
@@ -92,12 +93,17 @@ export interface Translations {
     category: string
   }
   editor: {
+    tierListTitle: string
+    tierListTitlePlaceholder: string
+    tierListTitleHint: string
     addTier: string
     saveTierList: string
+    savingTierList: string
     unassigned: string
     unassignedDescription: string
     tier: string
     dragItemsHere: string
+    showItemNames: string
     removeTier: string
     changeTierColor: string
     confirmDelete: string
@@ -108,6 +114,28 @@ export interface Translations {
     unpin: string
     pinUnassigned: string
     unpinUnassigned: string
+    makePublic: string
+    makePrivate: string
+    tierListPublicDescription: string
+    tierListPrivateDescription: string
+    clearDraft: string
+    clearDraftTitle: string
+    clearDraftDescription: string
+    clearDraftWarning: string
+    clearDraftConfirm: string
+    restart: string
+    restartTooltip: string
+    restartTooltipWithTime: string
+    timeAgo: {
+      days: string
+      daysSingular: string
+      hours: string
+      hoursSingular: string
+      minutes: string
+      minutesSingular: string
+      now: string
+      ago: string
+    }
   }
   createTemplate: {
     title: string
@@ -148,6 +176,27 @@ export interface Translations {
   }
   tierList: {
     created: string
+    publicTierLists: string
+    exploreDescription: string
+    searchPlaceholder: string
+    allTemplates: string
+    allCategories: string
+    allPeriods: string
+    today: string
+    lastWeek: string
+    lastMonth: string
+    sortRecent: string
+    sortViews: string
+    sortLikes: string
+    clearFilters: string
+    foundCount: string
+    foundCountPlural: string
+    noTierListsFound: string
+    templateLabel: string
+    recentlyCreated: string
+    popular: string
+    view: string
+    create: string
   }
   share: {
     title: string
@@ -194,6 +243,49 @@ export interface Translations {
     preferences: string
     preferencesDescription: string
     showItemNamesDescription: string
+  }
+  beta: {
+    title: string
+    lastUpdated: string
+    whatIsBeta: string
+    whatIsBetaTitle: string
+    whatIsBetaDescription: string
+    whyBeta: string
+    whyBetaTitle: string
+    whyBetaDescription: string
+    whyBetaReasons: {
+      collectFeedback: string
+      testRealConditions: string
+      developFeatures: string
+      ensureStability: string
+      optimizeExperience: string
+    }
+    whatToExpect: string
+    whatToExpectTitle: string
+    whatToExpectDescription: string
+    whatToExpectItems: {
+      completeFeatures: string
+      continuousImprovements: string
+      possibleInstabilities: string
+      activeSupport: string
+      newFeatures: string
+    }
+    howToHelp: string
+    howToHelpTitle: string
+    howToHelpDescription: string
+    howToHelpItems: {
+      usePlatform: string
+      reportProblems: string
+      shareFeedback: string
+      bePatient: string
+    }
+    whenFinal: string
+    whenFinalTitle: string
+    whenFinalDescription: string
+    gratitude: string
+    gratitudeTitle: string
+    gratitudeDescription: string
+    backToHome: string
   }
   auth: {
     title: string

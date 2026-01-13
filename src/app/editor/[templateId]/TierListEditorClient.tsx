@@ -399,7 +399,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Carregando...</p>
+          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -464,8 +464,8 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
                 <TooltipContent>
                   <p>
                     {isPublic 
-                      ? 'Sua tier list será visível para todos na página /tierlists'
-                      : 'Sua tier list será privada e só acessível pelo link'}
+                      ? t('editor.tierListPublicDescription')
+                      : t('editor.tierListPrivateDescription')}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -484,7 +484,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
       {saving && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background p-4 sm:p-6 rounded-lg mx-4">
-            <p className="text-sm sm:text-base">Saving tier list...</p>
+            <p className="text-sm sm:text-base">{t('editor.savingTierList')}</p>
           </div>
         </div>
       )}

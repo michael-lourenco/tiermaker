@@ -30,6 +30,7 @@
     "openMenu": "Open menu",
     "menuDescription": "Navigation menu",
     "browse": "Browse",
+    "explore": "Explore",
     "myAccount": "My Account",
     "account": "Account"
   },
@@ -114,7 +115,30 @@
     "pin": "Pin",
     "unpin": "Unpin",
     "pinUnassigned": "Pin unassigned items block",
-    "unpinUnassigned": "Unpin unassigned items block"
+    "unpinUnassigned": "Unpin unassigned items block",
+    "savingTierList": "Saving tier list...",
+    "makePublic": "Make public",
+    "makePrivate": "Make private",
+    "tierListPublicDescription": "Your tier list will be visible to everyone on the /tierlists page",
+    "tierListPrivateDescription": "Your tier list will be private and only accessible by link",
+    "clearDraft": "Clear Draft",
+    "clearDraftTitle": "Clear Draft",
+    "clearDraftDescription": "Are you sure you want to discard all changes and start over?",
+    "clearDraftWarning": "This action cannot be undone and all unsaved changes will be lost.",
+    "clearDraftConfirm": "Yes, Clear Everything",
+    "restart": "Restart",
+    "restartTooltip": "Restart the tier list and discard all changes",
+    "restartTooltipWithTime": "Restart the tier list and discard all changes. Last modified: {time}",
+    "timeAgo": {
+      "days": "days",
+      "daysSingular": "day",
+      "hours": "hours",
+      "hoursSingular": "hour",
+      "minutes": "minutes",
+      "minutesSingular": "minute",
+      "now": "just now",
+      "ago": "ago"
+    }
   },
   "createTemplate": {
     "title": "Template Information",
@@ -154,7 +178,28 @@
     "deleteTooltip": "Delete this tier list"
   },
   "tierList": {
-    "created": "Created"
+    "created": "Created",
+    "publicTierLists": "Public Tier Lists",
+    "exploreDescription": "Explore tier lists created by the community",
+    "searchPlaceholder": "Search by title...",
+    "allTemplates": "All Templates",
+    "allCategories": "All Categories",
+    "allPeriods": "All Periods",
+    "today": "Today",
+    "lastWeek": "Last Week",
+    "lastMonth": "Last Month",
+    "sortRecent": "Most Recent",
+    "sortViews": "Most Viewed",
+    "sortLikes": "Most Liked",
+    "clearFilters": "Clear Filters",
+    "foundCount": "tier list found",
+    "foundCountPlural": "tier lists found",
+    "noTierListsFound": "No tier lists found",
+    "templateLabel": "Template",
+    "recentlyCreated": "Recently Created",
+    "popular": "Popular",
+    "view": "View",
+    "create": "Create"
   },
   "share": {
     "title": "Share",
@@ -252,6 +297,49 @@
       "backToLogin": "Back to Login",
       "checkSpam": "Also check your spam folder"
     }
+  },
+  "beta": {
+    "title": "Beta Version",
+    "lastUpdated": "Last updated",
+    "whatIsBeta": "What is the Beta Version?",
+    "whatIsBetaTitle": "What is the Beta Version?",
+    "whatIsBetaDescription": "SuperTierMaker is currently in <strong>beta version</strong>, which means we are constantly improving and enhancing the platform based on user feedback. This version allows you to test all available features while we continue developing new features and refining the experience.",
+    "whyBeta": "Why did we release a beta version?",
+    "whyBetaTitle": "Why did we release a beta version?",
+    "whyBetaDescription": "We decided to release this beta version to:",
+    "whyBetaReasons": {
+      "collectFeedback": "Collect valuable feedback: Your opinion is essential to improve the platform",
+      "testRealConditions": "Test in real conditions: Allowing real users to use the system helps identify problems and improvement opportunities",
+      "developFeatures": "Develop features based on needs: We learn which features are most important to you",
+      "ensureStability": "Ensure stability: Identify and fix bugs before the final version",
+      "optimizeExperience": "Optimize the experience: Improve usability based on real usage"
+    },
+    "whatToExpect": "What can you expect?",
+    "whatToExpectTitle": "What can you expect?",
+    "whatToExpectDescription": "During the beta version:",
+    "whatToExpectItems": {
+      "completeFeatures": "Complete features: All main features are available and functional",
+      "continuousImprovements": "Continuous improvements: We regularly add new features and fix problems",
+      "possibleInstabilities": "Possible instabilities: Some bugs or changes may occur while we refine the system",
+      "activeSupport": "Active support: We are always working to resolve problems quickly",
+      "newFeatures": "New features: You will be one of the first to try new features"
+    },
+    "howToHelp": "How can you help?",
+    "howToHelpTitle": "How can you help?",
+    "howToHelpDescription": "Your participation is fundamental to the platform's success:",
+    "howToHelpItems": {
+      "usePlatform": "Use the platform: Explore all features and create your templates and tier lists",
+      "reportProblems": "Report problems: If you find bugs or unexpected behavior, contact us",
+      "shareFeedback": "Share feedback: Your opinion on what works well and what can be improved is very valuable",
+      "bePatient": "Be patient: We are working hard to make the experience better and better"
+    },
+    "whenFinal": "When will the final version be?",
+    "whenFinalTitle": "When will the final version be?",
+    "whenFinalDescription": "We don't have a specific date for the final version launch. We are focused on creating the best possible experience based on user feedback. When we feel that the platform is stable, polished and meets user needs, we will transition to the final version. Until then, we will continue to improve and add features based on your feedback.",
+    "gratitude": "Gratitude",
+    "gratitudeTitle": "Gratitude",
+    "gratitudeDescription": "We thank you for being part of this journey and for helping us build a better platform. Your support and feedback are essential to SuperTierMaker's success!",
+    "backToHome": "Back to Home"
   }
 }
 

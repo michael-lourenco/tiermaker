@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch'
 import { Edit2, Globe, Lock } from 'lucide-react'
 import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits'
+import { useTranslation } from '@/hooks/useTranslation'
 import { CanvasTierListEditor } from '@/components/editor/canvas/CanvasTierListEditor'
 import type { TemplateWithItems } from '@/types/template.types'
 
@@ -34,6 +35,7 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
   const [showLimitModal, setShowLimitModal] = useState(false)
   const { user } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
   const tierListService = new TierListService()
   const { canPerform, hasReached, limit } = useSubscriptionLimits('tier_lists_count')
 
@@ -109,7 +111,7 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
             <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
           )}
           <Label htmlFor="is-public" className="text-sm sm:text-base cursor-pointer">
-            {isPublic ? 'Tornar privada' : 'Tornar pública'}
+            {isPublic ? t('editor.makePrivate') : t('editor.makePublic')}
           </Label>
         </div>
         <Switch
@@ -119,8 +121,8 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
         />
         <span className="text-xs sm:text-sm text-muted-foreground">
           {isPublic 
-            ? 'Sua tier list será visível para todos'
-            : 'Sua tier list será privada'}
+            ? t('editor.tierListPublicDescription')
+            : t('editor.tierListPrivateDescription')}
         </span>
       </div>
 
@@ -145,7 +147,7 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
       {saving && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background p-4 sm:p-6 rounded-lg mx-4">
-            <p className="text-sm sm:text-base">Saving tier list...</p>
+            <p className="text-sm sm:text-base">{t('editor.savingTierList')}</p>
           </div>
         </div>
       )}

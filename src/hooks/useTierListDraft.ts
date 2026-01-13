@@ -56,7 +56,6 @@ export function useTierListDraft(templateId: string, userId: string | undefined)
         !Array.isArray(parsed.tiers) ||
         !Array.isArray(parsed.items)
       ) {
-        console.warn('Draft corrompido detectado, removendo...')
         // Limpar draft corrompido diretamente
         try {
           const storageKey = getStorageKey()
@@ -64,7 +63,7 @@ export function useTierListDraft(templateId: string, userId: string | undefined)
             localStorage.removeItem(storageKey)
           }
         } catch (error) {
-          console.error('Erro ao limpar draft corrompido:', error)
+          // Erro ao limpar draft corrompido - silencioso
         }
         return null
       }
@@ -76,7 +75,6 @@ export function useTierListDraft(templateId: string, userId: string | undefined)
 
       return parsed
     } catch (error) {
-      console.error('Erro ao carregar draft do localStorage:', error)
       return null
     }
   }, [templateId, userId, getStorageKey])
@@ -87,14 +85,12 @@ export function useTierListDraft(templateId: string, userId: string | undefined)
   const saveDraft = useCallback(
     (data: Omit<TierListDraft, 'templateId' | 'userId' | 'lastModified'>) => {
       if (!userId) {
-        console.warn('saveDraft: userId não disponível')
         return
       }
 
       try {
         const storageKey = getStorageKey()
         if (!storageKey) {
-          console.warn('saveDraft: storageKey não disponível')
           return
         }
 
@@ -105,21 +101,12 @@ export function useTierListDraft(templateId: string, userId: string | undefined)
           lastModified: Date.now(),
         }
 
-        console.log('Salvando draft no localStorage:', {
-          storageKey,
-          itemsCount: draftData.items.length,
-          tiersCount: draftData.tiers.length,
-          items: draftData.items,
-        })
-
         localStorage.setItem(storageKey, JSON.stringify(draftData))
         setDraft(draftData)
         setHasDraft(true)
       } catch (error) {
-        console.error('Erro ao salvar draft no localStorage:', error)
         // Se erro de quota excedida, tentar limpar drafts antigos
         if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-          console.warn('LocalStorage cheio, tentando limpar drafts antigos...')
           // Aqui poderia implementar limpeza de drafts antigos se necessário
         }
       }
@@ -157,7 +144,7 @@ export function useTierListDraft(templateId: string, userId: string | undefined)
       setDraft(null)
       setHasDraft(false)
     } catch (error) {
-      console.error('Erro ao limpar draft do localStorage:', error)
+      // Erro ao limpar draft - silencioso
     }
   }, [userId, getStorageKey])
 

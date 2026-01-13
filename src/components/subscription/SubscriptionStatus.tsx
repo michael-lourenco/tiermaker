@@ -38,7 +38,7 @@ export function SubscriptionStatus({ className }: SubscriptionStatusProps) {
       const statusData = await response.json()
       setData(statusData)
     } catch (error) {
-      console.error('Error loading subscription status:', error)
+      // Erro ao carregar status da assinatura - silencioso
     } finally {
       setLoading(false)
     }
@@ -61,7 +61,6 @@ export function SubscriptionStatus({ className }: SubscriptionStatusProps) {
         window.location.href = url
       }
     } catch (error: any) {
-      console.error('Error creating portal session:', error)
       alert(error.message || 'Erro ao abrir portal de assinatura')
       setPortalLoading(false)
     }

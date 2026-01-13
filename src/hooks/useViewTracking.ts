@@ -45,9 +45,6 @@ export function useViewTracking(
       }),
     })
       .then(response => {
-        if (!response.ok) {
-          console.error('Failed to register view:', response.statusText)
-        }
         return response.json()
       })
       .then(data => {
@@ -61,7 +58,6 @@ export function useViewTracking(
       })
       .catch(error => {
         // Erro silencioso - não quebra a UX
-        console.error('Error registering view:', error)
       })
   }, [contentType, contentId, enabled])
 }

@@ -72,7 +72,7 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
       setLiked(data.liked)
       setLikesCount((prev) => (data.liked ? prev + 1 : Math.max(0, prev - 1)))
     } catch (error) {
-      console.error('Error toggling like:', error)
+      // Erro ao curtir - silencioso
     } finally {
       setIsLiking(false)
     }

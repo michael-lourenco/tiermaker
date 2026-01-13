@@ -68,7 +68,6 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
       setTierListToDelete(null)
       router.refresh()
     } catch (error) {
-      console.error('Error deleting tier list:', error)
       setDeleteError(t('myTierLists.deleteError') || 'Error deleting tier list. Please try again.')
     } finally {
       setDeleting(null)
@@ -106,7 +105,6 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
         )
       )
     } catch (error) {
-      console.error('Error updating tier list:', error)
       setErrorMessage(
         error instanceof Error ? error.message : 'Erro desconhecido ao atualizar tier list'
       )

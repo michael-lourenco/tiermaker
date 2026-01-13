@@ -67,7 +67,6 @@ export function CreateTemplateForm() {
         const cats = await categoryService.getAllCategories()
         setCategories(cats)
       } catch (err) {
-        console.error('Error loading categories:', err)
         setError('Failed to load categories. Using default list.')
         // Fallback to default categories if table doesn't exist
         setCategories([])
@@ -230,7 +229,6 @@ export function CreateTemplateForm() {
       const { template } = await response.json()
       router.push(`/templates/${template.id}`)
     } catch (err: any) {
-      console.error('Error creating template:', err)
       setError(err.message || 'Failed to create template. Please try again.')
       setUploading(false)
     }

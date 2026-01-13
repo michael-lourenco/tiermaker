@@ -55,8 +55,6 @@ export default function RegisterPage() {
     const { error, data } = await signUp(email, password)
 
     if (error) {
-      // Log do erro para debug
-      console.error('SignUp error:', error)
       setError(translateAuthError(error, 'pt'))
       setLoading(false)
       return
@@ -72,7 +70,6 @@ export default function RegisterPage() {
       // Caso não tenha erro explícito mas também não tenha usuário criado
       // Pode ser que o email já exista mas o Supabase não retornou erro
       // ou que precise de confirmação de email (mas mesmo assim deveria ter user)
-      console.warn('SignUp succeeded but no user was created. Email may already exist.')
       setError(t('auth.errors.userAlreadyRegistered'))
       setLoading(false)
       return

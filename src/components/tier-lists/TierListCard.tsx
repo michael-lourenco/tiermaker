@@ -68,7 +68,7 @@ export function TierListCard({ tierList, onLike }: TierListCardProps) {
       setLikesCount((prev) => (data.liked ? prev + 1 : Math.max(0, prev - 1)))
       onLike?.(tierList.id, data.liked)
     } catch (error) {
-      console.error('Error toggling like:', error)
+      // Erro ao curtir - silencioso
     } finally {
       setIsLiking(false)
     }

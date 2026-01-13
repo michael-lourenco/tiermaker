@@ -62,7 +62,7 @@ export function TierListsPageClient({
       setTotal(data.total)
       setHasMore(tierLists.length + data.data.length < data.total)
     } catch (error) {
-      console.error('Error loading more tier lists:', error)
+      // Erro ao carregar mais tier lists - silencioso
     } finally {
       setLoading(false)
     }
@@ -93,7 +93,7 @@ export function TierListsPageClient({
         setTotal(data.total)
         setHasMore(data.data.length < data.total)
       } catch (error) {
-        console.error('Error loading tier lists:', error)
+        // Erro ao carregar tier lists - silencioso
       } finally {
         setLoading(false)
       }

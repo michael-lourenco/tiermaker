@@ -85,7 +85,7 @@ function getBackgroundColor(): string {
       }
     }
   } catch (error) {
-    console.warn('Error getting background color:', error)
+    // Erro ao obter cor de fundo - silencioso
   }
   
   // Final fallback based on theme

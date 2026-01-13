@@ -50,7 +50,6 @@ export function useSubscriptionLimits(limitType: SubscriptionLimitType) {
       const data = await response.json()
       setLimitCheck(data)
     } catch (error) {
-      console.error('Error checking limit:', error)
       // Em caso de erro, permitir ação (fail-open para não bloquear usuários)
       setLimitCheck({
         canPerform: true,

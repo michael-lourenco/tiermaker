@@ -70,7 +70,6 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
 
       router.push(`/tier-lists/${tierList.id}`)
     } catch (error) {
-      console.error('Failed to save tier list:', error)
       alert(`Failed to save tier list: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setSaving(false)

@@ -33,7 +33,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       // Force page refresh to update server components
       window.location.reload()
     } catch (error) {
-      console.error('Failed to update language:', error)
+      // Erro ao atualizar idioma - silencioso
     }
   }
 

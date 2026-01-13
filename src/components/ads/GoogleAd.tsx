@@ -43,7 +43,7 @@ export function GoogleAd({ adSpace, className }: GoogleAdProps) {
           setTimeout(checkAndLoad, 100)
         }
       } catch (error) {
-        console.error('Error loading Google Ad:', error)
+        // Erro ao carregar Google Ad - silencioso
       }
     }
 

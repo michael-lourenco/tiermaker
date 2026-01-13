@@ -50,7 +50,6 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       const statusData = await response.json()
       setData(statusData)
     } catch (error) {
-      console.error('Error loading subscription status:', error)
       // Em caso de erro, assumir plano básico
       setData({
         subscription: null,

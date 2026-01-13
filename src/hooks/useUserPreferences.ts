@@ -92,7 +92,6 @@ export function useUserPreferences() {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore))
         }
       } catch (error) {
-        console.error('Error loading user preferences:', error)
         // Set default preferences on error
         const defaultPrefs: UserPreferences = {
           user_id: user.id,
@@ -148,7 +147,6 @@ export function useUserPreferences() {
       
       return updated
     } catch (error) {
-      console.error('Error updating preferences:', error)
       throw error
     } finally {
       setUpdating(false)

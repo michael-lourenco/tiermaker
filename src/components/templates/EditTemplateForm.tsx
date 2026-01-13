@@ -126,7 +126,6 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
         const cats = await categoryService.getAllCategories()
         setCategories(cats)
       } catch (err) {
-        console.error('Error loading categories:', err)
         setError('Failed to load categories.')
         setCategories([])
       } finally {
@@ -269,7 +268,6 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
       router.push(`/templates/${template.id}`)
       router.refresh()
     } catch (err: any) {
-      console.error('Error updating template:', err)
       setError(err.message || 'Failed to update template. Please try again.')
       setUploading(false)
     }

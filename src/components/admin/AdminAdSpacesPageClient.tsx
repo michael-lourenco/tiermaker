@@ -46,7 +46,6 @@ export function AdminAdSpacesPageClient({ adSpaces: initialAdSpaces }: AdminAdSp
       setAdSpaces(adSpaces.filter(a => a.id !== id))
       router.refresh()
     } catch (error) {
-      console.error('Error deleting ad space:', error)
       alert('Erro ao excluir espaço. Por favor, tente novamente.')
     } finally {
       setDeleting(null)
@@ -60,7 +59,6 @@ export function AdminAdSpacesPageClient({ adSpaces: initialAdSpaces }: AdminAdSp
       setAdSpaces(adSpaces.map(a => a.id === id ? updated : a))
       router.refresh()
     } catch (error) {
-      console.error('Error toggling ad space:', error)
       alert('Erro ao alterar status. Por favor, tente novamente.')
     } finally {
       setToggling(null)
@@ -129,7 +127,6 @@ export function AdminAdSpacesPageClient({ adSpaces: initialAdSpaces }: AdminAdSp
       setIsDialogOpen(false)
       router.refresh()
     } catch (error) {
-      console.error('Error saving ad space:', error)
       throw error
     }
   }

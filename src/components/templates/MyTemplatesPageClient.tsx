@@ -76,7 +76,6 @@ export function MyTemplatesPageClient({ templates: initialTemplates }: MyTemplat
       setTemplateToDelete(null)
       router.refresh()
     } catch (error: any) {
-      console.error('Error deleting template:', error)
       setDeleteError(error.message || t('templates.deleteError') || 'Error deleting template. Please try again.')
     } finally {
       setDeleting(null)
@@ -108,7 +107,6 @@ export function MyTemplatesPageClient({ templates: initialTemplates }: MyTemplat
       
       router.refresh()
     } catch (error: any) {
-      console.error('Error restoring template:', error)
       setRestoreError(error.message || t('templates.restoreError') || 'Error restoring template. Please try again.')
     } finally {
       setRestoring(null)

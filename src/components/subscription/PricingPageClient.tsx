@@ -64,7 +64,6 @@ export function PricingPageClient() {
         window.location.href = url
       }
     } catch (error: any) {
-      console.error('Error creating checkout:', error)
       alert(error.message || 'Erro ao criar sessão de checkout')
       setLoading(null)
     }

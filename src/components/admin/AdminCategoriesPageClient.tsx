@@ -44,7 +44,6 @@ export function AdminCategoriesPageClient({ categories: initialCategories }: Adm
       setCategories(categories.filter(c => c.id !== id))
       router.refresh()
     } catch (error) {
-      console.error('Error deleting category:', error)
       alert('Erro ao excluir categoria. Por favor, tente novamente.')
     } finally {
       setDeleting(null)
@@ -68,7 +67,6 @@ export function AdminCategoriesPageClient({ categories: initialCategories }: Adm
         try {
           imageUrl = await imageService.uploadImage(data.image)
         } catch (uploadError) {
-          console.error('Error uploading image:', uploadError)
           throw new Error('Erro ao fazer upload da imagem. Por favor, tente novamente.')
         }
       } else if (editingCategory?.image_url) {
@@ -108,7 +106,6 @@ export function AdminCategoriesPageClient({ categories: initialCategories }: Adm
       setEditingCategory(null)
       router.refresh()
     } catch (error) {
-      console.error('Error saving category:', error)
       const errorMessage = error instanceof Error 
         ? error.message 
         : 'Erro ao salvar categoria. Por favor, tente novamente.'

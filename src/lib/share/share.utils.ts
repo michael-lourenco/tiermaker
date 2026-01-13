@@ -114,7 +114,6 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       }
     }
   } catch (error) {
-    console.error('Failed to copy to clipboard:', error)
     return false
   }
 }
@@ -143,8 +142,8 @@ export async function webShare(data: ShareData): Promise<boolean> {
     return true
   } catch (error) {
     // User cancelled or error occurred
-    if ((error as Error).name !== 'AbortError') {
-      console.error('Error sharing:', error)
+    if ((error as Error).name === 'AbortError') {
+      return false
     }
     return false
   }

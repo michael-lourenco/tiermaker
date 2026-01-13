@@ -41,7 +41,7 @@ export function ShareButton({
       // Image downloaded successfully
     },
     onError: (error) => {
-      console.error('Error generating image:', error)
+      // Erro ao gerar imagem - silencioso
     },
   })
 

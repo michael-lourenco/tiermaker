@@ -106,7 +106,6 @@ export function extractS3KeyFromUrl(url: string): string | null {
     // Remove leading slash
     return pathname.startsWith('/') ? pathname.substring(1) : pathname
   } catch (error) {
-    console.error('Error extracting S3 key from URL:', error)
     return null
   }
 }

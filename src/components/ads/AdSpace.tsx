@@ -47,7 +47,6 @@ export function AdSpace({ position, className, wrapperClassName }: AdSpaceProps)
         const space = await service.getAdSpaceByPosition(position, deviceTypeForQuery)
         setAdSpace(space)
       } catch (error) {
-        console.error('Error loading ad space:', error)
         setAdSpace(null)
       } finally {
         setLoading(false)

@@ -156,7 +156,6 @@ export function TierListEditor({
   // Função helper para preparar dados e notificar mudanças (declarada antes de ser usada)
   const notifyChange = useCallback(() => {
     if (!onChange) {
-      console.warn('notifyChange: onChange não disponível')
       return
     }
 
@@ -174,13 +173,6 @@ export function TierListEditor({
       tier_name: item.tier_name,
       order: item.order,
     }))
-
-    console.log('notifyChange chamado:', {
-      tiersCount: tierData.length,
-      itemsCount: itemData.length,
-      items: itemData,
-      itemsMapSize: items.size,
-    })
 
     onChange({
       tiers: tierData,
@@ -569,7 +561,6 @@ export function TierListEditor({
     setTiers((prevTiers) => {
       const tier = prevTiers.find((t) => t.id === tierId)
       if (!tier) {
-        console.warn('[TIER] handleTierNameChange: tier não encontrado', { tierId, availableTiers: prevTiers.map(t => t.id) })
         return prevTiers
       }
 
@@ -577,19 +568,12 @@ export function TierListEditor({
       
       // Don't update if name hasn't changed
       if (oldName === newName) {
-        console.log('[TIER] handleTierNameChange: nome não mudou, ignorando', { tierId, name: oldName })
         return prevTiers
       }
-
-      console.log('[TIER] Atualizando nome da tier', { tierId, oldName, newName, totalTiers: prevTiers.length })
 
       const updatedTiers = prevTiers.map((t) =>
         t.id === tierId ? { ...t, tier_name: newName } : t
       )
-      console.log('[TIER] Tiers atualizados', { 
-        before: prevTiers.map(t => ({ id: t.id, name: t.tier_name })),
-        after: updatedTiers.map(t => ({ id: t.id, name: t.tier_name }))
-      })
 
       // Atualizar items com base no oldName e newName
       setItems((prevItems) => {
@@ -604,7 +588,6 @@ export function TierListEditor({
             itemsUpdated++
           }
         })
-        console.log('[TIER] Items atualizados para nova tier_name', { itemsUpdated, oldName, newName })
 
         // Notificar mudança após alteração de nome (usar valores calculados)
         if (onChange) {
@@ -620,11 +603,6 @@ export function TierListEditor({
             tier_name: item.tier_name,
             order: item.order,
           }))
-
-          console.log('[TIER] Notificando onChange após alteração de nome', {
-            tiersCount: tierData.length,
-            itemsCount: itemData.length,
-          })
           
           onChange({
             tiers: tierData,
@@ -642,15 +620,9 @@ export function TierListEditor({
   const handleTierColorChange = useCallback((tierId: string, newColor: string) => {
     // Usar forma funcional do setState para garantir estado mais recente
     setTiers((prevTiers) => {
-      console.log('[COLOR] handleTierColorChange chamado', { tierId, newColor, totalTiers: prevTiers.length })
-      
       const updatedTiers = prevTiers.map((tier) =>
         tier.id === tierId ? { ...tier, color: newColor } : tier
       )
-      console.log('[COLOR] Tiers atualizados', {
-        before: prevTiers.map(t => ({ id: t.id, name: t.tier_name, color: t.color })),
-        after: updatedTiers.map(t => ({ id: t.id, name: t.tier_name, color: t.color }))
-      })
 
       // Notificar mudança após alteração de cor (usar valores calculados)
       if (onChange) {
@@ -667,11 +639,6 @@ export function TierListEditor({
             tier_name: item.tier_name,
             order: item.order,
           }))
-
-          console.log('[COLOR] Notificando onChange após alteração de cor', {
-            tiersCount: tierData.length,
-            itemsCount: itemData.length,
-          })
           
           onChange({
             tiers: tierData,
@@ -691,21 +658,14 @@ export function TierListEditor({
     setTiers((prevTiers) => {
       const tier = prevTiers.find((t) => t.id === tierId)
       if (!tier) {
-        console.warn('[DELETE] handleTierDelete: tier não encontrado', { tierId, availableTiers: prevTiers.map(t => t.id) })
         return prevTiers
       }
-
-      console.log('[DELETE] Removendo tier', { tierId, tierName: tier.tier_name, totalTiersBefore: prevTiers.length })
 
       const filteredTiers = prevTiers.filter((t) => t.id !== tierId)
       const reorderedTiers = filteredTiers.map((tier, index) => ({
         ...tier,
         tier_order: index,
       }))
-      console.log('[DELETE] Tiers após remoção', {
-        before: prevTiers.map(t => ({ id: t.id, name: t.tier_name, order: t.tier_order })),
-        after: reorderedTiers.map(t => ({ id: t.id, name: t.tier_name, order: t.tier_order }))
-      })
 
       // Atualizar items com base no tierName removido
       setItems((prevItems) => {
@@ -723,7 +683,6 @@ export function TierListEditor({
             itemsMoved++
           }
         })
-        console.log('[DELETE] Items movidos para unassigned', { itemsMoved, tierName: tier.tier_name })
 
         // Notificar mudança após remoção de tier (usar valores calculados)
         if (onChange) {
@@ -739,11 +698,6 @@ export function TierListEditor({
             tier_name: item.tier_name,
             order: item.order,
           }))
-
-          console.log('[DELETE] Notificando onChange após remoção de tier', {
-            tiersCount: tierData.length,
-            itemsCount: itemData.length,
-          })
           
           onChange({
             tiers: tierData,
@@ -769,13 +723,8 @@ export function TierListEditor({
         color: '#6B7280',
         created_at: '',
       }
-      console.log('[ADD] handleAddTier chamado', { newTierId: newTier.id, newTierName: newTier.tier_name, totalTiersBefore: prevTiers.length })
       
       const updatedTiers = [...prevTiers, newTier]
-      console.log('[ADD] Tiers após adição', {
-        before: prevTiers.map(t => ({ id: t.id, name: t.tier_name, order: t.tier_order })),
-        after: updatedTiers.map(t => ({ id: t.id, name: t.tier_name, order: t.tier_order }))
-      })
 
       // Notificar mudança após adicionar tier (usar valores calculados)
       if (onChange) {
@@ -792,11 +741,6 @@ export function TierListEditor({
             tier_name: item.tier_name,
             order: item.order,
           }))
-
-          console.log('[ADD] Notificando onChange após adição de tier', {
-            tiersCount: tierData.length,
-            itemsCount: itemData.length,
-          })
           
           onChange({
             tiers: tierData,

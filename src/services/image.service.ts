@@ -31,6 +31,21 @@ export class ImageService {
   }
 
   /**
+   * Delete an object previously uploaded by the current user (uploads/{userId}/...).
+   */
+  async deleteUploadedImage(url: string): Promise<void> {
+    const response = await fetch('/api/upload/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error(err.error || 'Failed to delete upload')
+    }
+  }
+
+  /**
    * Validate image file
    */
   validateImageFile(file: File): { valid: boolean; error?: string } {

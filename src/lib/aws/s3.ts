@@ -1,4 +1,10 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+  CopyObjectCommand,
+} from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 const AWS_REGION = process.env.AWS_REGION || 'us-east-1'
@@ -51,6 +57,33 @@ export async function uploadFile({ key, body, contentType }: UploadFileParams): 
   await s3Client.send(command)
 
   return `${getBucketUrl()}/${key}`
+}
+
+/**
+ * Public URL for an object key in the configured bucket
+ */
+export function publicUrlForS3Key(key: string): string {
+  const base = getBucketUrl().replace(/\/$/, '')
+  return `${base}/${key.replace(/^\//, '')}`
+}
+
+/**
+ * Server-side copy within the same bucket (e.g. clone template images)
+ */
+export async function copyS3Object(sourceKey: string, destKey: string): Promise<void> {
+  const encodedKey = sourceKey
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
+  const copySource = `${BUCKET_NAME}/${encodedKey}`
+
+  await s3Client.send(
+    new CopyObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: destKey,
+      CopySource: copySource,
+    })
+  )
 }
 
 /**

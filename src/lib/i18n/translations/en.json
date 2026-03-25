@@ -81,7 +81,9 @@
     "restoreTemplateTooltip": "Restore this template",
     "viewTemplateTooltip": "View this template",
     "editTemplateTooltip": "Edit this template",
-    "deleteTemplateTooltip": "Delete this template"
+    "deleteTemplateTooltip": "Delete this template",
+    "cloneTemplate": "Clone",
+    "cloneTemplateTooltip": "Create a new template from this one (images are copied when you save)"
   },
   "categories": {
     "title": "Categories",
@@ -93,7 +95,8 @@
   "template": {
     "backToTemplates": "← Back to Templates",
     "createTierList": "Create Tier List with this Template",
-    "category": "Category"
+    "category": "Category",
+    "cloneTemplate": "Clone template"
   },
   "editor": {
     "tierListTitle": "Tier List Title",
@@ -163,7 +166,23 @@
     "dragAndDrop": "or drag and drop",
     "fileTypes": "PNG, JPG, GIF, WEBP up to 5MB",
     "creatingTemplate": "Creating Template...",
-    "createTemplate": "Create Template"
+    "createTemplate": "Create Template",
+    "clonePageSubtitle": "You are creating from another template. Adjust the details and save; inherited images are copied in S3 only when you confirm.",
+    "cloneModeTitle": "New template (based on another)",
+    "cloneModeSubtitle": "Items from the source template appear in the list. Removing an inherited item only removes it from the list (the original template is untouched). New images you upload can be removed from your storage. When you save, inherited images still in the list are duplicated in S3 for your template.",
+    "cloneNameSuffix": " (copy)",
+    "cloneLoadError": "Could not load the template. Check the ID or your access (public or your own).",
+    "cloneByIdLabel": "Base on existing template (ID)",
+    "cloneByIdPlaceholder": "Template UUID",
+    "cloneByIdButton": "Load",
+    "saveClonedTemplate": "Save template",
+    "savingClonedTemplate": "Saving...",
+    "cloneItemsHint": "Original template images: removing them only removes from the list (not the original file). Images you add now are uploaded to your folder and can be deleted from S3 if you remove them.",
+    "cloneLoading": "Loading source template...",
+    "cloneBasedOn": "Source: {name}",
+    "cloneInvalidNewItem": "Some new items have not finished uploading. Wait or remove them.",
+    "cloneInvalidCover": "New cover has not finished uploading. Wait or remove the cover.",
+    "cloneUploadingNewItems": "Uploading images to your storage..."
   },
   "myTierLists": {
     "title": "My Tier Lists",

@@ -55,4 +55,23 @@ export interface TemplateWithTiers extends TemplateWithItems {
   tiers?: TemplateTier[]
 }
 
+/** Payload item for POST /api/templates/clone */
+export interface CloneTemplateItemPayload {
+  name: string
+  order: number
+  source: 'cloned' | 'new'
+  image_url: string
+}
+
+export interface CloneTemplateRequestBody {
+  source_template_id: string
+  name: string
+  description?: string
+  category_id: string
+  is_public?: boolean
+  cover_image: null | { source: 'cloned' | 'new'; image_url: string }
+  items: CloneTemplateItemPayload[]
+  tiers?: Array<{ tier_name: string; tier_order: number; color: string | null }>
+}
+
 

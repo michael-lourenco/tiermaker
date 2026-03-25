@@ -81,7 +81,9 @@
     "restoreTemplateTooltip": "Restaurar este template",
     "viewTemplateTooltip": "Visualizar este template",
     "editTemplateTooltip": "Editar este template",
-    "deleteTemplateTooltip": "Excluir este template"
+    "deleteTemplateTooltip": "Excluir este template",
+    "cloneTemplate": "Clonar",
+    "cloneTemplateTooltip": "Criar um novo template a partir deste (cópia das imagens ao salvar)"
   },
   "categories": {
     "title": "Categorias",
@@ -93,7 +95,8 @@
   "template": {
     "backToTemplates": "← Voltar para Templates",
     "createTierList": "Criar Tier List com este Template",
-    "category": "Categoria"
+    "category": "Categoria",
+    "cloneTemplate": "Clonar template"
   },
   "editor": {
     "tierListTitle": "Título da Tier List",
@@ -163,7 +166,23 @@
     "dragAndDrop": "ou arraste e solte",
     "fileTypes": "PNG, JPG, GIF, WEBP até 5MB",
     "creatingTemplate": "Criando Template...",
-    "createTemplate": "Criar Template"
+    "createTemplate": "Criar Template",
+    "clonePageSubtitle": "Você está criando a partir de outro template. Ajuste os dados e salve; as imagens herdadas serão copiadas no S3 só ao confirmar.",
+    "cloneModeTitle": "Novo template (baseado em outro)",
+    "cloneModeSubtitle": "Itens do template original aparecem na lista. Remover um item herdado não apaga o arquivo do template original. Novas imagens enviadas podem ser removidas do seu armazenamento. Ao salvar, as imagens herdadas que permanecerem na lista serão duplicadas no S3 para o seu template.",
+    "cloneNameSuffix": " (cópia)",
+    "cloneLoadError": "Não foi possível carregar o template. Verifique o ID ou se você tem acesso (público ou seu próprio).",
+    "cloneByIdLabel": "Basear em template existente (ID)",
+    "cloneByIdPlaceholder": "UUID do template",
+    "cloneByIdButton": "Carregar",
+    "saveClonedTemplate": "Salvar template",
+    "savingClonedTemplate": "Salvando...",
+    "cloneItemsHint": "Imagens do template original: removê-las só tira da lista (não apaga o original). Imagens que você adicionar agora são enviadas já para a sua pasta e podem ser apagadas do S3 se você as remover.",
+    "cloneLoading": "Carregando template de origem...",
+    "cloneBasedOn": "Origem: {name}",
+    "cloneInvalidNewItem": "Há itens novos ainda sem upload concluído. Aguarde ou remova-os.",
+    "cloneInvalidCover": "Capa nova ainda não foi enviada. Aguarde ou remova a capa.",
+    "cloneUploadingNewItems": "Enviando imagens para o seu armazenamento..."
   },
   "myTierLists": {
     "title": "Minhas Tier Lists",

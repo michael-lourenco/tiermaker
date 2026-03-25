@@ -4,7 +4,11 @@ import { CreateTemplateForm } from '@/components/templates/CreateTemplateForm'
 import { useTranslation } from '@/hooks/useTranslation'
 import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
 
-export function CreateTemplatePageClient() {
+interface CreateTemplatePageClientProps {
+  cloneFromId?: string
+}
+
+export function CreateTemplatePageClient({ cloneFromId }: CreateTemplatePageClientProps) {
   const { t } = useTranslation()
 
   return (
@@ -13,10 +17,12 @@ export function CreateTemplatePageClient() {
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{t('nav.createTemplate')}</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            {t('createTemplate.subtitle')}
+            {cloneFromId?.trim()
+              ? t('createTemplate.clonePageSubtitle')
+              : t('createTemplate.subtitle')}
           </p>
         </div>
-        <CreateTemplateForm />
+        <CreateTemplateForm initialCloneFromId={cloneFromId} />
       </PageWithSidebar>
     </main>
   )

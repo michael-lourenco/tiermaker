@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    // Em desenvolvimento, o otimizador do Next faz fetch das URLs remotas no processo Node.
+    // No WSL2 o DNS costuma falhar para *.amazonaws.com (ENOTFOUND) mesmo com o browser OK.
+    // `unoptimized` faz o <Image> usar a URL direta no cliente, evitando esse fetch no servidor.
+    // Para forçar otimização em dev: NEXT_IMAGE_UNOPTIMIZED=0
+    unoptimized:
+      process.env.NODE_ENV === 'development' &&
+      process.env.NEXT_IMAGE_UNOPTIMIZED !== '0',
     remotePatterns: [
       {
         protocol: 'https',

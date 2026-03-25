@@ -19,7 +19,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useTranslation } from '@/hooks/useTranslation'
-import { Pencil, Trash2, Eye, Archive, ArchiveRestore } from 'lucide-react'
+import { Pencil, Trash2, Eye, Archive, ArchiveRestore, Copy } from 'lucide-react'
 import type { Template, TemplateWithCategories } from '@/types/template.types'
 import { useState } from 'react'
 import { TemplateService } from '@/services/template.service'
@@ -328,12 +328,12 @@ function TemplateCard({ template, onDelete, onRestore, deleting, restoring, t }:
       )}
 
       {/* Action Buttons */}
-      <CardFooter className="flex gap-2 p-4 bg-background">
+      <CardFooter className="flex flex-wrap gap-2 p-4 bg-background">
         {!isArchived ? (
           <>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link href={`/templates/${template.id}`} className="flex-1">
+                <Link href={`/templates/${template.id}`} className="flex-1 min-w-[120px]">
                   <Button variant="outline" className="w-full" size="sm">
                     <Eye className="h-4 w-4 mr-2" />
                     {t('common.view') || 'View'}
@@ -356,6 +356,20 @@ function TemplateCard({ template, onDelete, onRestore, deleting, restoring, t }:
               </TooltipTrigger>
               <TooltipContent>
                 <p>{t('templates.editTemplateTooltip') || 'Edit this template'}</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href={`/create-template?from=${template.id}`} className="flex-1">
+                  <Button variant="secondary" className="w-full" size="sm">
+                    <Copy className="h-4 w-4 mr-2" />
+                    {t('templates.cloneTemplate')}
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('templates.cloneTemplateTooltip')}</p>
               </TooltipContent>
             </Tooltip>
 

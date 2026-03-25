@@ -79,6 +79,8 @@ export interface Translations {
     viewTemplateTooltip: string
     editTemplateTooltip: string
     deleteTemplateTooltip: string
+    cloneTemplate: string
+    cloneTemplateTooltip: string
   }
   categories: {
     title: string
@@ -91,6 +93,7 @@ export interface Translations {
     backToTemplates: string
     createTierList: string
     category: string
+    cloneTemplate: string
   }
   editor: {
     tierListTitle: string
@@ -161,6 +164,22 @@ export interface Translations {
     fileTypes: string
     creatingTemplate: string
     createTemplate: string
+    clonePageSubtitle: string
+    cloneModeTitle: string
+    cloneModeSubtitle: string
+    cloneNameSuffix: string
+    cloneLoadError: string
+    cloneByIdLabel: string
+    cloneByIdPlaceholder: string
+    cloneByIdButton: string
+    saveClonedTemplate: string
+    savingClonedTemplate: string
+    cloneItemsHint: string
+    cloneLoading: string
+    cloneBasedOn: string
+    cloneInvalidNewItem: string
+    cloneInvalidCover: string
+    cloneUploadingNewItems: string
   }
   myTierLists: {
     title: string

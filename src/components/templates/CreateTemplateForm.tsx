@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,17 +30,43 @@ const templateSchema = z.object({
 
 type TemplateFormData = z.infer<typeof templateSchema>
 
-interface TemplateItem {
-  id: string
-  name: string
-  file: File
-  preview: string
-  imageUrl?: string
+/** Criação normal: ficheiro local; clone: imagem do template; clone: novo upload já no S3 */
+type TemplateFormItem =
+  | {
+      id: string
+      name: string
+      kind: 'file'
+      file: File
+      preview: string
+    }
+  | {
+      id: string
+      name: string
+      kind: 'cloned'
+      imageUrl: string
+      preview: string
+    }
+  | {
+      id: string
+      name: string
+      kind: 'uploadedNew'
+      preview: string
+      uploadedUrl: string
+    }
+
+type CoverForm =
+  | null
+  | { kind: 'file'; file: File; preview: string }
+  | { kind: 'cloned'; imageUrl: string; preview: string }
+  | { kind: 'uploadedNew'; preview: string; uploadedUrl: string }
+
+export interface CreateTemplateFormProps {
+  initialCloneFromId?: string
 }
 
-export function CreateTemplateForm() {
-  const [items, setItems] = useState<TemplateItem[]>([])
-  const [coverImage, setCoverImage] = useState<{ file: File; preview: string; imageUrl?: string } | null>(null)
+export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormProps) {
+  const [items, setItems] = useState<TemplateFormItem[]>([])
+  const [cover, setCover] = useState<CoverForm>(null)
   const [tiers, setTiers] = useState<TemplateTier[]>(
     DEFAULT_TIERS.map((name, index) => ({
       id: `tier-${name}-${Date.now()}-${index}`,
@@ -49,10 +76,16 @@ export function CreateTemplateForm() {
     }))
   )
   const [uploading, setUploading] = useState(false)
+  const [addingItemBusy, setAddingItemBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
   const [showLimitModal, setShowLimitModal] = useState(false)
+  const [cloneSourceId, setCloneSourceId] = useState<string | null>(null)
+  const [cloneSourceName, setCloneSourceName] = useState<string | null>(null)
+  const [cloneLoading, setCloneLoading] = useState(false)
+  const [cloneLoadError, setCloneLoadError] = useState<string | null>(null)
+  const [cloneIdInput, setCloneIdInput] = useState(initialCloneFromId?.trim() || '')
   const { user } = useAuth()
   const { t } = useTranslation()
   const router = useRouter()
@@ -60,15 +93,19 @@ export function CreateTemplateForm() {
   const categoryService = new CategoryService()
   const { canPerform, hasReached, limit, loading: limitsLoading } = useSubscriptionLimits('templates_count')
 
-  // Load categories from database
+  const isCloneMode = Boolean(cloneSourceId)
+
+  useEffect(() => {
+    setCloneIdInput(initialCloneFromId?.trim() || '')
+  }, [initialCloneFromId])
+
   useEffect(() => {
     const loadCategories = async () => {
       try {
         const cats = await categoryService.getAllCategories()
         setCategories(cats)
-      } catch (err) {
+      } catch {
         setError('Failed to load categories. Using default list.')
-        // Fallback to default categories if table doesn't exist
         setCategories([])
       } finally {
         setLoadingCategories(false)
@@ -81,13 +118,139 @@ export function CreateTemplateForm() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
+    reset,
   } = useForm<TemplateFormData>({
     resolver: zodResolver(templateSchema),
     defaultValues: {
       is_public: true,
     },
   })
+
+  const mapTiersFromTemplate = useCallback(
+    (sourceTiers: { tier_name: string; tier_order: number; color: string | null }[] | undefined) => {
+      const base =
+        sourceTiers && sourceTiers.length > 0
+          ? [...sourceTiers].sort((a, b) => a.tier_order - b.tier_order)
+          : DEFAULT_TIERS.map((name, index) => ({
+              tier_name: name,
+              tier_order: index,
+              color: TIER_COLORS[name] || null,
+            }))
+      return base.map((tier, index) => ({
+        id: `tier-${uuidv4()}-${index}`,
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
+    },
+    []
+  )
+
+  useEffect(() => {
+    if (initialCloneFromId?.trim()) return
+    setCloneSourceId(null)
+    setCloneSourceName(null)
+    setCloneLoadError(null)
+    setCloneLoading(false)
+    setItems([])
+    setCover(null)
+    setTiers(
+      DEFAULT_TIERS.map((name, index) => ({
+        id: `tier-${name}-${Date.now()}-${index}`,
+        tier_name: name,
+        tier_order: index,
+        color: TIER_COLORS[name] || null,
+      }))
+    )
+    reset({
+      name: '',
+      description: '',
+      category_id: '',
+      is_public: true,
+    })
+  }, [initialCloneFromId, reset])
+
+  // Carrega o template original só quando `from` na URL muda. Não incluir `t` (useTranslation) nas
+  // deps: antes era uma nova função a cada render e re-disparava o efeito, revertendo o formulário.
+  useEffect(() => {
+    if (!initialCloneFromId?.trim()) return
+
+    let cancelled = false
+    const id = initialCloneFromId.trim()
+
+    const load = async () => {
+      setCloneLoading(true)
+      setCloneLoadError(null)
+      try {
+        const svc = new TemplateService()
+        const tpl = await svc.getTemplateById(id, false)
+        if (cancelled) return
+        if (!tpl) {
+          setCloneLoadError(t('createTemplate.cloneLoadError'))
+          setCloneSourceId(null)
+          setCloneSourceName(null)
+          return
+        }
+
+        setCloneSourceId(id)
+        setCloneSourceName(tpl.name)
+
+        reset({
+          name: `${tpl.name}${t('createTemplate.cloneNameSuffix')}`,
+          description: tpl.description || '',
+          category_id: tpl.categories?.[0]?.id || '',
+          is_public: tpl.is_public,
+        })
+
+        setItems(
+          [...tpl.items]
+            .sort((a, b) => a.order - b.order)
+            .map((it) => ({
+              id: uuidv4(),
+              name: it.name,
+              kind: 'cloned' as const,
+              imageUrl: it.image_url,
+              preview: it.image_url,
+            }))
+        )
+
+        if (tpl.cover_image_url) {
+          setCover({
+            kind: 'cloned',
+            imageUrl: tpl.cover_image_url,
+            preview: tpl.cover_image_url,
+          })
+        } else {
+          setCover(null)
+        }
+
+        setTiers(mapTiersFromTemplate(tpl.tiers))
+      } catch {
+        if (!cancelled) {
+          setCloneLoadError(t('createTemplate.cloneLoadError'))
+          setCloneSourceId(null)
+          setCloneSourceName(null)
+        }
+      } finally {
+        if (!cancelled) setCloneLoading(false)
+      }
+    }
+
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [initialCloneFromId]) // eslint-disable-line react-hooks/exhaustive-deps -- só quando `from` muda
+
+  const deleteCoverUploadIfNeeded = async (c: CoverForm) => {
+    if (c?.kind === 'uploadedNew' && c.uploadedUrl) {
+      try {
+        await imageService.deleteUploadedImage(c.uploadedUrl)
+      } catch {
+        /* best-effort */
+      }
+    }
+  }
 
   const handleCoverImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -100,21 +263,36 @@ export function CreateTemplateForm() {
     }
 
     try {
-      const preview = await imageService.createPreviewUrl(file)
-      setCoverImage({ file, preview })
+      if (isCloneMode) {
+        setUploading(true)
+        await deleteCoverUploadIfNeeded(cover)
+        const uploadedUrl = await imageService.uploadImage(file)
+        setCover({
+          kind: 'uploadedNew',
+          preview: uploadedUrl,
+          uploadedUrl,
+        })
+      } else {
+        const preview = await imageService.createPreviewUrl(file)
+        setCover({ kind: 'file', file, preview })
+      }
       setError(null)
-    } catch (err) {
+    } catch {
       setError('Failed to process cover image')
+    } finally {
+      setUploading(false)
     }
+    e.target.value = ''
   }
 
-  const removeCoverImage = () => {
-    setCoverImage(null)
+  const removeCoverImage = async () => {
+    await deleteCoverUploadIfNeeded(cover)
+    setCover(null)
   }
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    
+
     for (const file of files) {
       const validation = imageService.validateImageFile(file)
       if (!validation.valid) {
@@ -123,28 +301,58 @@ export function CreateTemplateForm() {
       }
 
       try {
-        const preview = await imageService.createPreviewUrl(file)
-        const item: TemplateItem = {
-          id: Math.random().toString(36).substring(7),
-          name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
-          file,
-          preview,
+        if (isCloneMode) {
+          setAddingItemBusy(true)
+          const uploadedUrl = await imageService.uploadImage(file)
+          setItems((prev) => [
+            ...prev,
+            {
+              id: uuidv4(),
+              name: file.name.replace(/\.[^/.]+$/, ''),
+              kind: 'uploadedNew',
+              preview: uploadedUrl,
+              uploadedUrl,
+            },
+          ])
+        } else {
+          const preview = await imageService.createPreviewUrl(file)
+          setItems((prev) => [
+            ...prev,
+            {
+              id: uuidv4(),
+              name: file.name.replace(/\.[^/.]+$/, ''),
+              kind: 'file',
+              file,
+              preview,
+            },
+          ])
         }
-        setItems((prev) => [...prev, item])
-      } catch (err) {
+        setError(null)
+      } catch {
         setError('Failed to process image')
+      } finally {
+        setAddingItemBusy(false)
       }
     }
+    e.target.value = ''
   }
 
   const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id))
+    const item = items.find((i) => i.id === id)
+    if (item?.kind === 'uploadedNew') {
+      void imageService.deleteUploadedImage(item.uploadedUrl).catch(() => {})
+    }
+    setItems((prev) => prev.filter((i) => i.id !== id))
   }
 
   const updateItemName = (id: string, name: string) => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, name } : item))
-    )
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, name } : item)))
+  }
+
+  const applyCloneById = () => {
+    const id = cloneIdInput.trim()
+    if (!id) return
+    router.push(`/create-template?from=${encodeURIComponent(id)}`)
   }
 
   const onSubmit = async (data: TemplateFormData) => {
@@ -158,25 +366,109 @@ export function CreateTemplateForm() {
       return
     }
 
-    // Verificar limite antes de criar
     if (!canPerform || hasReached) {
       setShowLimitModal(true)
       return
+    }
+
+    if (isCloneMode) {
+      for (const it of items) {
+        if (it.kind === 'uploadedNew' && !it.uploadedUrl) {
+          setError(t('createTemplate.cloneInvalidNewItem'))
+          return
+        }
+      }
+      if (cover?.kind === 'uploadedNew' && !cover.uploadedUrl) {
+        setError(t('createTemplate.cloneInvalidCover'))
+        return
+      }
     }
 
     setUploading(true)
     setError(null)
 
     try {
-      // Upload cover image if provided
-      let coverImageUrl: string | undefined
-      if (coverImage) {
-        coverImageUrl = await imageService.uploadImage(coverImage.file)
+      const tiersToSend = tiers.map((tier) => ({
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
+
+      const selectedCategory = categories.find((c) => c.id === data.category_id)
+      if (!selectedCategory) {
+        throw new Error('Selected category not found')
       }
 
-      // Upload all images
+      if (isCloneMode && cloneSourceId) {
+        let coverPayload: null | { source: 'cloned' | 'new'; image_url: string } = null
+        if (cover) {
+          if (cover.kind === 'cloned') {
+            coverPayload = { source: 'cloned', image_url: cover.imageUrl }
+          } else if (cover.kind === 'uploadedNew') {
+            coverPayload = { source: 'new', image_url: cover.uploadedUrl }
+          }
+        }
+
+        const cloneItems = items.map((it, index) => {
+          if (it.kind === 'cloned') {
+            return {
+              name: it.name,
+              order: index,
+              source: 'cloned' as const,
+              image_url: it.imageUrl,
+            }
+          }
+          if (it.kind === 'uploadedNew') {
+            return {
+              name: it.name,
+              order: index,
+              source: 'new' as const,
+              image_url: it.uploadedUrl,
+            }
+          }
+          throw new Error(t('createTemplate.cloneInvalidNewItem'))
+        })
+
+        const response = await fetch('/api/templates/clone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source_template_id: cloneSourceId,
+            name: data.name,
+            description: data.description,
+            category_id: data.category_id,
+            is_public: data.is_public,
+            cover_image: coverPayload,
+            items: cloneItems,
+            tiers: tiersToSend.length > 0 ? tiersToSend : undefined,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          if (errorData.limitReached) {
+            setShowLimitModal(true)
+            setUploading(false)
+            return
+          }
+          throw new Error(errorData.error || 'Failed to clone template')
+        }
+
+        const { template } = await response.json()
+        router.push(`/templates/${template.id}`)
+        return
+      }
+
+      let coverImageUrl: string | undefined
+      if (cover?.kind === 'file') {
+        coverImageUrl = await imageService.uploadImage(cover.file)
+      }
+
       const uploadedItems = await Promise.all(
         items.map(async (item, index) => {
+          if (item.kind !== 'file') {
+            throw new Error('Invalid item state')
+          }
           const imageUrl = await imageService.uploadImage(item.file)
           return {
             name: item.name,
@@ -186,25 +478,9 @@ export function CreateTemplateForm() {
         })
       )
 
-      // Get selected category
-      const selectedCategory = categories.find((c) => c.id === data.category_id)
-      if (!selectedCategory) {
-        throw new Error('Selected category not found')
-      }
-
-      // Preparar tiers para envio (remover id temporário)
-      const tiersToSend = tiers.map((tier) => ({
-        tier_name: tier.tier_name,
-        tier_order: tier.tier_order,
-        color: tier.color,
-      }))
-
-      // Criar template via API route (que verifica limite no backend)
       const response = await fetch('/api/templates/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: data.name,
           description: data.description,
@@ -228,38 +504,77 @@ export function CreateTemplateForm() {
 
       const { template } = await response.json()
       router.push(`/templates/${template.id}`)
-    } catch (err: any) {
-      setError(err.message || 'Failed to create template. Please try again.')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create template. Please try again.'
+      setError(message)
+    } finally {
       setUploading(false)
     }
   }
+
+  const submitLabel = isCloneMode
+    ? uploading
+      ? t('createTemplate.savingClonedTemplate')
+      : t('createTemplate.saveClonedTemplate')
+    : uploading
+      ? t('createTemplate.creatingTemplate')
+      : t('createTemplate.createTemplate')
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 px-4 sm:px-6 md:px-0">
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl sm:text-2xl">{t('createTemplate.title')}</CardTitle>
-          <CardDescription className="text-sm">{t('createTemplate.subtitle')}</CardDescription>
+          <CardTitle className="text-xl sm:text-2xl">
+            {isCloneMode ? t('createTemplate.cloneModeTitle') : t('createTemplate.title')}
+          </CardTitle>
+          <CardDescription className="text-sm">
+            {isCloneMode ? t('createTemplate.cloneModeSubtitle') : t('createTemplate.subtitle')}
+          </CardDescription>
+          {isCloneMode && cloneSourceName && (
+            <p className="text-sm text-muted-foreground pt-1">
+              {t('createTemplate.cloneBasedOn', { name: cloneSourceName })}
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Cover Image */}
+          <div className="space-y-2 rounded-lg border border-dashed p-3 sm:p-4">
+            <p className="text-sm font-medium">{t('createTemplate.cloneByIdLabel')}</p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                value={cloneIdInput}
+                onChange={(e) => setCloneIdInput(e.target.value)}
+                placeholder={t('createTemplate.cloneByIdPlaceholder')}
+                className="font-mono text-sm"
+              />
+              <Button type="button" variant="secondary" onClick={applyCloneById} disabled={!cloneIdInput.trim()}>
+                {t('createTemplate.cloneByIdButton')}
+              </Button>
+            </div>
+          </div>
+
+          {cloneLoading && (
+            <p className="text-sm text-muted-foreground">{t('createTemplate.cloneLoading')}</p>
+          )}
+          {cloneLoadError && (
+            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{cloneLoadError}</div>
+          )}
+
           <div className="space-y-2">
-            <label className="text-sm font-medium">
-              {t('createTemplate.coverImage')}
-            </label>
-            {coverImage ? (
-              <div className="relative">
+            <label className="text-sm font-medium">{t('createTemplate.coverImage')}</label>
+            {cover ? (
+              <div className="relative group">
                 <div className="relative w-full h-40 sm:h-48 rounded-lg overflow-hidden border">
                   <Image
-                    src={coverImage.preview}
+                    src={cover.preview}
                     alt="Cover preview"
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover"
+                    unoptimized={cover.kind === 'file'}
                   />
                   <button
                     type="button"
-                    onClick={removeCoverImage}
+                    onClick={() => void removeCoverImage()}
                     className="absolute top-2 right-2 p-1.5 sm:p-1 bg-destructive text-destructive-foreground rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
                   >
                     <X className="h-4 w-4" />
@@ -274,11 +589,10 @@ export function CreateTemplateForm() {
                 <div className="flex flex-col items-center justify-center pt-4 sm:pt-5 pb-4 sm:pb-6 px-4">
                   <Upload className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-muted-foreground" />
                   <p className="mb-2 text-xs sm:text-sm text-muted-foreground text-center">
-                    <span className="font-semibold">{t('createTemplate.clickToUpload')}</span> {t('createTemplate.coverImageDescription')}
+                    <span className="font-semibold">{t('createTemplate.clickToUpload')}</span>{' '}
+                    {t('createTemplate.coverImageDescription')}
                   </p>
-                  <p className="text-xs text-muted-foreground text-center">
-                    {t('createTemplate.fileTypes')}
-                  </p>
+                  <p className="text-xs text-muted-foreground text-center">{t('createTemplate.fileTypes')}</p>
                 </div>
                 <input
                   id="cover-upload"
@@ -286,6 +600,7 @@ export function CreateTemplateForm() {
                   className="hidden"
                   accept="image/*"
                   onChange={handleCoverImageSelect}
+                  disabled={uploading}
                 />
               </label>
             )}
@@ -295,14 +610,8 @@ export function CreateTemplateForm() {
             <label htmlFor="name" className="text-sm font-medium">
               {t('createTemplate.templateName')}
             </label>
-            <Input
-              id="name"
-              {...register('name')}
-              placeholder={t('createTemplate.templateNamePlaceholder')}
-            />
-            {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
-            )}
+            <Input id="name" {...register('name')} placeholder={t('createTemplate.templateNamePlaceholder')} />
+            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -341,19 +650,12 @@ export function CreateTemplateForm() {
               <p className="text-sm text-destructive">{errors.category_id.message}</p>
             )}
             {categories.length === 0 && !loadingCategories && (
-              <p className="text-sm text-muted-foreground">
-                {t('createTemplate.noCategories')}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('createTemplate.noCategories')}</p>
             )}
           </div>
 
           <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="is_public"
-              {...register('is_public')}
-              className="h-4 w-4 rounded border-gray-300"
-            />
+            <input type="checkbox" id="is_public" {...register('is_public')} className="h-4 w-4 rounded border-gray-300" />
             <label htmlFor="is_public" className="text-sm font-medium">
               {t('createTemplate.isPublic')}
             </label>
@@ -378,7 +680,7 @@ export function CreateTemplateForm() {
         <CardHeader>
           <CardTitle>{t('createTemplate.templateItems')}</CardTitle>
           <CardDescription>
-            {t('createTemplate.templateItemsDescription')}
+            {isCloneMode ? t('createTemplate.cloneItemsHint') : t('createTemplate.templateItemsDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -390,11 +692,10 @@ export function CreateTemplateForm() {
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                 <p className="mb-2 text-sm text-muted-foreground">
-                  <span className="font-semibold">{t('createTemplate.clickToUpload')}</span> {t('createTemplate.dragAndDrop')}
+                  <span className="font-semibold">{t('createTemplate.clickToUpload')}</span>{' '}
+                  {t('createTemplate.dragAndDrop')}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {t('createTemplate.fileTypes')}
-                </p>
+                <p className="text-xs text-muted-foreground">{t('createTemplate.fileTypes')}</p>
               </div>
               <input
                 id="file-upload"
@@ -403,8 +704,12 @@ export function CreateTemplateForm() {
                 multiple
                 accept="image/*"
                 onChange={handleFileSelect}
+                disabled={addingItemBusy || uploading}
               />
             </label>
+            {addingItemBusy && (
+              <p className="text-xs text-muted-foreground mt-2">{t('createTemplate.cloneUploadingNewItems')}</p>
+            )}
           </div>
 
           {items.length > 0 && (
@@ -418,6 +723,7 @@ export function CreateTemplateForm() {
                       fill
                       sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1200px) 33vw, 25vw"
                       className="object-cover"
+                      unoptimized={item.kind === 'file'}
                     />
                     <button
                       type="button"
@@ -438,34 +744,23 @@ export function CreateTemplateForm() {
             </div>
           )}
 
-          {error && (
-            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-              {error}
-            </div>
-          )}
+          {error && <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>}
         </CardContent>
       </Card>
 
       <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pb-4 sm:pb-0">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-          disabled={uploading}
-          className="w-full sm:w-auto"
-        >
+        <Button type="button" variant="outline" onClick={() => router.back()} disabled={uploading} className="w-full sm:w-auto">
           {t('common.cancel')}
         </Button>
-        <Button 
-          type="submit" 
-          disabled={uploading || items.length === 0 || limitsLoading || !canPerform} 
+        <Button
+          type="submit"
+          disabled={uploading || items.length === 0 || limitsLoading || !canPerform || cloneLoading}
           className="w-full sm:w-auto"
         >
-          {uploading ? t('createTemplate.creatingTemplate') : t('createTemplate.createTemplate')}
+          {submitLabel}
         </Button>
       </div>
 
-      {/* Modal de Limite Atingido */}
       {limit && (
         <LimitReachedModal
           open={showLimitModal}
@@ -478,4 +773,3 @@ export function CreateTemplateForm() {
     </form>
   )
 }
-

@@ -12,6 +12,8 @@ import { useViewTracking } from '@/hooks/useViewTracking'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
 import { AdSpace } from '@/components/ads/AdSpace'
 import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
+import { useAuth } from '@/hooks/useAuth'
+import { Copy } from 'lucide-react'
 import type { TemplateWithItemsAndCategories } from '@/types/template.types'
 
 interface TemplatePageClientProps {
@@ -20,6 +22,7 @@ interface TemplatePageClientProps {
 
 export function TemplatePageClient({ template }: TemplatePageClientProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const { showItemNames, setShowItemNames, loading: preferencesLoading } = useUserPreferences()
   
   // Track view with 30-minute minimum interval validation
@@ -76,9 +79,21 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
 
         {/* Botões de ação: Criar Tier List e Mostrar Nome */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
-          <Link href={`/editor/${template.id}`} className="w-full sm:w-auto">
-            <Button size="lg" className="w-full sm:w-auto">{t('template.createTierList')}</Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Link href={`/editor/${template.id}`} className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto">
+                {t('template.createTierList')}
+              </Button>
+            </Link>
+            {user && (
+              <Link href={`/create-template?from=${template.id}`} className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
+                  <Copy className="h-4 w-4 shrink-0" />
+                  {t('template.cloneTemplate')}
+                </Button>
+              </Link>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <Label htmlFor="show-item-names-template" className="text-sm cursor-pointer">
               {t('editor.showItemNames')}

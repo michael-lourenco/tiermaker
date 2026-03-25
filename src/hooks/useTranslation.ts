@@ -3,7 +3,7 @@
 import { useLanguage } from './useLanguage'
 import { getTranslations, t } from '@/lib/i18n'
 import type { Translations } from '@/lib/i18n/types'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 export function useTranslation() {
   const { language } = useLanguage()
@@ -13,12 +13,12 @@ export function useTranslation() {
     setTranslations(getTranslations(language))
   }, [language])
 
-  const translate = (
-    path: string,
-    params?: Record<string, string | number>
-  ): string => {
-    return t(translations, path, params)
-  }
+  const translate = useCallback(
+    (path: string, params?: Record<string, string | number>): string => {
+      return t(translations, path, params)
+    },
+    [translations]
+  )
 
   return {
     t: translate,

@@ -4,13 +4,14 @@ import { StripeService } from '@/services/stripe.service'
 import type { DonationInterval } from '@/lib/stripe/prices'
 
 const stripeService = new StripeService()
+const VALID_INTERVALS: DonationInterval[] = ['once', 'month', 'year']
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const interval = body.interval as DonationInterval
 
-    if (interval !== 'month' && interval !== 'year') {
+    if (!VALID_INTERVALS.includes(interval)) {
       return NextResponse.json({ error: 'Invalid interval' }, { status: 400 })
     }
 

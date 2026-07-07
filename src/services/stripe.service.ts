@@ -12,26 +12,27 @@ export class StripeService {
   }) {
     const stripe = getStripeClient()
     const priceId = getDonationPriceId(options.interval)
+    const isOneTime = options.interval === 'once'
+
+    const metadata = {
+      type: 'donation',
+      interval: options.interval,
+      ...(options.userId ? { user_id: options.userId } : {}),
+    }
 
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: isOneTime ? 'payment' : 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: options.successUrl,
       cancel_url: options.cancelUrl,
       customer_email: options.customerEmail,
-      metadata: {
-        type: 'donation',
-        interval: options.interval,
-        ...(options.userId ? { user_id: options.userId } : {}),
-      },
-      subscription_data: {
-        metadata: {
-          type: 'donation',
-          interval: options.interval,
-          ...(options.userId ? { user_id: options.userId } : {}),
-        },
-      },
+      metadata,
+      ...(isOneTime
+        ? {}
+        : {
+            subscription_data: { metadata },
+          }),
     })
 
     if (!session.url) {

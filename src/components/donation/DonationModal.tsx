@@ -7,7 +7,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -75,35 +74,71 @@ export function DonationModal({ open, onOpenChange }: DonationModalProps) {
           <p className="text-sm text-destructive bg-destructive/10 rounded-md p-3">{error}</p>
         )}
 
-        <DialogFooter className="flex-col sm:flex-col gap-2 pt-2">
-          <Button
-            className="w-full"
-            disabled={loading !== null}
-            onClick={() => handleDonate('month')}
-          >
-            {loading === 'month' ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Heart className="h-4 w-4 mr-2" />
-            )}
-            {t('donation.monthly', {
-              price: formatDonationPrice(DONATION_DISPLAY_VALUES.monthly),
-            })}
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={loading !== null}
-            onClick={() => handleDonate('year')}
-          >
-            {loading === 'year' ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : null}
-            {t('donation.yearly', {
-              price: formatDonationPrice(DONATION_DISPLAY_VALUES.yearly),
-            })}
-          </Button>
-        </DialogFooter>
+        <div className="space-y-4 pt-1">
+          {/* Doação avulsa — opção principal */}
+          <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 space-y-3">
+            <div>
+              <p className="text-sm font-semibold">{t('donation.onceTitle')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('donation.onceHint')}</p>
+            </div>
+            <Button
+              size="lg"
+              className="w-full text-base font-semibold"
+              disabled={loading !== null}
+              onClick={() => handleDonate('once')}
+            >
+              {loading === 'once' ? (
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              ) : (
+                <Heart className="h-5 w-5 mr-2 fill-current" />
+              )}
+              {t('donation.once', {
+                price: formatDonationPrice(DONATION_DISPLAY_VALUES.once),
+              })}
+            </Button>
+          </div>
+
+          {/* Apoio recorrente — opções secundárias */}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide text-center">
+              {t('donation.recurringTitle')}
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-auto py-2.5"
+                disabled={loading !== null}
+                onClick={() => handleDonate('month')}
+              >
+                {loading === 'month' ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5 shrink-0" />
+                ) : null}
+                <span className="text-left leading-tight">
+                  {t('donation.monthlyShort', {
+                    price: formatDonationPrice(DONATION_DISPLAY_VALUES.monthly),
+                  })}
+                </span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-auto py-2.5"
+                disabled={loading !== null}
+                onClick={() => handleDonate('year')}
+              >
+                {loading === 'year' ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5 shrink-0" />
+                ) : null}
+                <span className="text-left leading-tight">
+                  {t('donation.yearlyShort', {
+                    price: formatDonationPrice(DONATION_DISPLAY_VALUES.yearly),
+                  })}
+                </span>
+              </Button>
+            </div>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )

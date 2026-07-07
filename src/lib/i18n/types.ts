@@ -362,6 +362,12 @@ export interface Translations {
     title: string
     description: string
     note: string
+    onceTitle: string
+    onceHint: string
+    once: string
+    recurringTitle: string
+    monthlyShort: string
+    yearlyShort: string
     monthly: string
     yearly: string
     checkoutError: string

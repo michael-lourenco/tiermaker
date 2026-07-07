@@ -357,5 +357,14 @@ export interface Translations {
       checkSpam: string
     }
   }
+  donation: {
+    button: string
+    title: string
+    description: string
+    note: string
+    monthly: string
+    yearly: string
+    checkoutError: string
+  }
 }
 

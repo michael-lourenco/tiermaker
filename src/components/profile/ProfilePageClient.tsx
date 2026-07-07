@@ -6,15 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
-import { EnhancedSubscriptionStatus } from '@/components/subscription/EnhancedSubscriptionStatus'
-import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { User, Mail, Calendar } from 'lucide-react'
 
 export function ProfilePageClient() {
   const { t } = useTranslation()
-  const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const { showItemNames, setShowItemNames, loading, updating } = useUserPreferences()
 
@@ -91,9 +87,6 @@ export function ProfilePageClient() {
               )}
             </CardContent>
           </Card>
-
-          {/* Assinatura */}
-          <EnhancedSubscriptionStatus showUpgradeButton={true} />
 
           {/* Preferências */}
           <Card>

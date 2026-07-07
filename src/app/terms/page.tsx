@@ -52,7 +52,6 @@ export default function TermsPage() {
                   <li>Organização de itens em tiers (categorias hierárquicas)</li>
                   <li>Compartilhamento público de tier lists</li>
                   <li>Armazenamento de seus templates e tier lists</li>
-                  <li>Recursos premium com funcionalidades adicionais</li>
                 </ul>
               </section>
 
@@ -114,22 +113,7 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">7. Assinaturas e Pagamentos</h2>
-                <p className="text-muted-foreground mb-3">
-                  O serviço oferece planos de assinatura com recursos adicionais. Ao assinar um plano premium:
-                </p>
-                <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                  <li>Você concorda em pagar as taxas descritas no momento da assinatura</li>
-                  <li>As assinaturas são renovadas automaticamente conforme o período escolhido</li>
-                  <li>Você pode cancelar sua assinatura a qualquer momento</li>
-                  <li>O cancelamento entra em vigor no final do período de cobrança atual</li>
-                  <li>Não oferecemos reembolsos para períodos já pagos</li>
-                  <li>Reservamo-nos o direito de alterar os preços com aviso prévio</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-xl font-semibold mb-3">8. Limitação de Responsabilidade</h2>
+                <h2 className="text-xl font-semibold mb-3">7. Limitação de Responsabilidade</h2>
                 <p className="text-muted-foreground">
                   O serviço é fornecido "como está" e "conforme disponível". Não garantimos que o serviço será 
                   ininterrupto, seguro ou livre de erros. Em nenhuma circunstância seremos responsáveis por danos 
@@ -139,7 +123,7 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">9. Modificações do Serviço</h2>
+                <h2 className="text-xl font-semibold mb-3">8. Modificações do Serviço</h2>
                 <p className="text-muted-foreground">
                   Reservamo-nos o direito de modificar, suspender ou descontinuar qualquer parte do serviço a qualquer 
                   momento, com ou sem aviso prévio. Não seremos responsáveis perante você ou terceiros por qualquer 
@@ -148,7 +132,7 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">10. Rescisão</h2>
+                <h2 className="text-xl font-semibold mb-3">9. Rescisão</h2>
                 <p className="text-muted-foreground mb-3">
                   Podemos encerrar ou suspender sua conta e acesso ao serviço imediatamente, sem aviso prévio ou 
                   responsabilidade, por qualquer motivo, incluindo se você violar estes Termos de Uso. Ao encerrar:
@@ -161,7 +145,7 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">11. Alterações nos Termos</h2>
+                <h2 className="text-xl font-semibold mb-3">10. Alterações nos Termos</h2>
                 <p className="text-muted-foreground">
                   Reservamo-nos o direito de modificar estes Termos de Uso a qualquer momento. Alterações significativas 
                   serão comunicadas através do serviço ou por email. O uso continuado do serviço após as alterações 
@@ -170,7 +154,7 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">12. Lei Aplicável</h2>
+                <h2 className="text-xl font-semibold mb-3">11. Lei Aplicável</h2>
                 <p className="text-muted-foreground">
                   Estes Termos de Uso são regidos pelas leis brasileiras. Qualquer disputa relacionada a estes termos 
                   será resolvida nos tribunais competentes do Brasil.
@@ -178,7 +162,7 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">13. Disposições Gerais</h2>
+                <h2 className="text-xl font-semibold mb-3">12. Disposições Gerais</h2>
                 <p className="text-muted-foreground mb-3">
                   Se qualquer disposição destes termos for considerada inválida ou inexequível, as disposições restantes 
                   permanecerão em pleno vigor. Estes termos constituem o acordo completo entre você e o SuperTierMaker 
@@ -187,7 +171,7 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold mb-3">14. Contato</h2>
+                <h2 className="text-xl font-semibold mb-3">13. Contato</h2>
                 <p className="text-muted-foreground">
                   Se você tiver dúvidas sobre estes Termos de Uso, entre em contato conosco através do seu perfil no 
                   aplicativo ou pela página de contato.

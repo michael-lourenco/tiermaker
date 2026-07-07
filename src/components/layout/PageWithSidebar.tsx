@@ -1,8 +1,6 @@
 'use client'
 
-import { ReactNode, useState, useEffect } from 'react'
-import { AdSpace } from '@/components/ads/AdSpace'
-import { useSubscription } from '@/hooks/useSubscription'
+import { ReactNode } from 'react'
 import { cn } from '@/lib/utils/cn'
 
 interface PageWithSidebarProps {
@@ -18,23 +16,8 @@ export function PageWithSidebar({
   showRightSidebar = false,
   className 
 }: PageWithSidebarProps) {
-  const [mounted, setMounted] = useState(false)
-  // BANNERS DESABILITADOS TEMPORARIAMENTE - comentado useSubscription
-  // const { isPremium, loading: subscriptionLoading } = useSubscription()
-
-  // Avoid hydration mismatch - sempre renderizar layout desktop no SSR
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // BANNERS DESABILITADOS TEMPORARIAMENTE - sempre não mostrar sidebars
-  // CÓDIGO ORIGINAL COMENTADO (para reativar no futuro):
-  // // Se for premium ou estiver carregando, não mostrar sidebars (AdSpace retorna null)
-  // // Mas ainda renderizar o layout para não quebrar o design
-  // const shouldShowLeftSidebar = showLeftSidebar && !subscriptionLoading && !isPremium && mounted
-  // const shouldShowRightSidebar = showRightSidebar && !subscriptionLoading && !isPremium && mounted
-  const shouldShowLeftSidebar = false // BANNERS DESABILITADOS
-  const shouldShowRightSidebar = false // BANNERS DESABILITADOS
+  const shouldShowLeftSidebar = false
+  const shouldShowRightSidebar = false
 
   // Sempre renderizar o layout desktop (mobile esconde sidebars via CSS hidden lg:block)
   return (

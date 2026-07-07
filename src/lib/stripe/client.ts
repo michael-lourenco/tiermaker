@@ -1,19 +1,16 @@
-/**
- * Stripe Client
- * Cliente Stripe configurado para uso no servidor
- */
-
 import Stripe from 'stripe'
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not set in environment variables')
-}
+let stripeClient: Stripe | null = null
 
-/**
- * Cliente Stripe para uso no servidor
- * Usa a chave secreta do Stripe
- */
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-12-15.clover',
-  typescript: true,
-})
+export function getStripeClient(): Stripe {
+  if (!stripeClient) {
+    const secretKey = process.env.STRIPE_SECRET_KEY
+    if (!secretKey) {
+      throw new Error('STRIPE_SECRET_KEY is not configured')
+    }
+    stripeClient = new Stripe(secretKey, {
+      apiVersion: '2026-02-25.clover',
+    })
+  }
+  return stripeClient
+}

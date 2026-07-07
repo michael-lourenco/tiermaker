@@ -14,8 +14,6 @@ import { CategoryService, type Category } from '@/services/category.service'
 import { ImageService } from '@/services/image.service'
 import { useAuth } from '@/hooks/useAuth'
 import { useTranslation } from '@/hooks/useTranslation'
-import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits'
-import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import Image from 'next/image'
 import { X, Upload } from 'lucide-react'
 import { TemplateTiersVisualEditor, type TemplateTier } from './TemplateTiersVisualEditor'
@@ -80,7 +78,6 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
   const [error, setError] = useState<string | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
-  const [showLimitModal, setShowLimitModal] = useState(false)
   const [cloneSourceId, setCloneSourceId] = useState<string | null>(null)
   const [cloneSourceName, setCloneSourceName] = useState<string | null>(null)
   const [cloneLoading, setCloneLoading] = useState(false)
@@ -91,8 +88,6 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
   const router = useRouter()
   const imageService = new ImageService()
   const categoryService = new CategoryService()
-  const { canPerform, hasReached, limit, loading: limitsLoading } = useSubscriptionLimits('templates_count')
-
   const isCloneMode = Boolean(cloneSourceId)
 
   useEffect(() => {
@@ -366,11 +361,6 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
       return
     }
 
-    if (!canPerform || hasReached) {
-      setShowLimitModal(true)
-      return
-    }
-
     if (isCloneMode) {
       for (const it of items) {
         if (it.kind === 'uploadedNew' && !it.uploadedUrl) {
@@ -446,11 +436,6 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
 
         if (!response.ok) {
           const errorData = await response.json()
-          if (errorData.limitReached) {
-            setShowLimitModal(true)
-            setUploading(false)
-            return
-          }
           throw new Error(errorData.error || 'Failed to clone template')
         }
 
@@ -494,11 +479,6 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
 
       if (!response.ok) {
         const errorData = await response.json()
-        if (errorData.limitReached) {
-          setShowLimitModal(true)
-          setUploading(false)
-          return
-        }
         throw new Error(errorData.error || 'Failed to create template')
       }
 
@@ -754,22 +734,13 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
         </Button>
         <Button
           type="submit"
-          disabled={uploading || items.length === 0 || limitsLoading || !canPerform || cloneLoading}
+          disabled={uploading || items.length === 0 || cloneLoading}
           className="w-full sm:w-auto"
         >
           {submitLabel}
         </Button>
       </div>
 
-      {limit && (
-        <LimitReachedModal
-          open={showLimitModal}
-          onOpenChange={setShowLimitModal}
-          limitType="templates_count"
-          currentCount={limit.current_count}
-          maxCount={limit.max_count}
-        />
-      )}
     </form>
   )
 }

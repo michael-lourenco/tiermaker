@@ -1,5 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/pricing',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/account/subscription',
+        destination: '/profile',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     // Em desenvolvimento, o otimizador do Next faz fetch das URLs remotas no processo Node.
     // No WSL2 o DNS costuma falhar para *.amazonaws.com (ENOTFOUND) mesmo com o browser OK.

@@ -1,16 +1,13 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { TierListService } from '@/services/tierList.service'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Edit2, Globe, Lock } from 'lucide-react'
-import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
-import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits'
 import { useTranslation } from '@/hooks/useTranslation'
 import { CanvasTierListEditor } from '@/components/editor/canvas/CanvasTierListEditor'
 import type { TemplateWithItems } from '@/types/template.types'
@@ -32,12 +29,10 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
   const [title, setTitle] = useState(template.name || 'My Tier List')
   const [isPublic, setIsPublic] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [showLimitModal, setShowLimitModal] = useState(false)
   const { user } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
   const tierListService = new TierListService()
-  const { canPerform, hasReached, limit } = useSubscriptionLimits('tier_lists_count')
 
   const handleSave = async (data: {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
@@ -46,11 +41,6 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
     if (!user) {
       alert('You must be logged in to save a tier list. Please log in and try again.')
       router.push('/login')
-      return
-    }
-
-    if (!canPerform || hasReached) {
-      setShowLimitModal(true)
       return
     }
 
@@ -149,16 +139,6 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
             <p className="text-sm sm:text-base">{t('editor.savingTierList')}</p>
           </div>
         </div>
-      )}
-
-      {limit && (
-        <LimitReachedModal
-          open={showLimitModal}
-          onOpenChange={setShowLimitModal}
-          limitType="tier_lists_count"
-          currentCount={limit.current_count}
-          maxCount={limit.max_count}
-        />
       )}
     </div>
   )

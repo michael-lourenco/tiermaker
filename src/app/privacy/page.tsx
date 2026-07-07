@@ -61,7 +61,6 @@ export default function PrivacyPage() {
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                   <li>Fornecer, manter e melhorar nossos serviços</li>
-                  <li>Processar transações e gerenciar assinaturas</li>
                   <li>Comunicar-nos com você sobre atualizações e suporte</li>
                   <li>Personalizar sua experiência no aplicativo</li>
                   <li>Analisar o uso do serviço para melhorias</li>
@@ -75,7 +74,7 @@ export default function PrivacyPage() {
                   Não vendemos suas informações pessoais. Podemos compartilhar informações apenas nas seguintes situações:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4 mt-3">
-                  <li><strong>Prestadores de Serviços:</strong> Com provedores de serviços que nos ajudam a operar o aplicativo (como hospedagem, processamento de pagamentos)</li>
+                  <li><strong>Prestadores de Serviços:</strong> Com provedores de serviços que nos ajudam a operar o aplicativo (como hospedagem)</li>
                   <li><strong>Conteúdo Público:</strong> Templates e tier lists que você escolhe tornar públicos podem ser visualizados por outros usuários</li>
                   <li><strong>Obrigações Legais:</strong> Quando exigido por lei ou para proteger nossos direitos legais</li>
                 </ul>

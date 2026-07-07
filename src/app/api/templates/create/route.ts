@@ -1,16 +1,11 @@
 /**
  * Create Template Route
- * Cria um novo template com verificação de limites
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createServiceRoleClient } from '@/lib/supabase/server'
 import { TemplateService } from '@/services/template.service'
-import { SubscriptionLimitService } from '@/services/subscriptionLimit.service'
 import type { CreateTemplateInput } from '@/types/template.types'
-
-const limitService = new SubscriptionLimitService(createServiceRoleClient())
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +32,6 @@ export async function POST(request: NextRequest) {
       tiers?: Array<{ tier_name: string; tier_order: number; color: string | null }>
     }
 
-    // Validar dados obrigatórios
     if (!name || !category_id || !items || items.length === 0) {
       return NextResponse.json(
         { error: 'Name, category_id, and items are required' },
@@ -45,25 +39,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar limite de templates
-    await limitService.ensureLimitsInitialized(user.id)
-    const canCreate = await limitService.canPerformAction(user.id, 'templates_count')
-    const hasReached = await limitService.hasReachedLimit(user.id, 'templates_count')
-
-    if (!canCreate || hasReached) {
-      const limit = await limitService.getLimit(user.id, 'templates_count')
-      return NextResponse.json(
-        {
-          error: 'Template limit reached',
-          limitReached: true,
-          currentCount: limit?.current_count ?? 0,
-          maxCount: limit?.max_count ?? 3,
-        },
-        { status: 403 }
-      )
-    }
-
-    // Criar template usando o cliente do servidor para garantir contexto de autenticação
     const templateService = new TemplateService(supabase)
     const template = await templateService.createTemplate(
       {
@@ -77,9 +52,6 @@ export async function POST(request: NextRequest) {
       },
       user.id
     )
-
-    // O trigger no banco atualiza automaticamente o current_count
-    // Não precisamos incrementar manualmente aqui
 
     return NextResponse.json({ template }, { status: 201 })
   } catch (error: any) {

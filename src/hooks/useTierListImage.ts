@@ -11,8 +11,7 @@ import html2canvas from 'html2canvas'
 interface UseTierListImageOptions {
   onSuccess?: () => void
   onError?: (error: Error) => void
-  isPremium?: boolean // Se true, exporta em alta resolução (4K). Logo sempre aparece para identificar a origem.
-  quality?: 'standard' | '4k' // Qualidade do export (4k apenas para premium)
+  quality?: 'standard' | '4k'
 }
 
 /**
@@ -107,8 +106,7 @@ export function useTierListImage(options?: UseTierListImageOptions) {
       setIsGenerating(true)
 
       try {
-        const isPremium = options?.isPremium ?? false
-        const quality = options?.quality ?? (isPremium ? '4k' : 'standard')
+        const quality = options?.quality ?? '4k'
         
         // Escala baseada na qualidade (2 para standard/1080p, 4 para 4K)
         const scale = quality === '4k' ? 4 : 2
@@ -266,7 +264,7 @@ export function useTierListImage(options?: UseTierListImageOptions) {
             options?.onSuccess?.()
           },
           'image/png',
-          isPremium ? 1.0 : 0.95 // Qualidade máxima para premium, alta para não-premium
+          1.0
         )
       } catch (error) {
         setIsGenerating(false)

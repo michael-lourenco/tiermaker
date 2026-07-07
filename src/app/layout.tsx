@@ -8,7 +8,6 @@ import { Footer } from "@/components/layout/Footer"
 // import { StickySidebar } from "@/components/ads/StickySidebar"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { LanguageProvider } from "@/contexts/LanguageContext"
-import { SubscriptionProvider } from "@/contexts/SubscriptionContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -116,17 +115,15 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
-            <SubscriptionProvider>
-              <div className="flex flex-col min-h-screen">
-                <Header />
-                <div className="flex-1 relative">
-                  {children}
-                  {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
-                  {/* <StickySidebar /> */}
-                </div>
-                <Footer />
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <div className="flex-1 relative">
+                {children}
+                {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
+                {/* <StickySidebar /> */}
               </div>
-            </SubscriptionProvider>
+              <Footer />
+            </div>
           </ThemeProvider>
         </LanguageProvider>
       </body>

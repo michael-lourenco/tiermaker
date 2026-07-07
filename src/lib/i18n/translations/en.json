@@ -359,6 +359,15 @@
     "gratitudeTitle": "Gratitude",
     "gratitudeDescription": "We thank you for being part of this journey and for helping us build a better platform. Your support and feedback are essential to SuperTierMaker's success!",
     "backToHome": "Back to Home"
+  },
+  "donation": {
+    "button": "Support",
+    "title": "Support SuperTierMaker",
+    "description": "SuperTierMaker is free for everyone. If you enjoy the platform and want to help keep it running — hosting, infrastructure, and development — consider making a voluntary donation.",
+    "note": "Donations do not unlock extra features. They simply support the project. You can cancel anytime.",
+    "monthly": "Donate {price}/month",
+    "yearly": "Donate {price}/year",
+    "checkoutError": "Could not start checkout. Please try again."
   }
 }
 

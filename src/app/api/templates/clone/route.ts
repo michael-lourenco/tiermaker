@@ -5,16 +5,12 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createServiceRoleClient } from '@/lib/supabase/server'
 import { TemplateService } from '@/services/template.service'
-import { SubscriptionLimitService } from '@/services/subscriptionLimit.service'
 import {
   assertUserOwnsUploadUrl,
   buildAllowedCloneImageUrls,
   copyClonedImageToUserFolder,
 } from '@/lib/server/cloneTemplateImages'
-
-const limitService = new SubscriptionLimitService(createServiceRoleClient())
 
 type CloneItem = {
   name: string
@@ -63,23 +59,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'source_template_id, name, category_id, and items are required' },
         { status: 400 }
-      )
-    }
-
-    await limitService.ensureLimitsInitialized(userId)
-    const canCreate = await limitService.canPerformAction(userId, 'templates_count')
-    const hasReached = await limitService.hasReachedLimit(userId, 'templates_count')
-
-    if (!canCreate || hasReached) {
-      const limit = await limitService.getLimit(userId, 'templates_count')
-      return NextResponse.json(
-        {
-          error: 'Template limit reached',
-          limitReached: true,
-          currentCount: limit?.current_count ?? 0,
-          maxCount: limit?.max_count ?? 3,
-        },
-        { status: 403 }
       )
     }
 

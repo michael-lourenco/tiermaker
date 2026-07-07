@@ -1,104 +1,52 @@
-/**
- * Stripe Service
- * Serviço para integração com Stripe
- */
-
-import { stripe } from '@/lib/stripe/client'
-import { getStripePriceIds, getPriceIdByInterval } from '@/lib/stripe/prices'
-import type { SubscriptionInterval } from '@/types/subscription.types'
-import Stripe from 'stripe'
+import { getStripeClient } from '@/lib/stripe/client'
+import type { DonationInterval } from '@/lib/stripe/prices'
+import { getDonationPriceId } from '@/lib/stripe/prices'
 
 export class StripeService {
-  /**
-   * Criar sessão de checkout
-   */
-  async createCheckoutSession(
-    userId: string,
-    userEmail: string,
-    interval: SubscriptionInterval,
-    successUrl: string,
+  async createDonationCheckoutSession(options: {
+    interval: DonationInterval
+    successUrl: string
     cancelUrl: string
-  ): Promise<Stripe.Checkout.Session> {
-    const priceId = getPriceIdByInterval(interval)
+    customerEmail?: string
+    userId?: string
+  }) {
+    const stripe = getStripeClient()
+    const priceId = getDonationPriceId(options.interval)
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      customer_email: userEmail,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: options.successUrl,
+      cancel_url: options.cancelUrl,
+      customer_email: options.customerEmail,
       metadata: {
-        user_id: userId,
+        type: 'donation',
+        interval: options.interval,
+        ...(options.userId ? { user_id: options.userId } : {}),
       },
       subscription_data: {
         metadata: {
-          user_id: userId,
+          type: 'donation',
+          interval: options.interval,
+          ...(options.userId ? { user_id: options.userId } : {}),
         },
       },
     })
 
-    return session
-  }
-
-  /**
-   * Criar customer portal session (para gerenciar/cancelar assinatura)
-   */
-  async createPortalSession(
-    customerId: string,
-    returnUrl: string
-  ): Promise<Stripe.BillingPortal.Session> {
-    const session = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: returnUrl,
-    })
-
-    return session
-  }
-
-  /**
-   * Obter subscription do Stripe
-   */
-  async getSubscription(stripeSubscriptionId: string): Promise<Stripe.Subscription> {
-    return stripe.subscriptions.retrieve(stripeSubscriptionId)
-  }
-
-  /**
-   * Obter customer do Stripe
-   */
-  async getCustomer(stripeCustomerId: string): Promise<Stripe.Customer> {
-    return stripe.customers.retrieve(stripeCustomerId) as Promise<Stripe.Customer>
-  }
-
-  /**
-   * Cancelar subscription no Stripe
-   */
-  async cancelSubscription(
-    stripeSubscriptionId: string,
-    cancelAtPeriodEnd: boolean = true
-  ): Promise<Stripe.Subscription> {
-    if (cancelAtPeriodEnd) {
-      return stripe.subscriptions.update(stripeSubscriptionId, {
-        cancel_at_period_end: true,
-      })
-    } else {
-      return stripe.subscriptions.cancel(stripeSubscriptionId)
+    if (!session.url) {
+      throw new Error('Failed to create Stripe checkout session')
     }
+
+    return session
   }
 
-  /**
-   * Verificar assinatura de webhook
-   */
-  constructWebhookEvent(
-    payload: string | Buffer,
-    signature: string,
-    webhookSecret: string
-  ): Stripe.Event {
+  constructWebhookEvent(payload: string | Buffer, signature: string) {
+    const stripe = getStripeClient()
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+    if (!webhookSecret) {
+      throw new Error('STRIPE_WEBHOOK_SECRET is not configured')
+    }
     return stripe.webhooks.constructEvent(payload, signature, webhookSecret)
   }
 }

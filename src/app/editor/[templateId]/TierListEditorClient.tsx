@@ -4,7 +4,6 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
-import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits'
 import type { TierListDraft } from '@/hooks/useTierListDraft'
 import { createClient } from '@/lib/supabase/client'
 import { TierListEditor } from '@/components/editor/TierListEditor'
@@ -21,7 +20,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useTranslation } from '@/hooks/useTranslation'
-import { LimitReachedModal } from '@/components/subscription/LimitReachedModal'
 import type { TemplateWithItems } from '@/types/template.types'
 import type { TemplateItem } from '@/types/template.types'
 import type { TierListTier, TierListItem } from '@/types/tierList.types'
@@ -45,7 +43,6 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const tierListService = new TierListService()
   const { showItemNames, setShowItemNames, loading: preferencesLoading } = useUserPreferences()
   const { t } = useTranslation()
-  const { canPerform, hasReached, limit, loading: limitsLoading } = useSubscriptionLimits('tier_lists_count')
   
   // Chave do localStorage sem userId (local ao navegador)
   // IMPORTANTE: Armazenar valores do template em refs para usar no useEffect sem dependências
@@ -182,7 +179,6 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   }, []) // SEM DEPENDÊNCIAS: executa apenas UMA VEZ no mount, nunca durante edição
   
   const [saving, setSaving] = useState(false)
-  const [showLimitModal, setShowLimitModal] = useState(false)
   
   // Key estável para TierListEditor: só muda quando queremos forçar remount (ao limpar draft)
   const [editorKey, setEditorKey] = useState(0)
@@ -287,12 +283,6 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     if (!user) {
       alert('You must be logged in to save a tier list. Please log in and try again.')
       router.push('/login')
-      return
-    }
-
-    // Verificar limite antes de salvar
-    if (!canPerform || hasReached) {
-      setShowLimitModal(true)
       return
     }
 
@@ -445,15 +435,6 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
         </div>
       )}
 
-      {limit && (
-        <LimitReachedModal
-          open={showLimitModal}
-          onOpenChange={setShowLimitModal}
-          limitType="tier_lists_count"
-          currentCount={limit.current_count}
-          maxCount={limit.max_count}
-        />
-      )}
     </div>
   )
 }

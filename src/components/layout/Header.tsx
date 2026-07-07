@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { LanguageSelector } from '@/components/language/language-selector'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from 'next-themes'
-import { Menu, X, ChevronDown, LayoutGrid, FolderOpen, List, Plus, User, Settings } from 'lucide-react'
+import { Menu, X, ChevronDown, LayoutGrid, FolderOpen, List, Plus, User } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import {
   Sheet,
@@ -32,9 +32,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils/cn'
 import { isAdminEmail } from '@/lib/utils/admin'
-import { useSubscription } from '@/hooks/useSubscription'
 import { Badge } from '@/components/ui/badge'
-import { Crown } from 'lucide-react'
+import { DonationButton } from '@/components/donation/DonationModal'
 
 export function Header() {
   const { user, loading, signOut } = useAuth()
@@ -44,7 +43,6 @@ export function Header() {
   const { theme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const { isPremium } = useSubscription()
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -189,16 +187,11 @@ export function Header() {
                     size="sm"
                     className={cn(
                       'px-2',
-                      (isActive('/profile') || isActive('/my-templates') || isActive('/my-tier-lists') || isActive('/account/subscription')) && 
+                      (isActive('/profile') || isActive('/my-templates') || isActive('/my-tier-lists')) && 
                       'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
                     )}
                   >
                     <User className="h-4 w-4" />
-                    {isPremium && (
-                      <Badge className="ml-1 bg-primary text-primary-foreground h-4 px-1 text-[10px]">
-                        <Crown className="h-2.5 w-2.5" />
-                      </Badge>
-                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
@@ -212,15 +205,6 @@ export function Header() {
                     >
                       <User className="h-4 w-4" />
                       {t('profile.title') || 'Profile'}
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link 
-                      href="/account/subscription"
-                      className="w-full cursor-pointer flex items-center gap-2"
-                    >
-                      <Settings className="h-4 w-4" />
-                      Minha Assinatura
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -299,6 +283,9 @@ export function Header() {
               </>
             )}
 
+            {/* Apoiar */}
+            <DonationButton />
+
             {/* Language and Theme - Ícones apenas */}
             <div className="flex items-center gap-1 ml-2 pl-2 border-l">
               <LanguageSelector />
@@ -308,6 +295,7 @@ export function Header() {
 
           {/* Mobile Menu */}
           <div className="flex items-center gap-2 md:hidden">
+            <DonationButton showLabel={false} />
             <LanguageSelector />
             <ThemeToggle />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -383,12 +371,6 @@ export function Header() {
                         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                           {t('nav.myAccount') || 'My Account'}
                         </h3>
-                        {isPremium && (
-                          <Badge className="bg-primary text-primary-foreground h-5 px-2 text-xs">
-                            <Crown className="h-3 w-3 mr-1" />
-                            Premium
-                          </Badge>
-                        )}
                       </div>
                       
                       {/* Perfil */}
@@ -403,20 +385,6 @@ export function Header() {
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {t('profile.title') || 'Profile'}
-                      </Link>
-                      
-                      {/* Assinatura */}
-                      <Link
-                        href="/account/subscription"
-                        className={cn(
-                          'block px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
-                          isActive('/account/subscription')
-                            ? 'bg-primary/10 text-primary font-semibold'
-                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                        )}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Minha Assinatura
                       </Link>
                       
                       {/* Criar Template */}

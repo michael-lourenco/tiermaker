@@ -18,6 +18,7 @@ import { X, Upload } from 'lucide-react'
 import { EditableTemplateItemCard } from './EditableTemplateItemCard'
 import { TemplateTiersVisualEditor, type TemplateTier } from './TemplateTiersVisualEditor'
 import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
+import { assertCoverAspectRatio, COVER_ASPECT_CLASS } from '@/lib/utils/coverAspect'
 import type { TemplateWithItemsAndCategories, TemplateItem as TemplateItemType } from '@/types/template.types'
 
 const templateSchema = z.object({
@@ -146,6 +147,19 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
     const validation = imageService.validateImageFile(file)
     if (!validation.valid) {
       setError(validation.error || 'Invalid file')
+      e.target.value = ''
+      return
+    }
+
+    try {
+      await assertCoverAspectRatio(file)
+    } catch (err) {
+      if (err instanceof Error && err.message === 'COVER_ASPECT_INVALID') {
+        setError(t('createTemplate.coverImageAspectInvalid'))
+      } else {
+        setError('Failed to process cover image')
+      }
+      e.target.value = ''
       return
     }
 
@@ -153,9 +167,10 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
       const preview = await imageService.createPreviewUrl(file)
       setCoverImage({ file, preview })
       setError(null)
-    } catch (err) {
+    } catch {
       setError('Failed to process cover image')
     }
+    e.target.value = ''
   }
 
   const removeCoverImage = () => {
@@ -291,15 +306,19 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
             <label className="text-sm font-medium">
               {t('createTemplate.coverImage')}
             </label>
+            <p className="text-xs text-muted-foreground">{t('createTemplate.coverImageAspectHint')}</p>
             {coverImage ? (
               <div className="relative">
-                <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                <div
+                  className={`relative w-full ${COVER_ASPECT_CLASS} rounded-lg overflow-hidden border bg-muted`}
+                >
                   <Image
                     src={'file' in coverImage ? coverImage.preview : coverImage.imageUrl}
                     alt="Cover preview"
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover"
+                    className="object-contain"
+                    unoptimized={'file' in coverImage}
                   />
                   <button
                     type="button"
@@ -313,14 +332,15 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
             ) : (
               <label
                 htmlFor="cover-upload"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent transition-colors"
+                className={`flex flex-col items-center justify-center w-full ${COVER_ASPECT_CLASS} border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent transition-colors`}
               >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <div className="flex flex-col items-center justify-center px-4 py-2">
                   <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                  <p className="mb-2 text-sm text-muted-foreground">
-                    <span className="font-semibold">{t('createTemplate.clickToUpload')}</span> {t('createTemplate.coverImageDescription')}
+                  <p className="mb-2 text-sm text-muted-foreground text-center">
+                    <span className="font-semibold">{t('createTemplate.clickToUpload')}</span>{' '}
+                    {t('createTemplate.coverImageDescription')}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground text-center">
                     {t('createTemplate.fileTypes')}
                   </p>
                 </div>

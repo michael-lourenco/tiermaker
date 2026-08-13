@@ -23,6 +23,7 @@ import Image from 'next/image'
 import { X, Upload } from 'lucide-react'
 import { TemplateTiersVisualEditor, type TemplateTier } from './TemplateTiersVisualEditor'
 import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
+import { assertCoverAspectRatio, COVER_ASPECT_CLASS } from '@/lib/utils/coverAspect'
 
 const templateSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
@@ -273,6 +274,19 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
     const validation = imageService.validateImageFile(file)
     if (!validation.valid) {
       setError(validation.error || 'Invalid file')
+      e.target.value = ''
+      return
+    }
+
+    try {
+      await assertCoverAspectRatio(file)
+    } catch (err) {
+      if (err instanceof Error && err.message === 'COVER_ASPECT_INVALID') {
+        setError(t('createTemplate.coverImageAspectInvalid'))
+      } else {
+        setError('Failed to process cover image')
+      }
+      e.target.value = ''
       return
     }
 
@@ -569,15 +583,18 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
 
           <div className="space-y-1">
             <label className="text-sm font-medium">{t('createTemplate.coverImage')}</label>
+            <p className="text-xs text-muted-foreground">{t('createTemplate.coverImageAspectHint')}</p>
             {cover ? (
               <div className="relative group">
-                <div className="relative w-full h-40 sm:h-48 rounded-lg overflow-hidden border">
+                <div
+                  className={`relative w-full ${COVER_ASPECT_CLASS} rounded-lg overflow-hidden border bg-muted`}
+                >
                   <Image
                     src={cover.preview}
                     alt="Cover preview"
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover"
+                    className="object-contain"
                     unoptimized={cover.kind === 'file'}
                   />
                   <button
@@ -592,9 +609,9 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
             ) : (
               <label
                 htmlFor="cover-upload"
-                className="flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed border-border rounded-lg cursor-pointer active:bg-accent transition-colors touch-manipulation"
+                className={`flex flex-col items-center justify-center w-full ${COVER_ASPECT_CLASS} border-2 border-dashed border-border rounded-lg cursor-pointer active:bg-accent transition-colors touch-manipulation`}
               >
-                <div className="flex flex-col items-center justify-center pt-2 sm:pt-2.5 pb-2 sm:pb-3 px-2">
+                <div className="flex flex-col items-center justify-center px-2 py-2">
                   <Upload className="w-6 h-6 sm:w-8 sm:h-8 mb-1 text-muted-foreground" />
                   <p className="mb-1 text-xs sm:text-sm text-muted-foreground text-center">
                     <span className="font-semibold">{t('createTemplate.clickToUpload')}</span>{' '}

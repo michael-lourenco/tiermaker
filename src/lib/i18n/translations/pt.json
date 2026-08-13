@@ -150,6 +150,8 @@
     "pageSubtitle": "Traga sua ideia: adicione itens, defina os tiers e compartilhe um template que a comunidade vai adorar ranquear.",
     "coverImage": "Imagem de Capa",
     "coverImageDescription": "Clique para fazer upload da imagem de capa",
+    "coverImageAspectHint": "Proporção obrigatória 2560×1080 (pode ser menor ou maior, desde que mantenha essa razão — ex.: 1280×540).",
+    "coverImageAspectInvalid": "A imagem de capa deve ter a proporção 2560×1080. Escolha outra imagem nessa razão.",
     "coverRequiredForPublic": "Para tornar o template público, é obrigatório adicionar uma imagem de capa.",
     "templateName": "Nome do Template *",
     "templateNamePlaceholder": "ex: Melhores Jogos 2024",

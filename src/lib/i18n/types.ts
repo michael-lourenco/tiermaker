@@ -147,6 +147,8 @@ export interface Translations {
     pageSubtitle: string
     coverImage: string
     coverImageDescription: string
+    coverImageAspectHint: string
+    coverImageAspectInvalid: string
     coverRequiredForPublic: string
     templateName: string
     templateNamePlaceholder: string

@@ -150,6 +150,8 @@
     "pageSubtitle": "Bring your idea: add items, set the tiers, and share a template the community will love to rank.",
     "coverImage": "Cover Image",
     "coverImageDescription": "Click to upload cover image",
+    "coverImageAspectHint": "Required aspect ratio 2560×1080 (any size is fine as long as it matches — e.g. 1280×540).",
+    "coverImageAspectInvalid": "The cover image must use the 2560×1080 aspect ratio. Please choose another image with that ratio.",
     "coverRequiredForPublic": "To make the template public, a cover image is required.",
     "templateName": "Template Name *",
     "templateNamePlaceholder": "e.g., Best Video Games 2024",

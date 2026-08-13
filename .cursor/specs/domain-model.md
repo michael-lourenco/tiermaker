@@ -6,6 +6,7 @@
 - Pertence a um usuário; itens com imagem; tiers opcionais; soft delete (`deleted_at`)
 - Público/privado; categorias (N:N)
 - **Visibilidade pública exige `cover_image_url` não vazio.** `is_public=true` sem capa não aparece em listagens/páginas públicas; create/update forçam privado via `resolveIsPublic` (`src/lib/utils/publicVisibility.ts`)
+- **Capa**: proporção obrigatória 2560×1080 (qualquer resolução nessa razão); validação em `src/lib/utils/coverAspect.ts` nos forms create/edit
 - Types: `src/types/template.types.ts`
 - Service: `src/services/template.service.ts`
 - APIs: `POST /api/templates/create`, `POST /api/templates/clone`

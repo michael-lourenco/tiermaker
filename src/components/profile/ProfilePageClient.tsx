@@ -75,12 +75,6 @@ export function ProfilePageClient() {
                       </div>
                     </div>
                   )}
-
-                  <div className="pt-2 border-t">
-                    <p className="text-xs text-muted-foreground">
-                      ID da conta: <span className="font-mono text-[10px]">{user.id}</span>
-                    </p>
-                  </div>
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground">Não foi possível carregar as informações da conta.</p>

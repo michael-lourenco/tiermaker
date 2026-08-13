@@ -276,11 +276,7 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>{t('templates.editTemplate') || 'Edit Template'}</CardTitle>
-          <CardDescription>{t('templates.editTemplateDescription') || 'Update your template'}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           {/* Cover Image */}
           <div className="space-y-2">
             <label className="text-sm font-medium">

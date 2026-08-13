@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, type Dispatch, type SetStateAction } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -21,7 +21,6 @@ import {
 import { TierRow } from '@/components/editor/TierRow'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
-import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
 import { v4 as uuidv4 } from 'uuid'
 import { useTranslation } from '@/hooks/useTranslation'
 import type { TierListTier } from '@/types/tierList.types'
@@ -35,7 +34,7 @@ export interface TemplateTier {
 
 interface TemplateTiersVisualEditorProps {
   tiers: TemplateTier[]
-  onChange: (tiers: TemplateTier[]) => void
+  onChange: Dispatch<SetStateAction<TemplateTier[]>>
 }
 
 export function TemplateTiersVisualEditor({ tiers, onChange }: TemplateTiersVisualEditorProps) {
@@ -43,7 +42,6 @@ export function TemplateTiersVisualEditor({ tiers, onChange }: TemplateTiersVisu
   const [activeId, setActiveId] = useState<string | null>(null)
   const [draggingTierId, setDraggingTierId] = useState<string | null>(null)
 
-  // Convert TemplateTier to TierListTier format for TierRow
   const tiersAsTierListTiers: TierListTier[] = tiers.map((tier) => ({
     id: tier.id,
     tier_list_id: '',
@@ -78,63 +76,78 @@ export function TemplateTiersVisualEditor({ tiers, onChange }: TemplateTiersVisu
     }
   }
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    setActiveId(null)
-    setDraggingTierId(null)
-    document.body.classList.remove('dragging-tier')
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event
+      setActiveId(null)
+      setDraggingTierId(null)
+      document.body.classList.remove('dragging-tier')
 
-    if (!over || active.id === over.id) {
-      return
-    }
+      if (!over || active.id === over.id) {
+        return
+      }
 
-    const oldIndex = tiers.findIndex((t) => t.id === active.id)
-    const newIndex = tiers.findIndex((t) => t.id === over.id)
+      onChange((prev) => {
+        const oldIndex = prev.findIndex((t) => t.id === active.id)
+        const newIndex = prev.findIndex((t) => t.id === over.id)
 
-    if (oldIndex !== -1 && newIndex !== -1) {
-      const newTiers = arrayMove(tiers, oldIndex, newIndex)
-      const reorderedTiers = newTiers.map((tier, index) => ({
-        ...tier,
-        tier_order: index,
-      }))
-      onChange(reorderedTiers)
-    }
-  }
+        if (oldIndex === -1 || newIndex === -1) {
+          return prev
+        }
 
-  const handleTierNameChange = (tierId: string, newName: string) => {
-    onChange(
-      tiers.map((tier) =>
-        tier.id === tierId ? { ...tier, tier_name: newName } : tier
+        return arrayMove(prev, oldIndex, newIndex).map((tier, index) => ({
+          ...tier,
+          tier_order: index,
+        }))
+      })
+    },
+    [onChange]
+  )
+
+  // Functional updates: TierRow/TierColumn are memoized and may keep stale handlers.
+  const handleTierNameChange = useCallback(
+    (tierId: string, newName: string) => {
+      onChange((prev) =>
+        prev.map((tier) => (tier.id === tierId ? { ...tier, tier_name: newName } : tier))
       )
-    )
-  }
+    },
+    [onChange]
+  )
 
-  const handleTierColorChange = (tierId: string, newColor: string) => {
-    onChange(
-      tiers.map((tier) =>
-        tier.id === tierId ? { ...tier, color: newColor } : tier
+  const handleTierColorChange = useCallback(
+    (tierId: string, newColor: string) => {
+      onChange((prev) =>
+        prev.map((tier) => (tier.id === tierId ? { ...tier, color: newColor } : tier))
       )
-    )
-  }
+    },
+    [onChange]
+  )
 
-  const handleTierDelete = (tierId: string) => {
-    const filteredTiers = tiers.filter((t) => t.id !== tierId)
-    const reorderedTiers = filteredTiers.map((tier, index) => ({
-      ...tier,
-      tier_order: index,
-    }))
-    onChange(reorderedTiers)
-  }
+  const handleTierDelete = useCallback(
+    (tierId: string) => {
+      onChange((prev) =>
+        prev
+          .filter((t) => t.id !== tierId)
+          .map((tier, index) => ({
+            ...tier,
+            tier_order: index,
+          }))
+      )
+    },
+    [onChange]
+  )
 
-  const handleAddTier = () => {
-    const newTier: TemplateTier = {
-      id: `tier-${uuidv4()}`,
-      tier_name: `Tier ${tiers.length + 1}`,
-      tier_order: tiers.length,
-      color: '#6B7280',
-    }
-    onChange([...tiers, newTier])
-  }
+  const handleAddTier = useCallback(() => {
+    onChange((prev) => [
+      ...prev,
+      {
+        id: `tier-${uuidv4()}`,
+        tier_name: `Tier ${prev.length + 1}`,
+        tier_order: prev.length,
+        color: '#6B7280',
+      },
+    ])
+  }, [onChange])
 
   const tierIds = tiers.map((tier) => tier.id)
   const isDraggingTier = draggingTierId !== null
@@ -147,13 +160,12 @@ export function TemplateTiersVisualEditor({ tiers, onChange }: TemplateTiersVisu
       onDragEnd={handleDragEnd}
     >
       <div className={`space-y-0 ${isDraggingTier ? 'cursor-grabbing' : ''}`}>
-        {/* Tiers - Sortable */}
         <SortableContext items={tierIds} strategy={verticalListSortingStrategy}>
           {tiersAsTierListTiers.map((tier) => (
             <TierRow
               key={tier.id}
               tier={tier}
-              items={[]} // No items in template tiers editor
+              items={[]}
               activeId={activeId}
               showItemName={false}
               isDragging={draggingTierId === tier.id}
@@ -164,7 +176,6 @@ export function TemplateTiersVisualEditor({ tiers, onChange }: TemplateTiersVisu
           ))}
         </SortableContext>
 
-        {/* Add Tier Button */}
         <div className="flex justify-center px-2 sm:px-4 pt-4">
           <Button
             type="button"

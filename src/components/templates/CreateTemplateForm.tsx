@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -89,6 +89,7 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
   const imageService = new ImageService()
   const categoryService = new CategoryService()
   const isCloneMode = Boolean(cloneSourceId)
+  const hadCloneFromUrlRef = useRef(Boolean(initialCloneFromId?.trim()))
 
   useEffect(() => {
     setCloneIdInput(initialCloneFromId?.trim() || '')
@@ -141,8 +142,17 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
     []
   )
 
+  // Só reseta o formulário ao SAIR do modo clone (URL `from` removida).
+  // Não depende de `reset` a cada render — isso recriava tiers padrão e apagava edições.
   useEffect(() => {
-    if (initialCloneFromId?.trim()) return
+    const hasCloneFromUrl = Boolean(initialCloneFromId?.trim())
+    if (hasCloneFromUrl) {
+      hadCloneFromUrlRef.current = true
+      return
+    }
+    if (!hadCloneFromUrlRef.current) return
+    hadCloneFromUrlRef.current = false
+
     setCloneSourceId(null)
     setCloneSourceName(null)
     setCloneLoadError(null)

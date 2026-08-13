@@ -245,6 +245,9 @@ export const TierColumn = memo(function TierColumn({
   if (prevProps.activeId !== nextProps.activeId) return false
   if (prevProps.isDragging !== nextProps.isDragging) return false
   if (prevProps.showItemName !== nextProps.showItemName) return false
+  if (prevProps.onTierNameChange !== nextProps.onTierNameChange) return false
+  if (prevProps.onTierColorChange !== nextProps.onTierColorChange) return false
+  if (prevProps.onTierDelete !== nextProps.onTierDelete) return false
   
   // Compara items por IDs
   if (prevProps.items.length !== nextProps.items.length) return false

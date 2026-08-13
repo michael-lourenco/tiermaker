@@ -176,7 +176,7 @@ export function TemplateTiersVisualEditor({ tiers, onChange }: TemplateTiersVisu
           ))}
         </SortableContext>
 
-        <div className="flex justify-center px-2 sm:px-4 pt-4">
+        <div className="flex justify-center px-1 sm:px-2 pt-2">
           <Button
             type="button"
             onClick={handleAddTier}

@@ -8,7 +8,12 @@ import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { TemplateService } from '@/services/template.service'
 import { CategoryService, type Category } from '@/services/category.service'
 import { ImageService } from '@/services/image.service'
@@ -511,25 +516,29 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
       : t('createTemplate.createTemplate')
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 px-4 sm:px-6 md:px-0">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 md:space-y-3 px-2 sm:px-3 md:px-0">
       <Card>
-        <CardHeader>
-          <CardTitle className="text-xl sm:text-2xl">
-            {isCloneMode ? t('createTemplate.cloneModeTitle') : t('createTemplate.title')}
-          </CardTitle>
-          <CardDescription className="text-sm">
-            {isCloneMode ? t('createTemplate.cloneModeSubtitle') : t('createTemplate.subtitle')}
-          </CardDescription>
+        <CardHeader className="p-3 space-y-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CardTitle className="text-xl sm:text-2xl w-fit cursor-help">
+                {isCloneMode ? t('createTemplate.cloneModeTitle') : t('createTemplate.title')}
+              </CardTitle>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" align="start" className="max-w-sm text-left">
+              <p>{isCloneMode ? t('createTemplate.cloneModeSubtitle') : t('createTemplate.subtitle')}</p>
+            </TooltipContent>
+          </Tooltip>
           {isCloneMode && cloneSourceName && (
-            <p className="text-sm text-muted-foreground pt-1">
+            <p className="text-sm text-muted-foreground pt-0.5">
               {t('createTemplate.cloneBasedOn', { name: cloneSourceName })}
             </p>
           )}
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2 rounded-lg border border-dashed p-3 sm:p-4">
+        <CardContent className="space-y-2 p-3 pt-0">
+          <div className="space-y-1.5 rounded-lg border border-dashed p-1.5 sm:p-2">
             <p className="text-sm font-medium">{t('createTemplate.cloneByIdLabel')}</p>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-1.5">
               <Input
                 value={cloneIdInput}
                 onChange={(e) => setCloneIdInput(e.target.value)}
@@ -546,10 +555,10 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
             <p className="text-sm text-muted-foreground">{t('createTemplate.cloneLoading')}</p>
           )}
           {cloneLoadError && (
-            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{cloneLoadError}</div>
+            <div className="p-1.5 text-sm text-destructive bg-destructive/10 rounded-md">{cloneLoadError}</div>
           )}
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label className="text-sm font-medium">{t('createTemplate.coverImage')}</label>
             {cover ? (
               <div className="relative group">
@@ -576,9 +585,9 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
                 htmlFor="cover-upload"
                 className="flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed border-border rounded-lg cursor-pointer active:bg-accent transition-colors touch-manipulation"
               >
-                <div className="flex flex-col items-center justify-center pt-4 sm:pt-5 pb-4 sm:pb-6 px-4">
-                  <Upload className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-muted-foreground" />
-                  <p className="mb-2 text-xs sm:text-sm text-muted-foreground text-center">
+                <div className="flex flex-col items-center justify-center pt-2 sm:pt-2.5 pb-2 sm:pb-3 px-2">
+                  <Upload className="w-6 h-6 sm:w-8 sm:h-8 mb-1 text-muted-foreground" />
+                  <p className="mb-1 text-xs sm:text-sm text-muted-foreground text-center">
                     <span className="font-semibold">{t('createTemplate.clickToUpload')}</span>{' '}
                     {t('createTemplate.coverImageDescription')}
                   </p>
@@ -596,7 +605,7 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label htmlFor="name" className="text-sm font-medium">
               {t('createTemplate.templateName')}
             </label>
@@ -604,7 +613,7 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label htmlFor="description" className="text-sm font-medium">
               {t('createTemplate.description')}
             </label>
@@ -615,7 +624,7 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label htmlFor="category_id" className="text-sm font-medium">
               {t('createTemplate.category')}
             </label>
@@ -654,34 +663,46 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Tiers Padrão</CardTitle>
-          <CardDescription>
-            Configure as tiers padrão que serão usadas quando alguém criar uma tier list a partir deste template.
-            Você pode editar o nome e a cor de cada tier, reordenar arrastando, adicionar novas ou remover.
-          </CardDescription>
+        <CardHeader className="p-3 space-y-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CardTitle className="w-fit cursor-help">Tiers Padrão</CardTitle>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" align="start" className="max-w-sm text-left">
+              <p>
+                Configure as tiers padrão que serão usadas quando alguém criar uma tier list a partir deste template.
+                Você pode editar o nome e a cor de cada tier, reordenar arrastando, adicionar novas ou remover.
+              </p>
+            </TooltipContent>
+          </Tooltip>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 pt-0">
           <TemplateTiersVisualEditor tiers={tiers} onChange={setTiers} />
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{t('createTemplate.templateItems')}</CardTitle>
-          <CardDescription>
-            {isCloneMode ? t('createTemplate.cloneItemsHint') : t('createTemplate.templateItemsDescription')}
-          </CardDescription>
+        <CardHeader className="p-3 space-y-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CardTitle className="w-fit cursor-help">{t('createTemplate.templateItems')}</CardTitle>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" align="start" className="max-w-sm text-left">
+              <p>
+                {isCloneMode ? t('createTemplate.cloneItemsHint') : t('createTemplate.templateItemsDescription')}
+              </p>
+            </TooltipContent>
+          </Tooltip>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-2 p-3 pt-0">
           <div>
             <label
               htmlFor="file-upload"
               className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent transition-colors"
             >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                <p className="mb-2 text-sm text-muted-foreground">
+              <div className="flex flex-col items-center justify-center pt-2.5 pb-3">
+                <Upload className="w-8 h-8 mb-1 text-muted-foreground" />
+                <p className="mb-1 text-sm text-muted-foreground">
                   <span className="font-semibold">{t('createTemplate.clickToUpload')}</span>{' '}
                   {t('createTemplate.dragAndDrop')}
                 </p>
@@ -698,12 +719,12 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
               />
             </label>
             {addingItemBusy && (
-              <p className="text-xs text-muted-foreground mt-2">{t('createTemplate.cloneUploadingNewItems')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('createTemplate.cloneUploadingNewItems')}</p>
             )}
           </div>
 
           {items.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2">
               {items.map((item) => (
                 <div key={item.id} className="relative group">
                   <div className="relative aspect-square rounded-lg overflow-hidden border">
@@ -726,7 +747,7 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
                   <Input
                     value={item.name}
                     onChange={(e) => updateItemName(item.id, e.target.value)}
-                    className="mt-2 text-xs sm:text-sm"
+                    className="mt-1 text-xs sm:text-sm"
                     placeholder="Item name"
                   />
                 </div>
@@ -734,11 +755,11 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
             </div>
           )}
 
-          {error && <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>}
+          {error && <div className="p-1.5 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>}
         </CardContent>
       </Card>
 
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pb-4 sm:pb-0">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-1.5 sm:gap-2 pb-2 sm:pb-0">
         <Button type="button" variant="outline" onClick={() => router.back()} disabled={uploading} className="w-full sm:w-auto">
           {t('common.cancel')}
         </Button>

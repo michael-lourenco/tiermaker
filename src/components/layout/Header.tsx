@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { LanguageSelector } from '@/components/language/language-selector'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useTheme } from 'next-themes'
-import { Menu, X, ChevronDown, LayoutGrid, FolderOpen, List, Plus, User } from 'lucide-react'
+import { Menu, LayoutTemplate, Tags, ListOrdered, SquarePlus, User } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import {
   Sheet,
@@ -30,6 +30,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils/cn'
 import { isAdminEmail } from '@/lib/utils/admin'
 import { Badge } from '@/components/ui/badge'
@@ -69,28 +75,12 @@ export function Header() {
   }
 
   const navLinks = [
-    { href: '/categories', label: t('nav.categories'), icon: FolderOpen },
-    { href: '/templates', label: t('nav.templates'), icon: LayoutGrid },
-    { href: '/tierlists', label: t('nav.tierLists') || 'Tier Lists', icon: List },
+    { href: '/categories', label: t('nav.categories'), icon: Tags },
+    { href: '/templates', label: t('nav.templates'), icon: LayoutTemplate },
+    { href: '/tierlists', label: t('nav.tierLists') || 'Tier Lists', icon: ListOrdered },
   ]
 
   const isAdmin = user && isAdminEmail(user.email || null)
-
-  const NavLink = ({ href, label, className }: { href: string; label: string; className?: string }) => (
-    <Link
-      href={href}
-      className={cn(
-        'relative text-sm font-medium transition-all duration-200 rounded-md px-3 py-2',
-        isActive(href)
-          ? 'bg-primary/10 text-primary font-semibold'
-          : 'text-muted-foreground hover:text-foreground hover:bg-accent',
-        className
-      )}
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      {label}
-    </Link>
-  )
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -128,53 +118,55 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-2 flex-1 justify-end min-w-0">
-            {/* Explorar Dropdown - Agrupa links principais */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className={cn(
-                    (isActive('/categories') || isActive('/templates') || isActive('/tierlists')) && 
-                    'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
-                  )}
-                >
-                  <LayoutGrid className="h-4 w-4 mr-1" />
-                  {t('nav.explore')}
-                  <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {navLinks.map((link) => {
-                  const Icon = link.icon
-                  return (
-                    <DropdownMenuItem key={link.href} asChild>
-                      <Link 
-                        href={link.href}
-                        className={cn(
-                          'w-full cursor-pointer flex items-center gap-2',
-                          isActive(link.href) && 'bg-primary/10 text-primary font-semibold'
-                        )}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {link.label}
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-end min-w-0">
+            <TooltipProvider delayDuration={200}>
+              {navLinks.map((link) => {
+                const Icon = link.icon
+                return (
+                  <Tooltip key={link.href}>
+                    <TooltipTrigger asChild>
+                      <Link href={link.href}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            'px-2',
+                            isActive(link.href) &&
+                              'bg-primary/10 text-primary font-semibold hover:bg-primary/20'
+                          )}
+                          aria-label={link.label}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
                       </Link>
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>{link.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )
+              })}
 
-            {/* Criar Template - Ícone apenas */}
-            {user && (
-              <Link href="/create-template">
-                <Button variant="default" size="sm" className="px-2">
-                  <Plus className="h-4 w-4" />
-                  <span className="hidden lg:inline ml-1">{t('nav.createTemplate')}</span>
-                </Button>
-              </Link>
-            )}
+              {user && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/create-template">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="px-2"
+                        aria-label={t('nav.createTemplate')}
+                      >
+                        <SquarePlus className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>{t('nav.createTemplate')}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </TooltipProvider>
 
             {/* Menu do Usuário */}
             {loading ? (

@@ -143,6 +143,7 @@ export interface Translations {
   createTemplate: {
     title: string
     subtitle: string
+    pageSubtitle: string
     coverImage: string
     coverImageDescription: string
     templateName: string

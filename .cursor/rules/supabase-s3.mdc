@@ -1,0 +1,15 @@
+---
+description: Supabase clients, RLS e uploads S3
+globs: src/lib/supabase/**,src/lib/aws/**,src/app/api/**,src/services/**
+alwaysApply: false
+---
+
+# Supabase e S3
+
+- Browser: `createClient` de `@/lib/supabase/client`
+- Server (sessão): `createClient` de `@/lib/supabase/server`
+- Service role: só no server, casos privilegiados explícitos
+- Schema novo = migration em `supabase/migrations/`
+- Upload/delete via APIs + `lib/aws/s3.ts`; clone usa `cloneTemplateImages`
+
+Nunca expor `SUPABASE_SERVICE_ROLE_KEY` ou `STRIPE_SECRET_KEY` ao client. Spec: `.cursor/specs/infrastructure.md`.

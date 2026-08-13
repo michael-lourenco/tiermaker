@@ -1,0 +1,16 @@
+---
+description: Sempre atualizar pt + en + types ao mudar copy de UI
+globs: src/components/**/*.tsx,src/lib/i18n/**
+alwaysApply: false
+---
+
+# i18n
+
+Ao adicionar/alterar texto de UI:
+
+1. `src/lib/i18n/translations/pt.json`
+2. `src/lib/i18n/translations/en.json`
+3. `src/lib/i18n/types.ts` (`Translations`)
+4. Usar `t('path.key')` via `useTranslation()`
+
+Não hardcodar strings de produto em um único idioma. Spec: `.cursor/specs/i18n.md`.

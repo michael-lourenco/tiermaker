@@ -1,0 +1,23 @@
+---
+description: Login-only access e admin por e-mail — nunca plan gates
+alwaysApply: true
+---
+
+# Modelo de acesso
+
+- **Logado** = acesso completo às features do app
+- **Admin** = allowlist em `src/lib/utils/admin.ts` (`isAdminEmail` / `isAdmin`)
+- Pages privadas: `getUser()` + `redirect('/login')`
+- APIs privadas: `401` sem usuário
+
+## Não fazer
+```typescript
+// ❌ BAD — regressão freemium
+if (!isPremium) return NextResponse.json({ limitReached: true }, { status: 403 })
+const can = await limitService.canPerformAction(userId, 'templates_count')
+
+// ✅ GOOD — só autenticação
+if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+```
+
+Redirects legados: `/pricing` → `/`, `/account/subscription` → `/profile`. Detalhes: `.cursor/specs/access-control.md`.

@@ -1,0 +1,15 @@
+---
+description: Stripe apenas como doação voluntária
+globs: src/**/*stripe*|src/components/donation/**|src/app/api/stripe/**
+alwaysApply: false
+---
+
+# Doações Stripe
+
+- Checkout: `once` → `mode: 'payment'`; `month`/`year` → `mode: 'subscription'`
+- Metadata: `type: 'donation'`
+- Webhook **não** altera permissões
+- UI principal = doação avulsa; recorrente é secundário
+- Envs: `STRIPE_*`, `NEXT_PUBLIC_STRIPE_PRICE_DONATION_ONCE`, `NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_*`
+
+Não criar portal de assinatura premium nem vincular doação a features. Spec: `.cursor/specs/donations.md`.

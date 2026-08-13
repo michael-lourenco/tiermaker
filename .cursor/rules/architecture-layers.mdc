@@ -1,0 +1,28 @@
+---
+description: Camadas app/services/types/lib — Clean Architecture no App Router
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Arquitetura de código
+
+## Camadas
+| Pasta | Papel |
+|-------|--------|
+| `app/` | Rotas, Server Components, API Routes |
+| `components/` | UI por domínio + `ui/` shadcn |
+| `services/` | Casos de uso / persistência (classes `*.service.ts`) |
+| `types/` | Contratos de domínio |
+| `lib/` | Infra (Supabase, S3, Stripe, i18n) |
+| `hooks/` | Lógica reativa reutilizável |
+
+## Padrão de feature
+1. `page.tsx` (server): auth + service + props
+2. `*PageClient.tsx`: UI interativa
+3. Mutação sensível → `app/api/**` → service
+4. Services recebem client Supabase no constructor (injeção)
+
+## Dependências
+- `services` não importam React/`components`
+- Preferir `@/` alias
+- Detalhes: `.cursor/specs/architecture.md`

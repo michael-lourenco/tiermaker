@@ -1,0 +1,30 @@
+---
+description: Fonte de verdade, SOLID/Clean Architecture e restrições globais do SuperTierMaker
+alwaysApply: true
+---
+
+# Core do projeto
+
+## Fonte de verdade
+Antes de implementar, alinhar com:
+- `.cursor/specs/*` (produto, arquitetura, domínio, acesso, API, doações, editores, i18n, infra)
+- `AGENTS.md` e `.cursor/agents/*` para o papel do agente
+- Skills em `.cursor/skills/*/SKILL.md` quando a tarefa casar com o domínio
+
+Se código e specs divergirem, **atualizar a spec** junto com o código (ou pedir confirmação).
+
+## Comunicação
+- Responder ao usuário em **português (pt-BR)**
+- Não criar documentação `step-by-step/` nem READMEs não pedidos
+- Não rodar testes a menos que o usuário peça
+
+## Qualidade
+- SOLID, Clean Architecture (camadas do projeto) e Clean Code
+- Mudanças mínimas e focadas; sem refactors amplos não solicitados
+- Arquivos preferencialmente &lt; 200–300 linhas; extrair quando crescerem
+- Não sobrescrever `.env` sem confirmação explícita
+
+## Proibições de produto
+- Não reintroduzir planos, paywall, limites por assinatura ou `isPremium` como gate
+- Stripe = doações apenas (ver spec `donations.md`)
+- Não reativar ads sem pedido explícito

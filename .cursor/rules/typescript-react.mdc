@@ -1,0 +1,16 @@
+---
+description: Convenções TypeScript/React do SuperTierMaker
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeScript e React
+
+- `'use client'` só quando necessário (hooks de browser, eventos, estado local)
+- Components: PascalCase; services: `foo.service.ts`; types: `foo.types.ts`
+- Page clients: `*PageClient.tsx`
+- UI primitives em `components/ui`; features em pastas de domínio
+- Forms: preferir padrões já usados (RHF + zod quando já no fluxo)
+- Estilo: Tailwind + `cn()` de `@/lib/utils/cn`
+- Evitar `any`; preferir types de `src/types`
+- Não adicionar Zustand/`src/store` sem pedido

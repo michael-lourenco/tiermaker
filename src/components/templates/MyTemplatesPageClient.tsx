@@ -26,6 +26,7 @@ import { TemplateService } from '@/services/template.service'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
+import { COVER_ASPECT_CLASS } from '@/lib/utils/coverAspect'
 
 interface MyTemplatesPageClientProps {
   templates: Array<Template & { categories: Array<{ id: string; name: string; slug: string }>, deleted_at?: string | null }>
@@ -271,7 +272,7 @@ function TemplateCard({ template, onDelete, onRestore, deleting, restoring, t }:
 
       {/* Cover Image */}
       {template.cover_image_url ? (
-        <div className="relative aspect-video w-full overflow-hidden">
+        <div className={`relative ${COVER_ASPECT_CLASS} w-full overflow-hidden`}>
           <Image
             src={template.cover_image_url}
             alt={template.name}
@@ -305,7 +306,7 @@ function TemplateCard({ template, onDelete, onRestore, deleting, restoring, t }:
           </div>
         </div>
       ) : (
-        <div className="relative aspect-video w-full bg-muted flex items-center justify-center">
+        <div className={`relative ${COVER_ASPECT_CLASS} w-full bg-muted flex items-center justify-center`}>
           <div className="text-center p-4">
             <h3 className="text-lg font-bold mb-2 line-clamp-2">
               {template.name}

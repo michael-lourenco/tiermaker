@@ -44,7 +44,11 @@
     "popularTierLists": "Tier Lists Populares",
     "viewAllTierLists": "Ver Todas",
     "noTemplates": "Nenhum template disponível ainda. Seja o primeiro a criar um!",
-    "createFirstTemplate": "Criar Seu Primeiro Template"
+    "createFirstTemplate": "Criar Seu Primeiro Template",
+    "onboardingTitle": "Comece em 30 segundos",
+    "onboardingDescription": "Escolha um template público, arraste os itens nos tiers e salve ou compartilhe sua lista. Templates públicos precisam de imagem de capa.",
+    "onboardingCta": "Explorar templates",
+    "onboardingLogin": "Entrar para criar"
   },
   "templates": {
     "title": "Templates",
@@ -53,6 +57,10 @@
     "categoryFilter": "Templates em",
     "clearFilter": "Limpar filtro",
     "browseCategories": "Explorar Categorias",
+    "searchPlaceholder": "Buscar templates...",
+    "allCategories": "Todas as categorias",
+    "sortRecent": "Mais recentes",
+    "sortName": "Nome (A–Z)",
     "viewTemplate": "Ver Template",
     "noTemplatesFound": "Nenhum template encontrado",
     "views": "visualizações",
@@ -96,7 +104,8 @@
     "backToTemplates": "← Voltar para Templates",
     "createTierList": "Criar Tier List com este Template",
     "category": "Categoria",
-    "cloneTemplate": "Clonar template"
+    "cloneTemplate": "Clonar template",
+    "canvasEditorExperimental": "Editor canvas (experimental)"
   },
   "editor": {
     "tierListTitle": "Título da Tier List",
@@ -150,8 +159,12 @@
     "pageSubtitle": "Traga sua ideia: adicione itens, defina os tiers e compartilhe um template que a comunidade vai adorar ranquear.",
     "coverImage": "Imagem de Capa",
     "coverImageDescription": "Clique para fazer upload da imagem de capa",
-    "coverImageAspectHint": "Proporção obrigatória 2560×1080 (pode ser menor ou maior, desde que mantenha essa razão — ex.: 1280×540).",
+    "coverImageAspectHint": "Proporção 2560×1080: você pode recortar qualquer imagem nessa razão no upload.",
     "coverImageAspectInvalid": "A imagem de capa deve ter a proporção 2560×1080. Escolha outra imagem nessa razão.",
+    "coverCropTitle": "Ajustar imagem de capa",
+    "coverCropHint": "Mova e dê zoom para enquadrar na proporção 2560×1080.",
+    "coverCropZoom": "Zoom",
+    "coverCropConfirm": "Usar recorte",
     "coverRequiredForPublic": "Para tornar o template público, é obrigatório adicionar uma imagem de capa.",
     "templateName": "Nome do Template *",
     "templateNamePlaceholder": "ex: Melhores Jogos 2024",
@@ -200,6 +213,7 @@
     "deleteError": "Erro ao excluir tier list. Por favor, tente novamente.",
     "deleting": "Excluindo...",
     "viewTooltip": "Visualizar esta tier list",
+    "editTooltip": "Editar esta tier list",
     "deleteTooltip": "Excluir esta tier list"
   },
   "tierList": {
@@ -216,6 +230,7 @@
     "sortRecent": "Mais Recentes",
     "sortViews": "Mais Visualizadas",
     "sortLikes": "Mais Curtidas",
+    "makeMyVersion": "Fazer minha versão",
     "clearFilters": "Limpar Filtros",
     "foundCount": "tier list encontrada",
     "foundCountPlural": "tier lists encontradas",

@@ -14,6 +14,7 @@ import { AdSpace } from '@/components/ads/AdSpace'
 import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
 import { useAuth } from '@/hooks/useAuth'
 import { Copy } from 'lucide-react'
+import { COVER_ASPECT_CLASS } from '@/lib/utils/coverAspect'
 import type { TemplateWithItemsAndCategories } from '@/types/template.types'
 
 interface TemplatePageClientProps {
@@ -45,12 +46,12 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
         {/* <AdSpace position="content-top" /> */}
 
         {template.cover_image_url && (
-          <div className="relative w-1/4 aspect-video rounded-lg overflow-hidden mb-6 md:mb-8">
+          <div className={`relative w-full max-w-xl ${COVER_ASPECT_CLASS} rounded-lg overflow-hidden mb-6 md:mb-8`}>
             <Image
               src={template.cover_image_url}
               alt={template.name}
               fill
-              sizes="(max-width: 768px) 100vw, 20vw"
+              sizes="(max-width: 768px) 100vw, 40vw"
               className="object-cover"
             />
           </div>
@@ -93,6 +94,11 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
                 </Button>
               </Link>
             )}
+            <Link href={`/editor/new/${template.id}`} className="w-full sm:w-auto">
+              <Button size="lg" variant="ghost" className="w-full sm:w-auto text-muted-foreground">
+                {t('template.canvasEditorExperimental')}
+              </Button>
+            </Link>
           </div>
           <div className="flex items-center gap-2">
             <Label htmlFor="show-item-names-template" className="text-sm cursor-pointer">

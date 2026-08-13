@@ -13,6 +13,8 @@ import type { TierListWithData } from '@/types/tierList.types'
 import { AdSpace } from '@/components/ads/AdSpace'
 import { PageWithSidebar } from '@/components/layout/PageWithSidebar'
 
+import { OnboardingBanner } from '@/components/home/OnboardingBanner'
+
 interface HomePageClientProps {
   templates: TemplateWithCategories[]
   categories: Category[]
@@ -48,6 +50,10 @@ export function HomePageClient({ templates, categories, tierLists = [] }: HomePa
           </div>
         </div>
       </section>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pt-6">
+        <OnboardingBanner />
+      </div>
 
       {/* Ad Space - Header Top */}
       {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}

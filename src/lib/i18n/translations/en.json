@@ -44,7 +44,11 @@
     "popularTierLists": "Popular Tier Lists",
     "viewAllTierLists": "View All",
     "noTemplates": "No templates available yet. Be the first to create one!",
-    "createFirstTemplate": "Create Your First Template"
+    "createFirstTemplate": "Create Your First Template",
+    "onboardingTitle": "Get started in 30 seconds",
+    "onboardingDescription": "Pick a public template, drag items into tiers, then save or share. Public templates need a cover image.",
+    "onboardingCta": "Browse templates",
+    "onboardingLogin": "Sign in to create"
   },
   "templates": {
     "title": "Templates",
@@ -53,6 +57,10 @@
     "categoryFilter": "Templates in",
     "clearFilter": "Clear filter",
     "browseCategories": "Browse Categories",
+    "searchPlaceholder": "Search templates...",
+    "allCategories": "All categories",
+    "sortRecent": "Most recent",
+    "sortName": "Name (A–Z)",
     "viewTemplate": "View Template",
     "noTemplatesFound": "No templates found",
     "views": "views",
@@ -96,7 +104,8 @@
     "backToTemplates": "← Back to Templates",
     "createTierList": "Create Tier List with this Template",
     "category": "Category",
-    "cloneTemplate": "Clone template"
+    "cloneTemplate": "Clone template",
+    "canvasEditorExperimental": "Canvas editor (experimental)"
   },
   "editor": {
     "tierListTitle": "Tier List Title",
@@ -150,8 +159,12 @@
     "pageSubtitle": "Bring your idea: add items, set the tiers, and share a template the community will love to rank.",
     "coverImage": "Cover Image",
     "coverImageDescription": "Click to upload cover image",
-    "coverImageAspectHint": "Required aspect ratio 2560×1080 (any size is fine as long as it matches — e.g. 1280×540).",
+    "coverImageAspectHint": "2560×1080 aspect: you can crop any image to this ratio on upload.",
     "coverImageAspectInvalid": "The cover image must use the 2560×1080 aspect ratio. Please choose another image with that ratio.",
+    "coverCropTitle": "Adjust cover image",
+    "coverCropHint": "Move and zoom to fit the 2560×1080 ratio.",
+    "coverCropZoom": "Zoom",
+    "coverCropConfirm": "Use crop",
     "coverRequiredForPublic": "To make the template public, a cover image is required.",
     "templateName": "Template Name *",
     "templateNamePlaceholder": "e.g., Best Video Games 2024",
@@ -200,6 +213,7 @@
     "deleteError": "Error deleting tier list. Please try again.",
     "deleting": "Deleting...",
     "viewTooltip": "View this tier list",
+    "editTooltip": "Edit this tier list",
     "deleteTooltip": "Delete this tier list"
   },
   "tierList": {
@@ -216,6 +230,7 @@
     "sortRecent": "Most Recent",
     "sortViews": "Most Viewed",
     "sortLikes": "Most Liked",
+    "makeMyVersion": "Make my version",
     "clearFilters": "Clear Filters",
     "foundCount": "tier list found",
     "foundCountPlural": "tier lists found",

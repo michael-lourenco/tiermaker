@@ -39,9 +39,16 @@ export interface Translations {
     subtitle: string
     browseTemplates: string
     createYourOwn: string
+    popularCategories: string
     popularTemplates: string
+    popularTierLists: string
+    viewAllTierLists: string
     noTemplates: string
     createFirstTemplate: string
+    onboardingTitle: string
+    onboardingDescription: string
+    onboardingCta: string
+    onboardingLogin: string
   }
   templates: {
     title: string
@@ -50,6 +57,10 @@ export interface Translations {
     categoryFilter: string
     clearFilter: string
     browseCategories: string
+    searchPlaceholder: string
+    allCategories: string
+    sortRecent: string
+    sortName: string
     viewTemplate: string
     noTemplatesFound: string
     views: string
@@ -94,6 +105,7 @@ export interface Translations {
     createTierList: string
     category: string
     cloneTemplate: string
+    canvasEditorExperimental: string
   }
   editor: {
     tierListTitle: string
@@ -149,6 +161,10 @@ export interface Translations {
     coverImageDescription: string
     coverImageAspectHint: string
     coverImageAspectInvalid: string
+    coverCropTitle: string
+    coverCropHint: string
+    coverCropZoom: string
+    coverCropConfirm: string
     coverRequiredForPublic: string
     templateName: string
     templateNamePlaceholder: string
@@ -197,6 +213,7 @@ export interface Translations {
     deleteError: string
     deleting: string
     viewTooltip: string
+    editTooltip: string
     deleteTooltip: string
   }
   tierList: {
@@ -213,6 +230,7 @@ export interface Translations {
     sortRecent: string
     sortViews: string
     sortLikes: string
+    makeMyVersion: string
     clearFilters: string
     foundCount: string
     foundCountPlural: string

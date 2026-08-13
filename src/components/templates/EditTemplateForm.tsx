@@ -19,6 +19,7 @@ import { EditableTemplateItemCard } from './EditableTemplateItemCard'
 import { TemplateTiersVisualEditor, type TemplateTier } from './TemplateTiersVisualEditor'
 import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
 import { assertCoverAspectRatio, COVER_ASPECT_CLASS } from '@/lib/utils/coverAspect'
+import { CoverImageCropDialog } from '@/components/templates/CoverImageCropDialog'
 import type { TemplateWithItemsAndCategories, TemplateItem as TemplateItemType } from '@/types/template.types'
 
 const templateSchema = z.object({
@@ -46,6 +47,7 @@ interface EditTemplateFormProps {
 export function EditTemplateForm({ template }: EditTemplateFormProps) {
   const [items, setItems] = useState<EditableItem[]>([])
   const [coverImage, setCoverImage] = useState<{ file: File; preview: string; imageUrl?: string } | { imageUrl: string } | null>(null)
+  const [coverCropSrc, setCoverCropSrc] = useState<string | null>(null)
   const [tiers, setTiers] = useState<TemplateTier[]>([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -142,35 +144,43 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
 
   const handleCoverImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    e.target.value = ''
     if (!file) return
 
     const validation = imageService.validateImageFile(file)
     if (!validation.valid) {
       setError(validation.error || 'Invalid file')
-      e.target.value = ''
       return
     }
 
     try {
+      const preview = await imageService.createPreviewUrl(file)
+      setCoverCropSrc(preview)
+      setError(null)
+    } catch {
+      setError('Failed to process cover image')
+    }
+  }
+
+  const handleCoverCropConfirm = async (file: File) => {
+    setCoverCropSrc(null)
+    const validation = imageService.validateImageFile(file)
+    if (!validation.valid) {
+      setError(validation.error || 'Invalid file')
+      return
+    }
+    try {
       await assertCoverAspectRatio(file)
+      const preview = await imageService.createPreviewUrl(file)
+      setCoverImage({ file, preview })
+      setError(null)
     } catch (err) {
       if (err instanceof Error && err.message === 'COVER_ASPECT_INVALID') {
         setError(t('createTemplate.coverImageAspectInvalid'))
       } else {
         setError('Failed to process cover image')
       }
-      e.target.value = ''
-      return
     }
-
-    try {
-      const preview = await imageService.createPreviewUrl(file)
-      setCoverImage({ file, preview })
-      setError(null)
-    } catch {
-      setError('Failed to process cover image')
-    }
-    e.target.value = ''
   }
 
   const removeCoverImage = () => {
@@ -298,6 +308,7 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardContent className="space-y-4 pt-6">
@@ -514,6 +525,15 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
         </Button>
       </div>
     </form>
+    {coverCropSrc && (
+      <CoverImageCropDialog
+        open
+        imageSrc={coverCropSrc}
+        onCancel={() => setCoverCropSrc(null)}
+        onConfirm={(file) => void handleCoverCropConfirm(file)}
+      />
+    )}
+    </>
   )
 }
 

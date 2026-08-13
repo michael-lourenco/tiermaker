@@ -222,12 +222,26 @@ export class TierListService {
   ): Promise<TierListWithData> {
     // Update tier list metadata
     if (updates.title !== undefined || updates.is_public !== undefined) {
+      let isPublic = updates.is_public
+      if (updates.is_public !== undefined) {
+        const { data: meta } = await this.supabase
+          .from('tier_lists')
+          .select('template_id, templates(cover_image_url)')
+          .eq('id', tierListId)
+          .single()
+        const templatesRel = meta?.templates
+        const cover = Array.isArray(templatesRel)
+          ? templatesRel[0]?.cover_image_url
+          : templatesRel?.cover_image_url
+        isPublic = resolveIsPublic(updates.is_public, cover)
+      }
+
       const supabase = this.supabase as any
       const { error } = await supabase
         .from('tier_lists')
         .update({
-          title: updates.title,
-          is_public: updates.is_public,
+          ...(updates.title !== undefined ? { title: updates.title } : {}),
+          ...(updates.is_public !== undefined ? { is_public: isPublic } : {}),
         })
         .eq('id', tierListId)
         .eq('user_id', userId || null)

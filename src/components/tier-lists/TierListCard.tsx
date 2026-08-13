@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Heart, Eye, Share2, Plus, ExternalLink } from 'lucide-react'
+import { Heart, Eye, Plus, ExternalLink } from 'lucide-react'
 import { TierListThumbnail } from '@/components/my-tier-lists/TierListThumbnail'
 import { ShareButton } from '@/components/share/ShareButton'
 import { useAuth } from '@/hooks/useAuth'
@@ -144,13 +144,13 @@ export function TierListCard({ tierList, onLike }: TierListCardProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="p-3 bg-background flex gap-2 min-w-0">
+        <div className="p-3 bg-background flex gap-2 min-w-0 items-center">
           <Link
             href={`/tier-lists/${tierList.id}`}
-            className="flex-1 min-w-[80px] sm:min-w-0"
+            className="flex-shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <Button variant="outline" size="sm" className="w-full text-xs">
+            <Button variant="outline" size="sm" className="text-xs whitespace-nowrap px-2.5">
               <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" />
               <span>{t('tierList.view')}</span>
             </Button>
@@ -161,17 +161,18 @@ export function TierListCard({ tierList, onLike }: TierListCardProps) {
               data={tierList}
               size="sm"
               variant="outline"
-              className="min-w-[60px]"
+              iconOnly
+              className="h-8 w-8"
             />
           </div>
           <Link
             href={`/editor/${tierList.template_id}`}
             onClick={(e) => e.stopPropagation()}
-            className="flex-shrink-0 min-w-[80px]"
+            className="flex-1 min-w-0"
           >
-            <Button variant="outline" size="sm" className="text-xs w-full whitespace-nowrap">
+            <Button variant="outline" size="sm" className="w-full text-xs whitespace-nowrap px-2.5">
               <Plus className="h-3 w-3 mr-1 flex-shrink-0" />
-              <span>{t('tierList.create')}</span>
+              <span>{t('tierList.makeMyVersion')}</span>
             </Button>
           </Link>
         </div>

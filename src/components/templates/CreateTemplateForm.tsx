@@ -24,6 +24,7 @@ import { X, Upload } from 'lucide-react'
 import { TemplateTiersVisualEditor, type TemplateTier } from './TemplateTiersVisualEditor'
 import { DEFAULT_TIERS, TIER_COLORS } from '@/lib/constants/tiers'
 import { assertCoverAspectRatio, COVER_ASPECT_CLASS } from '@/lib/utils/coverAspect'
+import { CoverImageCropDialog } from '@/components/templates/CoverImageCropDialog'
 
 const templateSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
@@ -71,6 +72,7 @@ export interface CreateTemplateFormProps {
 export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormProps) {
   const [items, setItems] = useState<TemplateFormItem[]>([])
   const [cover, setCover] = useState<CoverForm>(null)
+  const [coverCropSrc, setCoverCropSrc] = useState<string | null>(null)
   const [tiers, setTiers] = useState<TemplateTier[]>(
     DEFAULT_TIERS.map((name, index) => ({
       id: `tier-${name}-${Date.now()}-${index}`,
@@ -267,14 +269,10 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
     }
   }
 
-  const handleCoverImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  const applyCoverFile = async (file: File) => {
     const validation = imageService.validateImageFile(file)
     if (!validation.valid) {
       setError(validation.error || 'Invalid file')
-      e.target.value = ''
       return
     }
 
@@ -286,7 +284,6 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
       } else {
         setError('Failed to process cover image')
       }
-      e.target.value = ''
       return
     }
 
@@ -310,7 +307,31 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
     } finally {
       setUploading(false)
     }
+  }
+
+  const handleCoverImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
     e.target.value = ''
+    if (!file) return
+
+    const validation = imageService.validateImageFile(file)
+    if (!validation.valid) {
+      setError(validation.error || 'Invalid file')
+      return
+    }
+
+    try {
+      const preview = await imageService.createPreviewUrl(file)
+      setCoverCropSrc(preview)
+      setError(null)
+    } catch {
+      setError('Failed to process cover image')
+    }
+  }
+
+  const handleCoverCropConfirm = async (file: File) => {
+    setCoverCropSrc(null)
+    await applyCoverFile(file)
   }
 
   const removeCoverImage = async () => {
@@ -539,6 +560,7 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
       : t('createTemplate.createTemplate')
 
   return (
+    <>
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 md:space-y-3 px-2 sm:px-3 md:px-0">
       <Card>
         <CardHeader className="p-3 space-y-1">
@@ -807,5 +829,14 @@ export function CreateTemplateForm({ initialCloneFromId }: CreateTemplateFormPro
       </div>
 
     </form>
+      {coverCropSrc && (
+        <CoverImageCropDialog
+          open
+          imageSrc={coverCropSrc}
+          onCancel={() => setCoverCropSrc(null)}
+          onConfirm={(file) => void handleCoverCropConfirm(file)}
+        />
+      )}
+    </>
   )
 }

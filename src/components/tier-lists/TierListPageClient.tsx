@@ -134,7 +134,7 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
                 <Link href={`/editor/${tierList.template_id}`}>
                   <Button variant="default" size="sm" className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />
-                    <span>{t('template.createTierList')}</span>
+                    <span>{t('tierList.makeMyVersion')}</span>
                   </Button>
                 </Link>
               </div>

@@ -4,10 +4,13 @@
 
 | Rota | Implementação | Uso |
 |------|---------------|-----|
-| `/editor/[templateId]` | DOM + `@dnd-kit` (`TierListEditor`) | Editor principal |
-| `/editor/new/[templateId]` | Canvas (`CanvasTierListEditor` + renderer/handlers) | Experimental / alternativo |
+| `/editor/[templateId]` | DOM + `@dnd-kit` (`TierListEditor`) | **Padrão de produto** |
+| `/editor/new/[templateId]` | Canvas (`CanvasTierListEditor`) | Experimental (link secundário na página do template) |
+| `/editor/edit/[tierListId]` | DOM + `updateTierList` | Editar lista existente (owner) |
 
-Ambos exigem login.
+Remix: `/editor/[templateId]?from=[tierListId]` pré-carrega ranking da lista fonte.
+
+Ambos os editores de criação exigem login.
 
 ## Responsabilidades
 - **Client page**: título, público/privado, save, draft (quando aplicável)

@@ -31,6 +31,7 @@ export class TemplateService {
     category?: string
     category_id?: string
     search?: string
+    sort?: 'recent' | 'name'
     limit?: number
     offset?: number
   }): Promise<Array<Template & { categories: Array<{ id: string; name: string; slug: string }> }>> {
@@ -87,7 +88,11 @@ export class TemplateService {
     }
 
     // Apply ordering
-    query = query.order('created_at', { ascending: false })
+    if (filters?.sort === 'name') {
+      query = query.order('name', { ascending: true })
+    } else {
+      query = query.order('created_at', { ascending: false })
+    }
 
     // Apply pagination
     if (filters?.limit) {
@@ -110,6 +115,42 @@ export class TemplateService {
         .filter(Boolean) as Array<{ id: string; name: string; slug: string }>
       return { ...template, categories } as Template & { categories: Array<{ id: string; name: string; slug: string }> }
     })
+  }
+
+  /**
+   * Count public templates matching the same filters as getPublicTemplates (for pagination).
+   */
+  async countPublicTemplates(filters?: {
+    category_id?: string
+    search?: string
+  }): Promise<number> {
+    let query
+    if (filters?.category_id) {
+      query = this.supabase
+        .from('templates')
+        .select('id, template_categories!inner(category_id)', { count: 'exact', head: true })
+        .eq('is_public', true)
+        .eq('template_categories.category_id', filters.category_id)
+        .is('deleted_at', null)
+        .not('cover_image_url', 'is', null)
+        .neq('cover_image_url', '')
+    } else {
+      query = this.supabase
+        .from('templates')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_public', true)
+        .is('deleted_at', null)
+        .not('cover_image_url', 'is', null)
+        .neq('cover_image_url', '')
+    }
+
+    if (filters?.search) {
+      query = query.ilike('name', `%${filters.search}%`)
+    }
+
+    const { count, error } = await query
+    if (error) throw error
+    return count || 0
   }
 
   /**

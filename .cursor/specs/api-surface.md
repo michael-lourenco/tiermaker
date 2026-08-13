@@ -5,6 +5,7 @@ Todas as rotas em `src/app/api/**`. Mutações sensíveis **não** devem ir dire
 | Método | Rota | Auth | Papel |
 |--------|------|------|-------|
 | GET/POST | `/api/auth/callback` | OAuth callback | Sessão Supabase |
+| GET | `/api/templates` | Não | Listagem pública (search, category, sort, paginação) |
 | POST | `/api/templates/create` | Sim | Cria template |
 | POST | `/api/templates/clone` | Sim | Clone + cópia S3 |
 | GET/POST | `/api/tierlists` | Conforme handler | Listagem/criação |

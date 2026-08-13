@@ -22,7 +22,7 @@ import {
 import { useTranslation } from '@/hooks/useTranslation'
 import type { TemplateWithItems } from '@/types/template.types'
 import type { TemplateItem } from '@/types/template.types'
-import type { TierListTier, TierListItem } from '@/types/tierList.types'
+import type { TierListTier, TierListItem, TierListWithData } from '@/types/tierList.types'
 
 interface TierListEditorClientProps {
   template: TemplateWithItems & {
@@ -35,9 +35,15 @@ interface TierListEditorClientProps {
       created_at: string
     }>
   }
+  remixSource?: TierListWithData | null
+  editTierList?: TierListWithData | null
 }
 
-export function TierListEditorClient({ template }: TierListEditorClientProps) {
+export function TierListEditorClient({
+  template,
+  remixSource = null,
+  editTierList = null,
+}: TierListEditorClientProps) {
   const { user } = useAuth()
   const router = useRouter()
   const tierListService = new TierListService()
@@ -69,9 +75,13 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   const [draftLastModified, setDraftLastModified] = useState<number | null>(null)
   
   // Estado inicial de title e isPublic: serão definidos no useEffect
-  const [title, setTitle] = useState(template.name || 'My Tier List')
-  const [isPublic, setIsPublic] = useState(false)
+  const [title, setTitle] = useState(
+    editTierList?.title ||
+      (remixSource ? `${remixSource.title}` : template.name || 'My Tier List')
+  )
+  const [isPublic, setIsPublic] = useState(editTierList?.is_public ?? false)
   const templateHasCover = Boolean(template.cover_image_url?.trim())
+  const isEditMode = Boolean(editTierList)
 
   const handleTogglePublic = () => {
     if (!isPublic && !templateHasCover) {
@@ -91,7 +101,69 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     const templateItems = templateItemsRef.current
     const templateName = templateNameRef.current
     const storageKey = storageKeyRef.current
-    
+
+    const applySource = (
+      source: TierListWithData,
+      opts?: { asDraft?: boolean; titleOverride?: string }
+    ) => {
+      if (source.tiers?.length) {
+        setInitialTiers(
+          source.tiers.map((tier) => ({
+            id: tier.id.startsWith('tier-') ? tier.id : `tier-${tier.id}`,
+            tier_list_id: '',
+            tier_name: tier.tier_name,
+            tier_order: tier.tier_order,
+            color: tier.color,
+            created_at: tier.created_at,
+          }))
+        )
+      }
+      if (source.items?.length && templateItems) {
+        const sourceMap = new Map(
+          source.items.map((item) => [item.template_item_id, item])
+        )
+        setInitialItems(
+          templateItems.map((templateItem) => {
+            const srcItem = sourceMap.get(templateItem.id)
+            return {
+              id: '',
+              tier_list_id: '',
+              template_item_id: templateItem.id,
+              tier_name: srcItem?.tier_name || '',
+              order: srcItem?.order ?? templateItems.indexOf(templateItem),
+              created_at: '',
+              template_item: templateItem,
+            } as TierListItem & { template_item: TemplateItem }
+          })
+        )
+      }
+      if (opts?.titleOverride) setTitle(opts.titleOverride)
+      else if (source.title) setTitle(source.title)
+      if (source.is_public !== undefined && isEditMode) {
+        setIsPublic(source.is_public)
+      }
+      if (opts?.asDraft) {
+        setHasDraft(true)
+      }
+      setIsLoadingDraft(false)
+    }
+
+    // Edit mode: load existing tier list (skip local draft)
+    if (editTierList) {
+      applySource(editTierList)
+      return
+    }
+
+    // Remix: seed from source tier list (skip local draft so ranking is visible)
+    if (remixSource) {
+      applySource(remixSource, {
+        titleOverride: remixSource.title
+          ? `${remixSource.title}`
+          : templateName || 'My Tier List',
+      })
+      return
+    }
+
     // PRIMEIRO: Verificar se existe no localStorage
     if (typeof window !== 'undefined') {
       try {
@@ -298,6 +370,21 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
     setSaving(true)
 
     try {
+      if (isEditMode && editTierList) {
+        await tierListService.updateTierList(
+          editTierList.id,
+          {
+            title,
+            is_public: isPublic,
+            tiers: data.tiers || [],
+            items: data.items || [],
+          },
+          user.id
+        )
+        router.push(`/tier-lists/${editTierList.id}`)
+        return
+      }
+
       const tierList = await tierListService.createTierList(
         {
           template_id: template.id,

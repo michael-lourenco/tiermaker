@@ -206,6 +206,19 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
                           </Tooltip>
                         </Link>
 
+                        <Link href={`/editor/edit/${tierList.id}`} className="flex-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="secondary" className="w-full text-sm sm:text-base touch-manipulation">
+                                {t('common.edit')}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{t('myTierLists.editTooltip')}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </Link>
+
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button

@@ -28,11 +28,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
               <span className="text-muted-foreground text-sm">No image</span>
             </div>
           )}
-          
-          {/* Overlay gradient for better text readability */}
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          
-          {/* Category - Top Left */}
+
           {template.categories && template.categories.length > 0 && (
             <div className="absolute top-2 left-2 z-10">
               <span className="px-2 py-1 bg-amber-600/90 text-white rounded text-xs font-medium backdrop-blur-sm">
@@ -40,14 +38,12 @@ export function TemplateCard({ template }: TemplateCardProps) {
               </span>
             </div>
           )}
-          
-          {/* Views - Top Right */}
+
           <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 bg-black/60 text-white rounded text-xs font-medium backdrop-blur-sm">
             <Eye className="h-3 w-3" />
             <span>{template.views_count}</span>
           </div>
-          
-          {/* Title - Bottom */}
+
           <div className="absolute bottom-0 left-0 right-0 z-10 p-3 bg-black/60 backdrop-blur-sm">
             <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
               {template.name}

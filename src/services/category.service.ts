@@ -104,10 +104,12 @@ export class CategoryService {
       // Get active public templates
       const { data: activeTemplates, error: templatesError } = await this.supabase
         .from('templates')
-        .select('id, name, is_public, deleted_at')
+        .select('id, name, is_public, deleted_at, cover_image_url')
         .in('id', templateIds)
         .eq('is_public', true)
         .is('deleted_at', null)
+        .not('cover_image_url', 'is', null)
+        .neq('cover_image_url', '')
 
       if (templatesError) {
         continue

@@ -121,6 +121,7 @@ export interface Translations {
     makePrivate: string
     tierListPublicDescription: string
     tierListPrivateDescription: string
+    coverRequiredForPublicTierList: string
     clearDraft: string
     clearDraftTitle: string
     clearDraftDescription: string
@@ -146,6 +147,7 @@ export interface Translations {
     pageSubtitle: string
     coverImage: string
     coverImageDescription: string
+    coverRequiredForPublic: string
     templateName: string
     templateNamePlaceholder: string
     description: string
@@ -158,6 +160,7 @@ export interface Translations {
     categoryName: string
     add: string
     isPublic: string
+    isPublicCoverHint: string
     templateItems: string
     templateItemsDescription: string
     clickToUpload: string

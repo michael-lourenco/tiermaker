@@ -95,6 +95,9 @@ export function MyTierListsPageClient({ tierLists: initialTierLists }: MyTierLis
 
       if (!response.ok) {
         const error = await response.json()
+        if (error.code === 'COVER_REQUIRED_FOR_PUBLIC') {
+          throw new Error(t('editor.coverRequiredForPublicTierList'))
+        }
         throw new Error(error.error || 'Failed to update tier list')
       }
 

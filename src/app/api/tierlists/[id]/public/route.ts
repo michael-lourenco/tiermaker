@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { hasCoverImage } from '@/lib/utils/publicVisibility'
 
 export async function PATCH(
   request: NextRequest,
@@ -30,12 +31,18 @@ export async function PATCH(
       )
     }
 
-    // Verificar se a tier list pertence ao usuário
     const { data: tierList, error: fetchError } = await supabase
       .from('tier_lists')
-      .select('user_id')
+      .select('user_id, template_id, templates(cover_image_url)')
       .eq('id', id)
-      .single() as { data: { user_id: string | null } | null; error: any }
+      .single() as {
+      data: {
+        user_id: string | null
+        template_id: string
+        templates: { cover_image_url: string | null } | { cover_image_url: string | null }[] | null
+      } | null
+      error: any
+    }
 
     if (fetchError || !tierList) {
       return NextResponse.json(
@@ -51,14 +58,29 @@ export async function PATCH(
       )
     }
 
-    // Atualizar is_public
+    const templateRelation = Array.isArray(tierList.templates)
+      ? tierList.templates[0]
+      : tierList.templates
+    const coverUrl = templateRelation?.cover_image_url
+
+    if (is_public && !hasCoverImage(coverUrl)) {
+      return NextResponse.json(
+        {
+          error:
+            'Cover image required: the template must have a cover image to make this tier list public',
+          code: 'COVER_REQUIRED_FOR_PUBLIC',
+        },
+        { status: 400 }
+      )
+    }
+
     const updateResult = await (supabase as any)
       .from('tier_lists')
       .update({ is_public })
       .eq('id', id)
       .select()
       .single()
-    
+
     const { data, error } = updateResult
 
     if (error) {

@@ -33,6 +33,15 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
   const router = useRouter()
   const { t } = useTranslation()
   const tierListService = new TierListService()
+  const templateHasCover = Boolean(template.cover_image_url?.trim())
+
+  const handlePublicChange = (checked: boolean) => {
+    if (checked && !templateHasCover) {
+      alert(t('editor.coverRequiredForPublicTierList'))
+      return
+    }
+    setIsPublic(checked)
+  }
 
   const handleSave = async (data: {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
@@ -106,12 +115,14 @@ export function CanvasTierListEditorClient({ template }: CanvasTierListEditorCli
         <Switch
           id="is-public"
           checked={isPublic}
-          onCheckedChange={setIsPublic}
+          onCheckedChange={handlePublicChange}
         />
         <span className="text-xs sm:text-sm text-muted-foreground">
-          {isPublic 
-            ? t('editor.tierListPublicDescription')
-            : t('editor.tierListPrivateDescription')}
+          {!templateHasCover
+            ? t('editor.coverRequiredForPublicTierList')
+            : isPublic
+              ? t('editor.tierListPublicDescription')
+              : t('editor.tierListPrivateDescription')}
         </span>
       </div>
 

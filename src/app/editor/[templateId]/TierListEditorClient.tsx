@@ -71,6 +71,15 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
   // Estado inicial de title e isPublic: serão definidos no useEffect
   const [title, setTitle] = useState(template.name || 'My Tier List')
   const [isPublic, setIsPublic] = useState(false)
+  const templateHasCover = Boolean(template.cover_image_url?.trim())
+
+  const handleTogglePublic = () => {
+    if (!isPublic && !templateHasCover) {
+      alert(t('editor.coverRequiredForPublicTierList'))
+      return
+    }
+    setIsPublic(!isPublic)
+  }
 
   // Verificar localStorage APENAS UMA VEZ no mount (nunca durante edição)
   // IMPORTANTE: localStorage só é usado para valores INICIAIS, não durante edição
@@ -397,7 +406,7 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setIsPublic(!isPublic)}
+                    onClick={handleTogglePublic}
                     className="touch-manipulation"
                   >
                     {isPublic ? (
@@ -409,9 +418,11 @@ export function TierListEditorClient({ template }: TierListEditorClientProps) {
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>
-                    {isPublic 
-                      ? t('editor.tierListPublicDescription')
-                      : t('editor.tierListPrivateDescription')}
+                    {!templateHasCover
+                      ? t('editor.coverRequiredForPublicTierList')
+                      : isPublic
+                        ? t('editor.tierListPublicDescription')
+                        : t('editor.tierListPrivateDescription')}
                   </p>
                 </TooltipContent>
               </Tooltip>

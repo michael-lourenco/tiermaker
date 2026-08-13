@@ -2,9 +2,8 @@
  * Utility functions for sharing
  */
 
+import { getPublicAppUrl } from '@/lib/constants/site'
 import type { ShareData, ShareContentType } from './share.types'
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://superiermaker.com'
 
 /**
  * Generate share URL based on content type
@@ -14,7 +13,7 @@ export function generateShareUrl(
   id?: string,
   params?: Record<string, string>
 ): string {
-  const baseUrl = APP_URL
+  const baseUrl = getPublicAppUrl()
 
   switch (type) {
     case 'template':

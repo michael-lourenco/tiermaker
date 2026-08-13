@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { TemplateService } from '@/services/template.service'
 import { TemplatePageClient } from '@/components/templates/TemplatePageClient'
 import { generateShareMetadata } from '@/lib/share/meta-tags'
+import { hasCoverImage } from '@/lib/utils/publicVisibility'
 import type { Metadata } from 'next'
 
 interface TemplatePageProps {
@@ -24,16 +26,23 @@ export async function generateMetadata({ params }: TemplatePageProps): Promise<M
 
 export default async function TemplatePage({ params }: TemplatePageProps) {
   const { id } = await params
-  const templateService = new TemplateService()
+  const supabase = await createClient()
+  const templateService = new TemplateService(supabase)
   const template = await templateService.getTemplateById(id)
 
   if (!template) {
     notFound()
   }
 
-  // Views tracking is now handled by useViewTracking hook in TemplatePageClient
-  // This provides 30-minute interval validation and full audit trail
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const isOwner = Boolean(user && template.user_id === user.id)
+  const publiclyVisible = template.is_public && hasCoverImage(template.cover_image_url)
+
+  if (!publiclyVisible && !isOwner) {
+    notFound()
+  }
 
   return <TemplatePageClient template={template} />
 }
-

@@ -5,8 +5,8 @@
 import type { Metadata } from 'next'
 import type { ShareContentType } from './share.types'
 import { generateShareUrl, getShareMetadata } from './share.utils'
+import { getPublicAppUrl } from '@/lib/constants/site'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://superiermaker.com'
 const APP_NAME = 'SuperTierMaker'
 
 export function generateShareMetadata(
@@ -15,9 +15,10 @@ export function generateShareMetadata(
 ): Metadata {
   const metadata = getShareMetadata(type, data)
   const url = metadata.url
+  const appUrl = getPublicAppUrl()
 
   const baseMetadata: Metadata = {
-    metadataBase: new URL(APP_URL),
+    metadataBase: new URL(appUrl),
     title: metadata.title,
     description: metadata.description,
     openGraph: {

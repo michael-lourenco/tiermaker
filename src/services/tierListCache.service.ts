@@ -145,7 +145,7 @@ export class TierListCacheService {
       .from('tier_lists')
       .select(`
         *,
-        templates!inner(name, deleted_at, is_public),
+        templates!inner(name, deleted_at, is_public, cover_image_url),
         template_categories(
           categories(id, name, slug)
         )
@@ -153,6 +153,8 @@ export class TierListCacheService {
       .eq('is_public', true)
       .eq('templates.is_public', true)
       .is('templates.deleted_at', null)
+      .not('templates.cover_image_url', 'is', null)
+      .neq('templates.cover_image_url', '')
 
     // Aplicar filtros
     if (filters.template_id) {
@@ -221,10 +223,12 @@ export class TierListCacheService {
     const templateIds = [...new Set(result.data.map((tl: any) => tl.template_id))]
     const { data: templates } = await this.supabase
       .from('templates')
-      .select('id, name, deleted_at, is_public')
+      .select('id, name, deleted_at, is_public, cover_image_url')
       .in('id', templateIds)
       .eq('is_public', true)
-      .is('deleted_at', null) as { data: any[] | null; error: any }
+      .is('deleted_at', null)
+      .not('cover_image_url', 'is', null)
+      .neq('cover_image_url', '') as { data: any[] | null; error: any }
 
     const templatesMap = new Map((templates || []).map((t: any) => [t.id, t]))
 
@@ -241,11 +245,11 @@ export class TierListCacheService {
       }
     })
 
-    // Filtrar apenas tier lists com templates públicos e não deletados
+    // Filtrar apenas tier lists com templates públicos, com capa e não deletados
     const validTierLists = result.data
       .filter((tl: any) => {
         const template = templatesMap.get(tl.template_id)
-        return template && template.is_public && !template.deleted_at
+        return template && template.is_public && !template.deleted_at && Boolean(template.cover_image_url?.trim())
       })
       .map((tl: any) => {
         const template = templatesMap.get(tl.template_id)

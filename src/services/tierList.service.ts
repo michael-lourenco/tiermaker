@@ -7,6 +7,7 @@ import type {
   CreateTierListInput,
 } from '@/types/tierList.types'
 import { v4 as uuidv4 } from 'uuid'
+import { resolveIsPublic } from '@/lib/utils/publicVisibility'
 
 export class TierListService {
   private supabase: any
@@ -104,8 +105,12 @@ export class TierListService {
   async getPublicTierLists(limit?: number): Promise<TierList[]> {
     let query = this.supabase
       .from('tier_lists')
-      .select('*')
+      .select('*, templates!inner(cover_image_url, is_public, deleted_at)')
       .eq('is_public', true)
+      .eq('templates.is_public', true)
+      .is('templates.deleted_at', null)
+      .not('templates.cover_image_url', 'is', null)
+      .neq('templates.cover_image_url', '')
       .order('created_at', { ascending: false })
 
     if (limit) {
@@ -115,7 +120,7 @@ export class TierListService {
     const { data, error } = await query
 
     if (error) throw error
-    return data || []
+    return (data || []).map(({ templates: _t, ...tierList }: any) => tierList)
   }
 
   /**
@@ -131,8 +136,13 @@ export class TierListService {
       throw new Error('User ID is required to create a tier list')
     }
 
-    // Nota: Verificação de limites deve ser feita no frontend antes de chamar este método
-    // ou através de uma API route intermediária para garantir segurança
+    const { data: template, error: templateError } = await this.supabase
+      .from('templates')
+      .select('cover_image_url')
+      .eq('id', input.template_id)
+      .single()
+
+    if (templateError) throw templateError
 
     const shareToken = uuidv4()
 
@@ -143,7 +153,7 @@ export class TierListService {
         user_id: userId,
         template_id: input.template_id,
         title: input.title,
-        is_public: input.is_public ?? false,
+        is_public: resolveIsPublic(input.is_public ?? false, template?.cover_image_url),
         share_token: shareToken,
       } as any)
       .select()

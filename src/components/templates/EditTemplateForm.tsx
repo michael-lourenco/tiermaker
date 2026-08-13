@@ -61,6 +61,7 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<TemplateFormData>({
     resolver: zodResolver(templateSchema),
     defaultValues: {
@@ -70,6 +71,9 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
       is_public: template.is_public,
     },
   })
+
+  const wantsPublic = watch('is_public')
+  const hasCover = Boolean(coverImage)
 
   // Initialize form with template data
   useEffect(() => {
@@ -201,6 +205,11 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
 
     if (items.length === 0) {
       setError('Please add at least one item to the template')
+      return
+    }
+
+    if (data.is_public && !coverImage) {
+      setError(t('createTemplate.coverRequiredForPublic'))
       return
     }
 
@@ -382,16 +391,24 @@ export function EditTemplateForm({ template }: EditTemplateFormProps) {
             )}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="is_public"
-              {...register('is_public')}
-              className="h-4 w-4 rounded border-gray-300"
-            />
-            <label htmlFor="is_public" className="text-sm font-medium">
-              {t('createTemplate.isPublic')}
-            </label>
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="is_public"
+                {...register('is_public')}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <label htmlFor="is_public" className="text-sm font-medium">
+                {t('createTemplate.isPublic')}
+              </label>
+            </div>
+            <p className="text-xs text-muted-foreground pl-6">{t('createTemplate.isPublicCoverHint')}</p>
+            {wantsPublic && !hasCover && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 pl-6">
+                {t('createTemplate.coverRequiredForPublic')}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

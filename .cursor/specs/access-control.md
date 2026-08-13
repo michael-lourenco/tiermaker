@@ -6,6 +6,8 @@ Barreira única de produto: **autenticado ou não**.
 | Área | Anônimo | Logado | Admin |
 |------|---------|--------|-------|
 | Home, categories, templates públicos, tier lists públicas | ✓ | ✓ | ✓ |
+
+**Público no site** = marcado `is_public` **e** template com `cover_image_url` válido. Sem capa: não lista, não abre para não-owner (`notFound`), create/update não persistem público.
 | Criar/editar template, editores, my-*, profile | ✗ → login | ✓ | ✓ |
 | `/admin/*` | ✗ | ✗ | ✓ |
 

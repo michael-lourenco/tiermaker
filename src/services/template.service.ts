@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import type { Template, TemplateItem, TemplateWithItems, CreateTemplateInput } from '@/types/template.types'
+import { resolveIsPublic } from '@/lib/utils/publicVisibility'
 
 export class TemplateService {
   private supabase: any
@@ -64,8 +65,8 @@ export class TemplateService {
         .eq('is_public', true)
         .eq('template_categories.category_id', categoryId)
     
-    // Filter out soft-deleted templates
-    query = (query as any).is('deleted_at', null)
+    // Filter out soft-deleted templates and those without cover (required for public listing)
+    query = (query as any).is('deleted_at', null).not('cover_image_url', 'is', null).neq('cover_image_url', '')
     } else {
       // When not filtering, use regular join to get all templates with their categories
       query = this.supabase
@@ -76,8 +77,8 @@ export class TemplateService {
         `)
         .eq('is_public', true)
     
-    // Filter out soft-deleted templates
-    query = (query as any).is('deleted_at', null)
+    // Filter out soft-deleted templates and those without cover (required for public listing)
+    query = (query as any).is('deleted_at', null).not('cover_image_url', 'is', null).neq('cover_image_url', '')
     }
 
     // Apply search filter
@@ -205,7 +206,7 @@ export class TemplateService {
         name: input.name,
         description: input.description ?? null,
         cover_image_url: input.cover_image_url ?? null,
-        is_public: input.is_public ?? true,
+        is_public: resolveIsPublic(input.is_public ?? true, input.cover_image_url),
       } as any)
       .select()
       .single()) as { data: Template | null; error: any }
@@ -326,7 +327,7 @@ export class TemplateService {
         name: input.name,
         description: input.description ?? null,
         cover_image_url: input.cover_image_url ?? null,
-        is_public: input.is_public ?? true,
+        is_public: resolveIsPublic(input.is_public ?? true, input.cover_image_url),
       },
       userId
     )
@@ -567,7 +568,8 @@ export class TemplateService {
           templates(
             id,
             deleted_at,
-            is_public
+            is_public,
+            cover_image_url
           )
         )
       `)
@@ -581,17 +583,17 @@ export class TemplateService {
       throw error
     }
 
-    // Count only active (non-deleted) and public templates per category
+    // Count only active (non-deleted) public templates with cover per category
     return (data || []).map((cat: any) => {
       const templateCategories = cat.template_categories || []
       
-      // Filter out soft-deleted templates and count only active public ones
+      // Filter out soft-deleted templates and count only active public ones with cover
       const activeTemplates = templateCategories.filter((tc: any) => {
         const template = tc.templates
-        // Template must exist, be public, and not be soft-deleted
         return template && 
                template.is_public === true && 
-               !template.deleted_at
+               !template.deleted_at &&
+               Boolean(template.cover_image_url?.trim())
       })
       
       const templateCount = activeTemplates.length

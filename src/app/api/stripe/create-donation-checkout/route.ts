@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { StripeService } from '@/services/stripe.service'
 import type { DonationInterval } from '@/lib/stripe/prices'
+import { getPublicAppUrl } from '@/lib/constants/site'
 
 const stripeService = new StripeService()
 const VALID_INTERVALS: DonationInterval[] = ['once', 'month', 'year']
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser()
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin
+    const baseUrl = getPublicAppUrl()
 
     const session = await stripeService.createDonationCheckoutSession({
       interval,

@@ -5,13 +5,15 @@
 ### Template
 - Pertence a um usuário; itens com imagem; tiers opcionais; soft delete (`deleted_at`)
 - Público/privado; categorias (N:N)
+- **Visibilidade pública exige `cover_image_url` não vazio.** `is_public=true` sem capa não aparece em listagens/páginas públicas; create/update forçam privado via `resolveIsPublic` (`src/lib/utils/publicVisibility.ts`)
 - Types: `src/types/template.types.ts`
 - Service: `src/services/template.service.ts`
 - APIs: `POST /api/templates/create`, `POST /api/templates/clone`
 
 ### Tier list
 - Rankeamento sobre um template; tiers + items; pública/privada; likes
-- Cache de listagens: `tier_lists_cache` + `TierListCacheService`
+- **Pública na UI do site só se o template base tiver capa.** Listagens/cache/API de toggle respeitam essa regra (`COVER_REQUIRED_FOR_PUBLIC`)
+- Cache de listagens: `tier_lists_cache` + `TierListCacheService` (migration `016_public_requires_cover_image.sql`)
 - Types: `src/types/tierList.types.ts`
 - Services: `tierList.service.ts`, `tierListCache.service.ts`
 - APIs: `/api/tierlists`, `/api/tierlists/[id]/like`, `/api/tierlists/[id]/public`

@@ -10,9 +10,9 @@ import { TierListEditor } from '@/components/editor/TierListEditor'
 import { ClearDraftButton } from '@/components/editor/ClearDraftButton'
 import { TierListService } from '@/services/tierList.service'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Edit2, Globe, Lock, Loader2 } from 'lucide-react'
+import { Edit2, Globe, Lock, Loader2, Info } from 'lucide-react'
+import Link from 'next/link'
 import {
   Tooltip,
   TooltipContent,
@@ -448,32 +448,50 @@ export function TierListEditorClient({
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4 md:space-y-6 px-2 sm:px-4 md:px-6 lg:px-8">
-      {/* Informações do Template */}
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{template.name}</h1>
-        {template.description && (
-          <p className="text-sm sm:text-base text-muted-foreground">{template.description}</p>
-        )}
-      </div>
-
-      {/* Título da Tier List - Centralizado */}
-      <div className="flex flex-col items-center gap-1.5 sm:gap-2 py-1 sm:py-2">
-        <Label htmlFor="tier-list-title" className="text-sm sm:text-base md:text-lg font-semibold flex items-center gap-1.5 sm:gap-2">
-          <Edit2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-          {t('editor.tierListTitle')}
-        </Label>
-        <Input
-          id="tier-list-title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={t('editor.tierListTitlePlaceholder')}
-          className="w-full sm:max-w-lg text-center text-sm sm:text-base md:text-lg font-medium focus:ring-2 focus:ring-primary"
-          title={t('editor.tierListTitleHint')}
-        />
-      </div>
-
+    <div className="space-y-2 sm:space-y-3 px-2 sm:px-4 md:px-6 lg:px-8">
       <TooltipProvider>
+        {/* Barra compacta: template + título editável */}
+        <div className="flex flex-col gap-1 sm:gap-1.5">
+          <div className="flex items-center gap-2 min-w-0">
+            <Link
+              href={`/templates/${template.id}`}
+              className="text-xs sm:text-sm text-muted-foreground hover:text-foreground truncate transition-colors"
+              title={template.description || template.name}
+            >
+              {template.name}
+            </Link>
+            {template.description ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex-shrink-0 text-muted-foreground hover:text-foreground touch-manipulation"
+                    aria-label={t('editor.templateInfo')}
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-xs sm:text-sm">{template.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            ) : null}
+          </div>
+
+          <div className="relative group">
+            <Input
+              id="tier-list-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t('editor.tierListTitlePlaceholder')}
+              aria-label={t('editor.tierListTitle')}
+              title={t('editor.tierListTitleHint')}
+              className="h-9 sm:h-10 w-full border-transparent bg-transparent px-0 pr-7 text-lg sm:text-xl md:text-2xl font-bold shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-input focus-visible:bg-background focus-visible:px-2 focus-visible:pr-7 rounded-md"
+            />
+            <Edit2 className="pointer-events-none absolute right-1 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground opacity-40 group-focus-within:opacity-0 sm:opacity-50" />
+          </div>
+        </div>
+
         <TierListEditor
           key={editorKey} // Key estável: só muda quando handleClearDraft é chamado (força remount)
           templateItems={template.items}

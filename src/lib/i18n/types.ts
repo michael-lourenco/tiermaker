@@ -111,6 +111,7 @@ export interface Translations {
     tierListTitle: string
     tierListTitlePlaceholder: string
     tierListTitleHint: string
+    templateInfo: string
     addTier: string
     saveTierList: string
     savingTierList: string

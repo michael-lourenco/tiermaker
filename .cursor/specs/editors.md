@@ -21,6 +21,9 @@ Ambos os editores de criação exigem login.
 ## Draft
 `useTierListDraft` / localStorage no editor DOM — draft é UX local, não fonte de verdade do servidor.
 
+## Header do editor DOM
+Barra compacta: nome do template (link discreto + tooltip da descrição) e título da lista como input estilo heading — prioriza viewport para tiers/itens.
+
 ## Regras ao alterar
 1. Manter checks apenas de **login**, nunca de plano.
 2. Não quebrar o contrato de `onSave` (tiers + items).

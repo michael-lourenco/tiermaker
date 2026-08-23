@@ -335,6 +335,8 @@
       "resending": "Resending...",
       "resendSuccess": "Email resent successfully!",
       "resendError": "Error resending email. Please try again.",
+      "resendAlreadyConfirmed": "This email is already confirmed. Please sign in.",
+      "resendNotConfigured": "Email service is not configured. Contact support.",
       "backToLogin": "Back to Login",
       "checkSpam": "Also check your spam folder"
     }

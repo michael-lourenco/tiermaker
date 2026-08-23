@@ -6,7 +6,6 @@ import { Mail, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useTranslation } from '@/hooks/useTranslation'
-import { createClient } from '@/lib/supabase/client'
 
 interface EmailVerificationModalProps {
   open: boolean
@@ -19,32 +18,39 @@ export function EmailVerificationModal({ open, email, onClose }: EmailVerificati
   const router = useRouter()
   const [resending, setResending] = useState(false)
   const [resendStatus, setResendStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [resendErrorKey, setResendErrorKey] = useState<
+    'resendError' | 'resendAlreadyConfirmed' | 'resendNotConfigured'
+  >('resendError')
 
   const handleResendEmail = async () => {
     setResending(true)
     setResendStatus('idle')
+    setResendErrorKey('resendError')
 
     try {
-      const supabase = createClient()
-      // Get the base URL for email redirect (use current origin to support any domain)
-      const emailRedirectTo = typeof window !== 'undefined' 
-        ? `${window.location.origin}/api/auth/callback`
-        : undefined
-
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-        options: {
-          emailRedirectTo,
-        },
+      const response = await fetch('/api/auth/resend-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       })
 
-      if (error) {
+      const payload = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        if (payload.code === 'ALREADY_CONFIRMED') {
+          setResendErrorKey('resendAlreadyConfirmed')
+        } else if (payload.code === 'RESEND_NOT_CONFIGURED') {
+          setResendErrorKey('resendNotConfigured')
+        } else {
+          setResendErrorKey('resendError')
+        }
         setResendStatus('error')
-      } else {
-        setResendStatus('success')
+        return
       }
-    } catch (error) {
+
+      setResendStatus('success')
+    } catch {
+      setResendErrorKey('resendError')
       setResendStatus('error')
     } finally {
       setResending(false)
@@ -83,15 +89,15 @@ export function EmailVerificationModal({ open, email, onClose }: EmailVerificati
 
           {resendStatus === 'success' && (
             <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/50 rounded-md text-sm text-green-600 dark:text-green-400">
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
               {t('auth.emailVerification.resendSuccess')}
             </div>
           )}
 
           {resendStatus === 'error' && (
             <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/50 rounded-md text-sm text-destructive">
-              <AlertCircle className="h-4 w-4" />
-              {t('auth.emailVerification.resendError')}
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              {t(`auth.emailVerification.${resendErrorKey}`)}
             </div>
           )}
 

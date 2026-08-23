@@ -19,3 +19,9 @@ Em dev (WSL), `images.unoptimized` pode estar ativo — não “corrigir” sem 
 
 ## Secrets
 Nunca commitar `.env`. Não sobrescrever `.env` sem confirmação. Service role e Stripe secret só no server.
+
+## Email (Resend)
+- Confirmação de signup inicial: SMTP do Supabase Auth (painel).
+- Botão “Reenviar email”: `POST /api/auth/resend-confirmation` → `auth.admin.generateLink` + API Resend.
+- Envs: `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (ex. `SuperTierMaker <noreply@supertiermaker.com>`), `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL`.
+- Helper: `src/lib/email/resend.ts`

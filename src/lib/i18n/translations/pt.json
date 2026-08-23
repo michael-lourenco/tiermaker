@@ -335,6 +335,8 @@
       "resending": "Reenviando...",
       "resendSuccess": "Email reenviado com sucesso!",
       "resendError": "Erro ao reenviar email. Tente novamente.",
+      "resendAlreadyConfirmed": "Este email já está confirmado. Faça login.",
+      "resendNotConfigured": "Serviço de email não configurado. Contate o suporte.",
       "backToLogin": "Voltar para Login",
       "checkSpam": "Verifique também sua pasta de spam"
     }

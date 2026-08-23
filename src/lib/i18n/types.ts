@@ -378,6 +378,8 @@ export interface Translations {
       resending: string
       resendSuccess: string
       resendError: string
+      resendAlreadyConfirmed: string
+      resendNotConfigured: string
       backToLogin: string
       checkSpam: string
     }

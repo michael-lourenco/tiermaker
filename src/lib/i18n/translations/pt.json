@@ -290,6 +290,13 @@
   },
   "auth": {
     "title": "Autenticação",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "passwordStrength": {
+      "weak": "Fraca",
+      "medium": "Média",
+      "strong": "Forte"
+    },
     "login": {
       "title": "Entrar",
       "description": "Digite suas credenciais para acessar sua conta",
@@ -313,14 +320,33 @@
       "signIn": "Entrar",
       "emailPlaceholder": "voce@exemplo.com",
       "passwordsNotMatch": "As senhas não coincidem",
-      "passwordMinLength": "A senha deve ter pelo menos 6 caracteres",
-      "passwordRequirements": "A senha deve conter pelo menos 6 caracteres",
+      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+      "passwordRequirements": "Use no mínimo 8 caracteres, com letra maiúscula, minúscula e número",
       "invalidEmail": "Email inválido"
+    },
+    "forgotPassword": {
+      "link": "Esqueci a senha",
+      "title": "Redefinir senha",
+      "description": "Informe seu email e enviaremos um link para criar uma nova senha",
+      "submit": "Enviar link",
+      "sending": "Enviando...",
+      "success": "Se este email estiver cadastrado, você receberá um link para redefinir a senha. Verifique também o spam.",
+      "sendError": "Não foi possível enviar o email. Tente novamente.",
+      "backToLogin": "Voltar para o login"
+    },
+    "resetPassword": {
+      "title": "Nova senha",
+      "description": "Escolha uma senha forte para sua conta",
+      "newPassword": "Nova senha",
+      "submit": "Salvar nova senha",
+      "saving": "Salvando...",
+      "success": "Senha atualizada! Redirecionando para o login...",
+      "invalidSession": "Link inválido ou expirado. Solicite um novo email de redefinição."
     },
     "errors": {
       "invalidCredentials": "Credenciais inválidas",
       "emailNotConfirmed": "Email não confirmado. Verifique sua caixa de entrada",
-      "userAlreadyRegistered": "Este usuário já está cadastrado",
+      "userAlreadyRegistered": "Este email já está cadastrado",
       "emailRateLimit": "Muitas tentativas. Tente novamente mais tarde",
       "invalidEmail": "Email inválido",
       "weakPassword": "A senha é muito fraca",

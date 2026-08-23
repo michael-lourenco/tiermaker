@@ -14,8 +14,11 @@ export function getResendFromAddress(): string {
   )
 }
 
-export function buildAuthCallbackUrl(): string {
-  return `${getPublicAppUrl()}/api/auth/callback`
+export function buildAuthCallbackUrl(nextPath?: string): string {
+  const base = `${getPublicAppUrl()}/api/auth/callback`
+  if (!nextPath) return base
+  const safe = nextPath.startsWith('/') && !nextPath.startsWith('//') ? nextPath : '/'
+  return `${base}?next=${encodeURIComponent(safe)}`
 }
 
 export function buildSignupConfirmationEmail(params: {
@@ -53,6 +56,49 @@ export function buildSignupConfirmationEmail(params: {
     </p>
     <p style="font-size: 13px; color: #777;">
       Se você não criou esta conta (${email}), ignore este email.
+    </p>
+  </body>
+</html>`.trim()
+
+  return { subject, html, text }
+}
+
+export function buildPasswordResetEmail(params: {
+  resetUrl: string
+  email: string
+}): { subject: string; html: string; text: string } {
+  const { resetUrl, email } = params
+  const subject = 'Redefinir senha — SuperTierMaker'
+  const text = [
+    `Olá!`,
+    ``,
+    `Recebemos um pedido para redefinir a senha da conta ${email}.`,
+    `Clique no link abaixo (válido por tempo limitado):`,
+    resetUrl,
+    ``,
+    `Se você não solicitou isso, ignore este email.`,
+    ``,
+    `— SuperTierMaker`,
+  ].join('\n')
+
+  const html = `
+<!DOCTYPE html>
+<html>
+  <body style="font-family: system-ui, sans-serif; line-height: 1.5; color: #111;">
+    <p>Olá!</p>
+    <p>Recebemos um pedido para redefinir a senha da conta <strong>${email}</strong>.</p>
+    <p style="margin: 24px 0;">
+      <a href="${resetUrl}"
+         style="display:inline-block;padding:12px 20px;background:#111;color:#fff;text-decoration:none;border-radius:8px;">
+        Redefinir senha
+      </a>
+    </p>
+    <p style="font-size: 14px; color: #555;">
+      Ou copie e cole este link no navegador:<br />
+      <a href="${resetUrl}">${resetUrl}</a>
+    </p>
+    <p style="font-size: 13px; color: #777;">
+      Se você não solicitou isso, ignore este email.
     </p>
   </body>
 </html>`.trim()

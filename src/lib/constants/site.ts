@@ -1,5 +1,5 @@
 /** Canonical public origin for share links, OG metadata, and production redirects */
-export const SITE_URL = 'https://supertiermaker.com'
+export const SITE_URL = 'https://www.supertiermaker.com'
 
 /**
  * Public app URL for links shown to users (share, Open Graph, etc.).
@@ -12,7 +12,7 @@ export function getPublicAppUrl(): string {
   }
   try {
     const host = new URL(fromEnv).hostname
-    if (host.endsWith('.vercel.app')) {
+    if (host.endsWith('.vercel.app') || host === 'localhost' || host === '127.0.0.1') {
       return SITE_URL
     }
   } catch {

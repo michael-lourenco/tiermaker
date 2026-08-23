@@ -290,6 +290,13 @@
   },
   "auth": {
     "title": "Authentication",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "passwordStrength": {
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong"
+    },
     "login": {
       "title": "Sign In",
       "description": "Enter your credentials to access your account",
@@ -313,14 +320,33 @@
       "signIn": "Sign in",
       "emailPlaceholder": "you@example.com",
       "passwordsNotMatch": "Passwords do not match",
-      "passwordMinLength": "Password must be at least 6 characters",
-      "passwordRequirements": "Password must contain at least 6 characters",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordRequirements": "Use at least 8 characters, with uppercase, lowercase, and a number",
       "invalidEmail": "Invalid email"
+    },
+    "forgotPassword": {
+      "link": "Forgot password",
+      "title": "Reset password",
+      "description": "Enter your email and we will send a link to create a new password",
+      "submit": "Send link",
+      "sending": "Sending...",
+      "success": "If this email is registered, you will receive a password reset link. Also check spam.",
+      "sendError": "Could not send the email. Please try again.",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "New password",
+      "description": "Choose a strong password for your account",
+      "newPassword": "New password",
+      "submit": "Save new password",
+      "saving": "Saving...",
+      "success": "Password updated! Redirecting to login...",
+      "invalidSession": "Invalid or expired link. Request a new reset email."
     },
     "errors": {
       "invalidCredentials": "Invalid credentials",
       "emailNotConfirmed": "Email not confirmed. Please check your inbox",
-      "userAlreadyRegistered": "This user is already registered",
+      "userAlreadyRegistered": "This email is already registered",
       "emailRateLimit": "Too many attempts. Please try again later",
       "invalidEmail": "Invalid email",
       "weakPassword": "Password is too weak",

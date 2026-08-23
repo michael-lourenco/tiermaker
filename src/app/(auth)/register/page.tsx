@@ -1,15 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguage } from '@/hooks/useLanguage'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthErrorMessage } from '@/components/ui/auth-error-message'
 import { EmailVerificationModal } from '@/components/auth/EmailVerificationModal'
+import { PasswordInput } from '@/components/auth/PasswordInput'
+import { PasswordStrengthHint } from '@/components/auth/PasswordStrengthHint'
 import { translateAuthError } from '@/utils/authErrors'
 import { validateEmail, validatePassword, validatePasswordMatch } from '@/utils/validation'
 import Link from 'next/link'
@@ -24,26 +27,25 @@ export default function RegisterPage() {
   const { signUp } = useAuth()
   const router = useRouter()
   const { t } = useTranslation()
+  const { language } = useLanguage()
+
+  const passwordCheck = useMemo(() => validatePassword(password), [password])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    // Validação de email
     const emailValidation = validateEmail(email)
     if (!emailValidation.valid) {
       setError(t(emailValidation.errorKey || 'auth.register.invalidEmail'))
       return
     }
 
-    // Validação de senha
-    const passwordValidation = validatePassword(password)
-    if (!passwordValidation.valid) {
-      setError(t(passwordValidation.errorKey || 'auth.register.passwordMinLength'))
+    if (!passwordCheck.valid) {
+      setError(t(passwordCheck.errorKey || 'auth.register.passwordRequirements'))
       return
     }
 
-    // Validação de confirmação de senha
     const passwordMatchValidation = validatePasswordMatch(password, confirmPassword)
     if (!passwordMatchValidation.valid) {
       setError(t(passwordMatchValidation.errorKey || 'auth.register.passwordsNotMatch'))
@@ -52,30 +54,38 @@ export default function RegisterPage() {
 
     setLoading(true)
 
+    try {
+      const checkRes = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const checkData = await checkRes.json().catch(() => ({}))
+
+      if (checkRes.ok && checkData.exists) {
+        setError(t('auth.errors.userAlreadyRegistered'))
+        setLoading(false)
+        return
+      }
+    } catch {
+      // Se a checagem falhar, segue o signUp e trata erro do Supabase
+    }
+
     const { error, data } = await signUp(email, password)
 
     if (error) {
-      setError(translateAuthError(error, 'pt'))
+      setError(translateAuthError(error, language === 'en' ? 'en' : 'pt'))
       setLoading(false)
       return
     }
 
-    // Verificar se o usuário foi criado
-    // O Supabase pode retornar data.user como null em alguns casos
-    // Se não há usuário e não há erro, pode ser que o email já exista
-    // NOTA: Algumas configurações do Supabase podem permitir múltiplos cadastros
-    // com o mesmo email, mas sem criar o usuário. Nesse caso, verificamos se
-    // data.user existe para confirmar que o registro foi bem-sucedido
-    if (!data?.user) {
-      // Caso não tenha erro explícito mas também não tenha usuário criado
-      // Pode ser que o email já exista mas o Supabase não retornou erro
-      // ou que precise de confirmação de email (mas mesmo assim deveria ter user)
+    // Supabase às vezes “aceita” email duplicado sem erro e retorna identities vazias
+    if (!data?.user || (data.user.identities && data.user.identities.length === 0)) {
       setError(t('auth.errors.userAlreadyRegistered'))
       setLoading(false)
       return
     }
 
-    // Se chegou aqui, o registro foi bem-sucedido
     setLoading(false)
     setShowEmailModal(true)
   }
@@ -100,31 +110,28 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="email"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">{t('auth.register.password')}</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
+                  autoComplete="new-password"
                 />
-                <p className="text-xs text-muted-foreground">
-                  {t('auth.register.passwordRequirements')}
-                </p>
+                <PasswordStrengthHint password={password} result={passwordCheck} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">{t('auth.register.confirmPassword')}</Label>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  minLength={6}
+                  autoComplete="new-password"
                 />
               </div>
             </CardContent>
@@ -132,6 +139,11 @@ export default function RegisterPage() {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? t('auth.register.creatingAccount') : t('auth.register.signUp')}
               </Button>
+              <p className="text-sm text-center text-muted-foreground">
+                <Link href="/forgot-password" className="text-primary hover:underline">
+                  {t('auth.forgotPassword.link')}
+                </Link>
+              </p>
               <p className="text-sm text-center text-muted-foreground">
                 {t('auth.register.hasAccount')}{' '}
                 <Link href="/login" className="text-primary hover:underline">
@@ -154,5 +166,3 @@ export default function RegisterPage() {
     </>
   )
 }
-
-

@@ -23,5 +23,10 @@ Nunca commitar `.env`. Não sobrescrever `.env` sem confirmação. Service role 
 ## Email (Resend)
 - Confirmação de signup inicial: SMTP do Supabase Auth (painel).
 - Botão “Reenviar email”: `POST /api/auth/resend-confirmation` → `auth.admin.generateLink` + API Resend.
-- Envs: `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (ex. `SuperTierMaker <noreply@supertiermaker.com>`), `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL`.
-- Helper: `src/lib/email/resend.ts`
+- Esqueci a senha: `POST /api/auth/forgot-password` → `generateLink` recovery + Resend; `redirect_to=/reset-password`.
+- Links implícitos (`#access_token&type=recovery`) são tratados por `AuthHashHandler` (layout) e pela página `/reset-password`.
+- No Supabase Redirect URLs, incluir:
+  - `https://www.supertiermaker.com/reset-password`
+  - `https://supertiermaker.com/reset-password`
+  - `https://www.supertiermaker.com/api/auth/callback`
+  - `http://localhost:3000/reset-password` (dev)

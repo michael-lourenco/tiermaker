@@ -4,8 +4,10 @@ Todas as rotas em `src/app/api/**`. Mutações sensíveis **não** devem ir dire
 
 | Método | Rota | Auth | Papel |
 |--------|------|------|-------|
-| GET/POST | `/api/auth/callback` | OAuth callback | Sessão Supabase |
+| GET/POST | `/api/auth/callback` | OAuth callback | Sessão Supabase (`?next=` opcional) |
 | POST | `/api/auth/resend-confirmation` | Não | Reenvia confirmação via Resend + `generateLink` |
+| POST | `/api/auth/forgot-password` | Não | Email de recovery via Resend |
+| POST | `/api/auth/check-email` | Não | Verifica se email já está cadastrado |
 | GET | `/api/templates` | Não | Listagem pública (search, category, sort, paginação) |
 | POST | `/api/templates/create` | Sim | Cria template |
 | POST | `/api/templates/clone` | Sim | Clone + cópia S3 |

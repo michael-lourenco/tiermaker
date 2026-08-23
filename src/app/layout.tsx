@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer"
 // import { StickySidebar } from "@/components/ads/StickySidebar"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { LanguageProvider } from "@/contexts/LanguageContext"
+import { AuthHashHandler } from "@/components/auth/AuthHashHandler"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -118,6 +119,7 @@ export default function RootLayout({
             <div className="flex flex-col min-h-screen">
               <Header />
               <div className="flex-1 relative">
+                <AuthHashHandler />
                 {children}
                 {/* BANNERS DESABILITADOS TEMPORARIAMENTE */}
                 {/* <StickySidebar /> */}

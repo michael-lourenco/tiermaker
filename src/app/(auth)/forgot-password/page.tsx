@@ -1,33 +1,26 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
+import Link from 'next/link'
 import { useTranslation } from '@/hooks/useTranslation'
-import { useLanguage } from '@/hooks/useLanguage'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthErrorMessage } from '@/components/ui/auth-error-message'
-import { PasswordInput } from '@/components/auth/PasswordInput'
-import { translateAuthError } from '@/utils/authErrors'
 import { validateEmail } from '@/utils/validation'
-import Link from 'next/link'
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
-  const router = useRouter()
+export default function ForgotPasswordPage() {
   const { t } = useTranslation()
-  const { language } = useLanguage()
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccess(false)
 
     const emailValidation = validateEmail(email)
     if (!emailValidation.valid) {
@@ -36,15 +29,28 @@ export default function LoginPage() {
     }
 
     setLoading(true)
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const payload = await response.json().catch(() => ({}))
 
-    const { error } = await signIn(email, password)
+      if (!response.ok) {
+        if (payload.code === 'RESEND_NOT_CONFIGURED') {
+          setError(t('auth.emailVerification.resendNotConfigured'))
+        } else {
+          setError(t('auth.forgotPassword.sendError'))
+        }
+        return
+      }
 
-    if (error) {
-      setError(translateAuthError(error, language === 'en' ? 'en' : 'pt'))
+      setSuccess(true)
+    } catch {
+      setError(t('auth.forgotPassword.sendError'))
+    } finally {
       setLoading(false)
-    } else {
-      router.push('/')
-      router.refresh()
     }
   }
 
@@ -52,12 +58,17 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{t('auth.login.title')}</CardTitle>
-          <CardDescription>{t('auth.login.description')}</CardDescription>
+          <CardTitle>{t('auth.forgotPassword.title')}</CardTitle>
+          <CardDescription>{t('auth.forgotPassword.description')}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && <AuthErrorMessage message={error} />}
+            {success && (
+              <div className="p-3 text-sm rounded-md border border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
+                {t('auth.forgotPassword.success')}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">{t('auth.login.email')}</Label>
               <Input
@@ -67,36 +78,19 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                autoComplete="email"
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="password">{t('auth.login.password')}</Label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-primary hover:underline"
-                >
-                  {t('auth.forgotPassword.link')}
-                </Link>
-              </div>
-              <PasswordInput
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
+                disabled={success}
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t('auth.login.signingIn') : t('auth.login.signIn')}
-            </Button>
+            {!success && (
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? t('auth.forgotPassword.sending') : t('auth.forgotPassword.submit')}
+              </Button>
+            )}
             <p className="text-sm text-center text-muted-foreground">
-              {t('auth.login.noAccount')}{' '}
-              <Link href="/register" className="text-primary hover:underline">
-                {t('auth.login.signUp')}
+              <Link href="/login" className="text-primary hover:underline">
+                {t('auth.forgotPassword.backToLogin')}
               </Link>
             </p>
           </CardFooter>

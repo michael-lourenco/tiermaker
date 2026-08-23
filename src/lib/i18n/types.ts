@@ -333,6 +333,13 @@ export interface Translations {
   }
   auth: {
     title: string
+    showPassword: string
+    hidePassword: string
+    passwordStrength: {
+      weak: string
+      medium: string
+      strong: string
+    }
     login: {
       title: string
       description: string
@@ -359,6 +366,25 @@ export interface Translations {
       passwordMinLength: string
       passwordRequirements: string
       invalidEmail: string
+    }
+    forgotPassword: {
+      link: string
+      title: string
+      description: string
+      submit: string
+      sending: string
+      success: string
+      sendError: string
+      backToLogin: string
+    }
+    resetPassword: {
+      title: string
+      description: string
+      newPassword: string
+      submit: string
+      saving: string
+      success: string
+      invalidSession: string
     }
     errors: {
       invalidCredentials: string

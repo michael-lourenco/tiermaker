@@ -1,7 +1,7 @@
 /**
- * Resend signup confirmation email via Resend + Supabase generateLink.
- * The client-side supabase.auth.resend() often reports success without delivery
- * when relying only on Auth SMTP rate limits / quirks.
+ * Resend signup confirmation email via Resend + Supabase generateLink (magiclink).
+ * `type: 'signup'` requires password in current Auth typings; magiclink confirms
+ * email on click and works for existing unconfirmed users without a password.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const redirectTo = buildAuthCallbackUrl()
 
     const { data, error: linkError } = await supabase.auth.admin.generateLink({
-      type: 'signup',
+      type: 'magiclink',
       email,
       options: { redirectTo },
     })

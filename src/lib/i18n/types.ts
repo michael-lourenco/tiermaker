@@ -135,6 +135,13 @@ export interface Translations {
     tierListPublicDescription: string
     tierListPrivateDescription: string
     coverRequiredForPublicTierList: string
+    addImages: string
+    addingImages: string
+    addImagesHint: string
+    forkingTemplate: string
+    forkFailed: string
+    forkLoginRequired: string
+    forkLeavesEditWarning: string
     clearDraft: string
     clearDraftTitle: string
     clearDraftDescription: string

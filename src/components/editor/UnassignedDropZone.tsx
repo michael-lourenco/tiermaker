@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useMemo, memo, useCallback } from 'react'
+import { useState, useMemo, memo, useCallback, useRef } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { ItemCard } from './ItemCard'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Pin, PinOff } from 'lucide-react'
+import { Pin, PinOff, ImagePlus } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import type { TemplateItem } from '@/types/template.types'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -16,16 +16,21 @@ interface UnassignedDropZoneProps {
   items: TemplateItem[]
   showItemName?: boolean
   onShowItemNameChange?: (show: boolean) => void
+  onAddImages?: (files: FileList) => void
+  addingImages?: boolean
 }
 
 // Componente memoizado
 export const UnassignedDropZone = memo(function UnassignedDropZone({ 
   items, 
   showItemName = false, 
-  onShowItemNameChange 
+  onShowItemNameChange,
+  onAddImages,
+  addingImages = false,
 }: UnassignedDropZoneProps) {
   const { t } = useTranslation()
   const [isPinned, setIsPinned] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { setNodeRef, isOver } = useDroppable({
     id: 'unassigned',
   })
@@ -62,6 +67,37 @@ export const UnassignedDropZone = memo(function UnassignedDropZone({
     >
       {/* Botão de fixar/desafixar e switch de nomes - sempre no topo à direita do bloco */}
       <div className="absolute top-2 right-2 z-30 flex flex-col gap-2 items-end">
+        {onAddImages && (
+          <>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              disabled={addingImages}
+              onClick={() => fileInputRef.current?.click()}
+              className="gap-2 touch-manipulation"
+              title={t('editor.addImagesHint')}
+            >
+              <ImagePlus className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {addingImages ? t('editor.addingImages') : t('editor.addImages')}
+              </span>
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  onAddImages(e.target.files)
+                }
+                e.target.value = ''
+              }}
+            />
+          </>
+        )}
         <Button
           variant="outline"
           size="sm"
@@ -110,8 +146,13 @@ export const UnassignedDropZone = memo(function UnassignedDropZone({
           </div>
         </SortableContext>
       ) : (
-        <div className="flex items-center justify-center min-h-[140px] sm:min-h-[180px] text-muted-foreground px-4">
+        <div className="flex flex-col items-center justify-center gap-2 min-h-[140px] sm:min-h-[180px] text-muted-foreground px-4">
           <p className="text-xs sm:text-sm text-center">{t('editor.dragItemsHere')}</p>
+          {onAddImages && (
+            <p className="text-[11px] sm:text-xs text-center text-muted-foreground/80 max-w-sm">
+              {t('editor.addImagesHint')}
+            </p>
+          )}
         </div>
       )}
     </div>
@@ -120,6 +161,8 @@ export const UnassignedDropZone = memo(function UnassignedDropZone({
   // Comparação customizada para memo
   if (prevProps.items.length !== nextProps.items.length) return false
   if (prevProps.showItemName !== nextProps.showItemName) return false
+  if (prevProps.addingImages !== nextProps.addingImages) return false
+  if (Boolean(prevProps.onAddImages) !== Boolean(nextProps.onAddImages)) return false
   
   // Compara items por IDs
   const prevIds = prevProps.items.map(item => item.id).join(',')

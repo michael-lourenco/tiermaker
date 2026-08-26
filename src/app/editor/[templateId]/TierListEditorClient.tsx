@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
 import type { TierListDraft } from '@/hooks/useTierListDraft'
-import { createClient } from '@/lib/supabase/client'
 import { TierListEditor } from '@/components/editor/TierListEditor'
 import { ClearDraftButton } from '@/components/editor/ClearDraftButton'
 import { TierListService } from '@/services/tierList.service'
+import { ImageService } from '@/services/image.service'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Edit2, Globe, Lock, Loader2, Info } from 'lucide-react'
@@ -23,6 +23,16 @@ import { useTranslation } from '@/hooks/useTranslation'
 import type { TemplateWithItems } from '@/types/template.types'
 import type { TemplateItem } from '@/types/template.types'
 import type { TierListTier, TierListItem, TierListWithData } from '@/types/tierList.types'
+import { isPendingTemplateItemId } from '@/lib/editor/pendingItems'
+import {
+  buildPendingTemplateItem,
+  resolveRankingWithPendingImages,
+} from '@/lib/editor/resolveRankingTemplate'
+
+type EditorRankingState = {
+  tiers: Array<{ id: string; tier_name: string; tier_order: number; color: string | null }>
+  items: Array<{ template_item_id: string; tier_name: string; order: number }>
+}
 
 interface TierListEditorClientProps {
   template: TemplateWithItems & {
@@ -47,8 +57,9 @@ export function TierListEditorClient({
   const { user } = useAuth()
   const router = useRouter()
   const tierListService = new TierListService()
-  const { showItemNames, setShowItemNames, loading: preferencesLoading } = useUserPreferences()
+  const { showItemNames, setShowItemNames } = useUserPreferences()
   const { t } = useTranslation()
+  const imageServiceRef = useRef(new ImageService())
   
   // Chave do localStorage sem userId (local ao navegador)
   // IMPORTANTE: Armazenar valores do template em refs para usar no useEffect sem dependências
@@ -58,9 +69,13 @@ export function TierListEditorClient({
   const templateItemsRef = useRef(template.items)
   const templateNameRef = useRef(template.name)
   const storageKeyRef = useRef(`tier-list-draft-${template.id}`)
+  const editorStateRef = useRef<EditorRankingState | null>(null)
+  const pendingFilesRef = useRef<Map<string, File>>(new Map())
+  const pendingObjectUrlsRef = useRef<string[]>([])
   
   // Estado de loading: inicia como true até verificar localStorage
   const [isLoadingDraft, setIsLoadingDraft] = useState(true)
+  const [editorItems, setEditorItems] = useState<TemplateItem[]>(template.items || [])
   
   // Estados para os dados iniciais: só serão definidos depois de verificar localStorage
   const [initialTiers, setInitialTiers] = useState<TierListTier[] | undefined>(undefined)
@@ -82,6 +97,17 @@ export function TierListEditorClient({
   const [isPublic, setIsPublic] = useState(editTierList?.is_public ?? false)
   const templateHasCover = Boolean(template.cover_image_url?.trim())
   const isEditMode = Boolean(editTierList)
+  const isTemplateOwner = Boolean(user && template.user_id === user.id)
+
+  const revokePendingObjectUrls = useCallback(() => {
+    pendingObjectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
+    pendingObjectUrlsRef.current = []
+  }, [])
+
+  const clearPendingLocalImages = useCallback(() => {
+    pendingFilesRef.current.clear()
+    revokePendingObjectUrls()
+  }, [revokePendingObjectUrls])
 
   const handleTogglePublic = () => {
     if (!isPublic && !templateHasCover) {
@@ -285,7 +311,10 @@ export function TierListEditorClient({
         title: data.title,
         isPublic: data.isPublic,
         tiers: data.tiers,
-        items: data.items,
+        // Imagens pendentes (blob) não sobrevivem ao reload — não persistir
+        items: data.items.filter(
+          (item) => !isPendingTemplateItemId(item.template_item_id)
+        ),
         lastModified: Date.now(),
       }
       
@@ -326,12 +355,14 @@ export function TierListEditorClient({
     }
   }, [])
 
-  // Limpar timeout ao desmontar
+  // Limpar timeout e object URLs ao desmontar
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current)
       }
+      pendingObjectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
+      pendingObjectUrlsRef.current = []
     }
   }, [])
 
@@ -345,9 +376,7 @@ export function TierListEditorClient({
     tiers: Array<{ id: string; tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
   }) => {
-    // Salvar draft no localStorage com debounce (APENAS salvar, não ler)
-    // Os estados do React continuam sendo a única fonte de verdade
-    // NÃO incluir showItemNames (é preferência do usuário, não do tier list)
+    editorStateRef.current = data
     saveDraftDebounced({
       title,
       isPublic,
@@ -356,53 +385,186 @@ export function TierListEditorClient({
     })
   }, [title, isPublic, saveDraftDebounced])
 
+  const getCurrentRanking = useCallback((): EditorRankingState => {
+    if (editorStateRef.current) {
+      return editorStateRef.current
+    }
+
+    const tiers =
+      initialTiers?.map((tier) => ({
+        id: tier.id,
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      })) ||
+      (template.tiers || []).map((tier) => ({
+        id: `tier-${tier.id}`,
+        tier_name: tier.tier_name,
+        tier_order: tier.tier_order,
+        color: tier.color,
+      }))
+
+    const items =
+      initialItems?.map((item) => ({
+        template_item_id: item.template_item_id,
+        tier_name: item.tier_name,
+        order: item.order,
+      })) ||
+      editorItems.map((item, index) => ({
+        template_item_id: item.id,
+        tier_name: '',
+        order: index,
+      }))
+
+    return { tiers, items }
+  }, [initialTiers, initialItems, template.tiers, editorItems])
+
+  const handleAddImages = useCallback(
+    (files: FileList) => {
+      if (!user) {
+        alert(t('editor.forkLoginRequired'))
+        router.push('/login')
+        return
+      }
+
+      const fileArray = Array.from(files)
+      if (fileArray.length === 0) return
+
+      for (const file of fileArray) {
+        const validation = imageServiceRef.current.validateImageFile(file)
+        if (!validation.valid) {
+          alert(validation.error || t('editor.forkFailed'))
+          return
+        }
+      }
+
+      const ranking = getCurrentRanking()
+      const maxOrder = ranking.items.reduce((max, item) => Math.max(max, item.order), -1)
+
+      const created = fileArray.map((file, index) =>
+        buildPendingTemplateItem({
+          file,
+          templateId: template.id,
+          order: maxOrder + 1 + index,
+        })
+      )
+
+      created.forEach(({ item, file, objectUrl }) => {
+        pendingFilesRef.current.set(item.id, file)
+        pendingObjectUrlsRef.current.push(objectUrl)
+      })
+
+      const pendingTemplateItems = created.map((entry) => entry.item)
+      const nextEditorItems = [...editorItems, ...pendingTemplateItems]
+      const itemsById = new Map(nextEditorItems.map((item) => [item.id, item]))
+
+      const nextRankingItems = [
+        ...ranking.items,
+        ...pendingTemplateItems.map((item, index) => ({
+          template_item_id: item.id,
+          tier_name: '',
+          order: maxOrder + 1 + index,
+        })),
+      ]
+
+      setEditorItems(nextEditorItems)
+      setInitialTiers(
+        ranking.tiers.map((tier) => ({
+          id: tier.id.startsWith('tier-') ? tier.id : `tier-${tier.id}`,
+          tier_list_id: '',
+          tier_name: tier.tier_name,
+          tier_order: tier.tier_order,
+          color: tier.color,
+          created_at: '',
+        }))
+      )
+      setInitialItems(
+        nextRankingItems.map((ranked) => ({
+          id: '',
+          tier_list_id: '',
+          template_item_id: ranked.template_item_id,
+          tier_name: ranked.tier_name,
+          order: ranked.order,
+          created_at: '',
+          template_item: itemsById.get(ranked.template_item_id)!,
+        }))
+      )
+      editorStateRef.current = {
+        tiers: ranking.tiers,
+        items: nextRankingItems,
+      }
+      setHasDraft(true)
+      setEditorKey((prev) => prev + 1)
+    },
+    [user, t, router, getCurrentRanking, template.id, editorItems]
+  )
+
   const handleSave = async (data: {
     tiers: Array<{ tier_name: string; tier_order: number; color: string | null }>
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
   }): Promise<void> => {
-    // Validate user is authenticated
     if (!user) {
       alert('You must be logged in to save a tier list. Please log in and try again.')
       router.push('/login')
       return
     }
 
+    const hasPending = data.items.some((item) =>
+      isPendingTemplateItemId(item.template_item_id)
+    )
+
+    if (hasPending && !isTemplateOwner && isEditMode) {
+      const ok = window.confirm(t('editor.forkLeavesEditWarning'))
+      if (!ok) return
+    }
+
     setSaving(true)
 
     try {
-      if (isEditMode && editTierList) {
+      const resolved = await resolveRankingWithPendingImages({
+        sourceTemplateId: template.id,
+        sourceTemplateName: template.name,
+        isOwner: isTemplateOwner,
+        rankingItems: data.items || [],
+        rankingTiers: data.tiers || [],
+        pendingFiles: pendingFilesRef.current,
+        uploadImage: (file) => imageServiceRef.current.uploadImage(file),
+      })
+
+      clearPendingLocalImages()
+
+      if (isEditMode && editTierList && !resolved.createdNewTemplate) {
         await tierListService.updateTierList(
           editTierList.id,
           {
             title,
             is_public: isPublic,
             tiers: data.tiers || [],
-            items: data.items || [],
+            items: resolved.items,
           },
           user.id
         )
+        clearDraft()
         router.push(`/tier-lists/${editTierList.id}`)
         return
       }
 
+      // Fork (não-owner com imagens novas) ou create normal: sempre cria lista nova
       const tierList = await tierListService.createTierList(
         {
-          template_id: template.id,
+          template_id: resolved.templateId,
           title,
           is_public: isPublic,
           tiers: data.tiers || [],
-          items: data.items || [],
+          items: resolved.items,
         },
-        user.id // Now guaranteed to exist
+        user.id
       )
 
-      // Limpar draft após salvamento bem-sucedido
       clearDraft()
-
       router.push(`/tier-lists/${tierList.id}`)
     } catch (error) {
       alert(`Failed to save tier list: ${error instanceof Error ? error.message : 'Unknown error'}`)
-      // Não limpar draft se salvamento falhar
     } finally {
       setSaving(false)
     }
@@ -411,10 +573,11 @@ export function TierListEditorClient({
   // Função para limpar rascunho e resetar estado para dados do template
   const handleClearDraft = useCallback(() => {
     clearDraft()
+    clearPendingLocalImages()
+    setEditorItems(template.items || [])
     setTitle(template.name || 'My Tier List')
     setIsPublic(false)
     
-    // Resetar tiers e items para dados do template (base de dados)
     if (template.tiers && Array.isArray(template.tiers) && template.tiers.length > 0) {
       setInitialTiers(template.tiers.map((tier) => ({
         id: `tier-${tier.id}`,
@@ -428,12 +591,10 @@ export function TierListEditorClient({
       setInitialTiers(undefined)
     }
     
-    // Items: undefined = TierListEditor inicializa todos como "unassigned"
     setInitialItems(undefined)
-    
-    // Incrementar editorKey para forçar remount do TierListEditor com valores iniciais
+    editorStateRef.current = null
     setEditorKey(prev => prev + 1)
-  }, [clearDraft, template.name, template.tiers])
+  }, [clearDraft, clearPendingLocalImages, template.name, template.tiers, template.items])
 
   // Mostrar loading enquanto verifica localStorage
   if (isLoadingDraft) {
@@ -494,7 +655,7 @@ export function TierListEditorClient({
 
         <TierListEditor
           key={editorKey} // Key estável: só muda quando handleClearDraft é chamado (força remount)
-          templateItems={template.items}
+          templateItems={editorItems}
           initialTiers={initialTiers}
           initialItems={initialItems}
           showItemNames={showItemNames}
@@ -503,6 +664,7 @@ export function TierListEditorClient({
           }}
           onChange={handleEditorChange}
           onSave={handleSave}
+          onAddImages={handleAddImages}
           actionButtons={
             <>
               {/* Botão público/privado */}
@@ -545,7 +707,8 @@ export function TierListEditorClient({
       </TooltipProvider>
       {saving && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background p-4 sm:p-6 rounded-lg mx-4">
+          <div className="bg-background p-4 sm:p-6 rounded-lg mx-4 flex flex-col items-center gap-3">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <p className="text-sm sm:text-base">{t('editor.savingTierList')}</p>
           </div>
         </div>

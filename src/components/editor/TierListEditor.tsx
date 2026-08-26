@@ -47,6 +47,8 @@ interface TierListEditorProps {
     items: Array<{ template_item_id: string; tier_name: string; order: number }>
   }) => void
   actionButtons?: ReactNode
+  onAddImages?: (files: FileList) => void
+  addingImages?: boolean
 }
 
 export function TierListEditor({
@@ -58,6 +60,8 @@ export function TierListEditor({
   onChange,
   onSave,
   actionButtons,
+  onAddImages,
+  addingImages = false,
 }: TierListEditorProps) {
   const { t } = useTranslation()
   // Estado de tiers: inicializado uma única vez no mount
@@ -851,6 +855,8 @@ export function TierListEditor({
           items={getUnassignedItems()} 
           showItemName={showItemNames}
           onShowItemNameChange={onShowItemNamesChange}
+          onAddImages={onAddImages}
+          addingImages={addingImages}
         />
 
         {/* Botão Salvar centralizado no final */}

@@ -11,6 +11,8 @@ Todas as rotas em `src/app/api/**`. Mutações sensíveis **não** devem ir dire
 | GET | `/api/templates` | Não | Listagem pública (search, category, sort, paginação) |
 | POST | `/api/templates/create` | Sim | Cria template |
 | POST | `/api/templates/clone` | Sim | Clone + cópia S3 |
+| POST | `/api/templates/fork-for-ranking` | Sim | Fork no save do editor (não-owner + imagens novas); retorna `itemIdMap` |
+| POST | `/api/templates/append-items` | Sim | Anexa itens a template próprio (owner) |
 | GET/POST | `/api/tierlists` | Conforme handler | Listagem/criação |
 | POST | `/api/tierlists/[id]/like` | Sim | Like |
 | PATCH | `/api/tierlists/[id]/public` | Sim | Público/privado |

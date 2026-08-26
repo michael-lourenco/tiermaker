@@ -9,7 +9,7 @@
 - **Capa**: proporção obrigatória 2560×1080 (qualquer resolução nessa razão); validação em `src/lib/utils/coverAspect.ts` nos forms create/edit
 - Types: `src/types/template.types.ts`
 - Service: `src/services/template.service.ts`
-- APIs: `POST /api/templates/create`, `POST /api/templates/clone`
+- APIs: `POST /api/templates/create`, `POST /api/templates/clone`, `POST /api/templates/fork-for-ranking`, `POST /api/templates/append-items`
 
 ### Tier list
 - Rankeamento sobre um template; tiers + items; pública/privada; likes

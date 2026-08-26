@@ -316,6 +316,44 @@ export class TemplateService {
   }
 
   /**
+   * Append items to an owned template (preserves existing item IDs).
+   */
+  async appendTemplateItems(
+    templateId: string,
+    newItems: Array<{ name: string; image_url: string }>,
+    userId: string
+  ): Promise<TemplateItem[]> {
+    if (!newItems.length) return []
+
+    const template = await this.getTemplateById(templateId, false)
+    if (!template) {
+      throw new Error('Template not found')
+    }
+    if (template.user_id !== userId) {
+      throw new Error('Forbidden')
+    }
+
+    const existingOrders = (template.items || []).map((item) => item.order)
+    const maxOrder = existingOrders.length > 0 ? Math.max(...existingOrders) : -1
+
+    const rows = newItems.map((item, index) => ({
+      template_id: templateId,
+      name: (item.name || 'Item').trim() || 'Item',
+      image_url: item.image_url.trim(),
+      order: maxOrder + 1 + index,
+    }))
+
+    const { data, error } = await this.supabase
+      .from('template_items')
+      .insert(rows as any)
+      .select()
+      .order('order', { ascending: true })
+
+    if (error) throw error
+    return (data || []) as TemplateItem[]
+  }
+
+  /**
    * Update template
    */
   async updateTemplate(

@@ -24,6 +24,13 @@ Ambos os editores de criação exigem login.
 ## Header do editor DOM
 Barra compacta: nome do template (link discreto + tooltip da descrição) e título da lista como input estilo heading — prioriza viewport para tiers/itens.
 
+## Adicionar imagens no editor DOM
+No bloco de não atribuídos, o usuário pode escolher imagens novas. Elas ficam **só no editor** (ids `pending-*`, preview local) até o **salvar**:
+- se o template é do usuário → `POST /api/templates/append-items` e depois create/update da tier list;
+- se não é → **um** `POST /api/templates/fork-for-ranking` e cria uma nova tier list no template copiado.
+
+Em modo edição (`/editor/edit/...`) com imagens novas em template alheio, confirma-se que a lista atual não será alterada (cria-se lista nova). Draft localStorage **não** persiste pending (blob).
+
 ## Regras ao alterar
 1. Manter checks apenas de **login**, nunca de plano.
 2. Não quebrar o contrato de `onSave` (tiers + items).

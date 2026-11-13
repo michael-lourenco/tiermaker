@@ -101,7 +101,6 @@
     "templates": "templates"
   },
   "template": {
-    "backToTemplates": "← Back to Templates",
     "createTierList": "Create Tier List with this Template",
     "category": "Category",
     "cloneTemplate": "Clone template",

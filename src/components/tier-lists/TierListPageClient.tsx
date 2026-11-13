@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { ShareButton } from '@/components/share/ShareButton'
+import { BackLink } from '@/components/navigation/BackLink'
 import { Heart, Plus } from 'lucide-react'
 import { TierListView } from './TierListView'
 import { useViewTracking } from '@/hooks/useViewTracking'
@@ -83,9 +84,7 @@ export function TierListPageClient({ tierList }: TierListPageClientProps) {
       <PageWithSidebar showRightSidebar={true}>
         <div className="mb-6 md:mb-8">
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <Link href="/templates">
-              <Button variant="ghost" size="sm">← {t('common.back')}</Button>
-            </Link>
+            <BackLink href="/templates">{t('nav.templates')}</BackLink>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Label htmlFor="show-item-names-view" className="text-sm cursor-pointer">

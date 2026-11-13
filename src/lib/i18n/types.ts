@@ -101,7 +101,6 @@ export interface Translations {
     templates: string
   }
   template: {
-    backToTemplates: string
     createTierList: string
     category: string
     cloneTemplate: string

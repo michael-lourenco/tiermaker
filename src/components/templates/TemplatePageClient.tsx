@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { ShareButton } from '@/components/share/ShareButton'
 import { TemplateItemCard } from './TemplateItemCard'
+import { BackLink } from '@/components/navigation/BackLink'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useViewTracking } from '@/hooks/useViewTracking'
 import { useUserPreferences } from '@/hooks/useUserPreferences'
@@ -33,10 +34,8 @@ export function TemplatePageClient({ template }: TemplatePageClientProps) {
     <main className="min-h-screen p-4 sm:p-6 md:p-8">
       <PageWithSidebar showRightSidebar={true}>
         <div className="mb-6 md:mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <Link href="/templates">
-              <Button variant="ghost" size="sm">{t('template.backToTemplates')}</Button>
-            </Link>
+          <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+            <BackLink href="/templates">{t('nav.templates')}</BackLink>
             <ShareButton type="template" data={template} />
           </div>
         </div>
